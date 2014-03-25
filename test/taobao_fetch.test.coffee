@@ -2,17 +2,34 @@ taobao = require './taobao_fetch.js'
 assert = require('chai').assert
 
 describe 'taobao_fetch', () ->
-    describe.skip '#requestHtmlContent()', () ->
-        it 'should return html content correctly', (done) ->
-            taobao.requestHtmlContent 'http://www.baidu.com', (err, result) ->
-                if err
-                    throw err
-                else
-                    assert.isTrue result.indexOf('百度一下，你就知道') isnt -1
-                    done()
-    describe '#extractItemsFromContent()', () ->
-        it 'should return a list of items', (done) ->
-            taobao.extractItemsFromContent """
+  describe.skip '#requestHtmlContent()', () ->
+    it 'should return html content correctly', (done) ->
+      taobao.requestHtmlContent 'http://www.baidu.com', (err, result) ->
+        if err
+          throw err
+        else
+          assert.isTrue result.indexOf('百度一下，你就知道') isnt -1
+          done()
+  describe '#extractItemsFromContent()', () ->
+    it 'should return a list of items', (done) ->
+      taobao.extractItemsFromContent html_contains_two_items, (err, items) ->
+        if err
+          throw err
+        else
+          assert.deepEqual items, [{
+            goodsName: 'apple 最新OS系统 U盘安装'
+            defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
+            price: '65.00'
+            goodHttp: 'http://item.taobao.com/item.htm?id=37498952035'
+          }, {
+            goodsName: 'zara 男士休闲皮衣 专柜正品'
+            defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i1/T1.cFWFuRaXXb0JV6a_240x240.jpg'
+            price: '299.00'
+            goodHttp: 'http://item.taobao.com/item.htm?id=37178066336'
+          }]
+        done()
+
+html_contains_two_items = """
 <dl class="item " data-id="37498952035">
   <dt class="photo">
     <a href="http://item.taobao.com/item.htm?id=37498952035" target="_blank">
@@ -58,19 +75,4 @@ describe 'taobao_fetch', () ->
     <p class="rate J_TRate"></p>
   </dd>
 </dl>
-""", (err, items) ->
-                    if err
-                        throw err
-                    else
-                        assert.deepEqual items, [{
-                                goodsName: 'apple 最新OS系统 U盘安装'
-                                defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
-                                price: '65.00'
-                                goodHttp: 'http://item.taobao.com/item.htm?id=37498952035'
-                            }, {
-                                goodsName: 'zara 男士休闲皮衣 专柜正品'
-                                defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i1/T1.cFWFuRaXXb0JV6a_240x240.jpg'
-                                price: '299.00'
-                                goodHttp: 'http://item.taobao.com/item.htm?id=37178066336'
-                            }]
-                    done()
+"""
