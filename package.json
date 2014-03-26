@@ -13,6 +13,7 @@
   "license": "GPL v3",
   "devDependencies": {
     "chai": "~1.9.1",
-    "jsdom": "^0.10.3"
+    "jsdom": "^0.10.3",
+    "mysql": "~2.1.1"
   }
 }
