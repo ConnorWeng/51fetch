@@ -2,7 +2,7 @@ taobao = require './taobao_fetch.js'
 assert = require('chai').assert
 
 describe 'taobao_fetch', () ->
-  describe.skip '#requestHtmlContent()', () ->
+  describe '#requestHtmlContent()', () ->
     it 'should return html content correctly', (done) ->
       taobao.requestHtmlContent 'http://www.baidu.com', (err, result) ->
         if err
@@ -12,6 +12,7 @@ describe 'taobao_fetch', () ->
           done()
   describe '#extractItemsFromContent()', () ->
     it 'should return a list of items', (done) ->
+      this.timeout 0
       taobao.extractItemsFromContent html_contains_two_items, (err, items) ->
         if err
           throw err
@@ -27,6 +28,15 @@ describe 'taobao_fetch', () ->
             price: '299.00'
             goodHttp: 'http://item.taobao.com/item.htm?id=37178066336'
           }]
+        done()
+  describe '#nextPage()', () ->
+    it 'should return url when has next page', (done) ->
+      taobao.nextPage html_contains_next_page, (err, url) ->
+        assert.isNotNull url
+        done()
+    it 'should return null when no next page', () ->
+      taobao.nextPage html_contains_no_next_page, (err, url) ->
+        assert.isNull url
         done()
 
 html_contains_two_items = """
@@ -75,4 +85,56 @@ html_contains_two_items = """
     <p class="rate J_TRate"></p>
   </dd>
 </dl>
+"""
+
+html_contains_next_page = """
+<div class="pagination">
+  <a class="disable">上一页</a>
+  <a class="page-cur">1</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.1.w4010-932671178.4.iklfDd&amp;orderType=newOn_desc&pageNo=2#anchor">2</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.1.w4010-932671178.4.iklfDd&amp;orderType=newOn_desc&pageNo=3#anchor">3</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.1.w4010-932671178.4.iklfDd&amp;orderType=newOn_desc&pageNo=4#anchor">4</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.1.w4010-932671178.4.iklfDd&amp;orderType=newOn_desc&pageNo=5#anchor">5</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.1.w4010-932671178.4.iklfDd&amp;orderType=newOn_desc&pageNo=6#anchor">6</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.1.w4010-932671178.4.iklfDd&amp;orderType=newOn_desc&pageNo=7#anchor">7</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.1.w4010-932671178.4.iklfDd&amp;orderType=newOn_desc&pageNo=8#anchor">8</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.1.w4010-932671178.4.iklfDd&amp;orderType=newOn_desc&pageNo=9#anchor">9</a>
+  <span class="break">...</span>
+  <a class="J_SearchAsync next" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.1.w4010-932671178.4.iklfDd&amp;orderType=newOn_desc&pageNo=2#anchor">下一页</a>
+  <form action="http://22242.taobao.com/search.htm" method="get">
+    <input type="hidden" name="mid" value="w-932662238-0">
+    <input type="hidden" name="search" value="y">
+    <input type="hidden" name="spm" value="a1z10.1.w4010-932671178.4.iklfDd">
+    <input type="hidden" name="orderType" value="newOn_desc">
+    到第 <input type="text" value="1" size="3" name="pageNo"> 页
+    <button type="submit">确定</button>
+  </form>
+  <!--END OF  pagination-->
+</div>
+"""
+
+html_contains_no_next_page = """
+<div class="pagination">
+  <a class="J_SearchAsync prev" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.3.w4002-932662238.107.HSEgVj&amp;orderType=newOn_desc&pageNo=12#anchor">上一页</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.3.w4002-932662238.107.HSEgVj&amp;orderType=newOn_desc&pageNo=1#anchor">1</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.3.w4002-932662238.107.HSEgVj&amp;orderType=newOn_desc&pageNo=2#anchor">2</a>
+  <span class="break">...</span>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.3.w4002-932662238.107.HSEgVj&amp;orderType=newOn_desc&pageNo=7#anchor">7</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.3.w4002-932662238.107.HSEgVj&amp;orderType=newOn_desc&pageNo=8#anchor">8</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.3.w4002-932662238.107.HSEgVj&amp;orderType=newOn_desc&pageNo=9#anchor">9</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.3.w4002-932662238.107.HSEgVj&amp;orderType=newOn_desc&pageNo=10#anchor">10</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.3.w4002-932662238.107.HSEgVj&amp;orderType=newOn_desc&pageNo=11#anchor">11</a>
+  <a class="J_SearchAsync" href="http://22242.taobao.com/search.htm?mid=w-932662238-0&amp;search=y&amp;spm=a1z10.3.w4002-932662238.107.HSEgVj&amp;orderType=newOn_desc&pageNo=12#anchor">12</a>
+  <a class="page-cur">13</a>
+  <a class="disable">下一页</a>
+  <form action="http://22242.taobao.com/search.htm" method="get">
+    <input type="hidden" name="mid" value="w-932662238-0">
+    <input type="hidden" name="search" value="y">
+    <input type="hidden" name="spm" value="a1z10.3.w4002-932662238.107.HSEgVj">
+    <input type="hidden" name="orderType" value="newOn_desc">
+    到第 <input type="text" value="13" size="3" name="pageNo"> 页
+    <button type="submit">确定</button>
+  </form>
+  <!--END OF  pagination-->
+</div>
 """

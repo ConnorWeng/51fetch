@@ -21,3 +21,12 @@ exports.extractItemsFromContent = (content, callback) ->
         price: $item.find('.c-price').text().trim()
         goodHttp: $item.find('a.item-name').attr('href')
     callback err, items
+
+exports.nextPage = (content, callback) ->
+  jsdom.env content, ['http://libs.baidu.com/jquery/1.7.2/jquery.min.js'], (err, window) ->
+    $ = window.$
+    $nextLink = $('a.J_SearchAsync.next')
+    if $nextLink.length > 0
+      callback null, $nextLink.attr('href')
+    else
+      callback null, null
