@@ -1,11 +1,12 @@
 http = require 'http'
 jsdom = require 'jsdom'
+iconv = require 'iconv-lite'
 
 exports.requestHtmlContent = (url, callback) ->
   result = ''
   http.get url, (res) ->
     res.on 'data', (chunk) ->
-      result += chunk
+      result += iconv.decode chunk, 'GBK'
     res.on 'end', () ->
       callback null, result
 

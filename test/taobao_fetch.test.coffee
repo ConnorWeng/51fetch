@@ -4,11 +4,11 @@ assert = require('chai').assert
 describe 'taobao_fetch', () ->
   describe '#requestHtmlContent()', () ->
     it 'should return html content correctly', (done) ->
-      taobao.requestHtmlContent 'http://www.baidu.com', (err, result) ->
+      taobao.requestHtmlContent 'http://shop109132076.taobao.com/search.htm?spm=a1z10.3.0.0.dgCTRH&search=y&orderType=newOn_desc', (err, result) ->
         if err
           throw err
         else
-          assert.isTrue result.indexOf('百度一下，你就知道') isnt -1
+          assert.isTrue result.indexOf('共搜索到') isnt -1
           done()
   describe '#extractItemsFromContent()', () ->
     it 'should return a list of items', (done) ->
