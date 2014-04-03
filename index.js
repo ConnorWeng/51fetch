@@ -1,3 +1,4 @@
-var fetch = require('./lib/fetch.js');
+var taobao_fetch = require('./lib/taobao_fetch.js'),
+    taobao = new taobao_fetch();
 
-fetch.allStores();
+taobao.fetchAllStores();

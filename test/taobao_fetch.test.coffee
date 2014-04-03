@@ -1,5 +1,8 @@
-taobao = require './taobao_fetch.js'
+taobao_fetch = require './taobao_fetch.js'
+taobao = new taobao_fetch()
 assert = require('chai').assert
+
+console.log taobao.requestHtmlContent
 
 describe 'taobao_fetch', () ->
   describe '#requestHtmlContent()', () ->
