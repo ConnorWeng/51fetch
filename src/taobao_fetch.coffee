@@ -8,7 +8,9 @@ class taobao_fetch
     @db = new db()
 
   fetchStore: (store) ->
-    @fetchUrl store['shop_http'], store['store_name']
+    shopUrl = store['shop_http'] + "/search.htm?search=y&orderType=newOn_desc"
+    console.log store['store_name'] + ":" + shopUrl
+    @fetchUrl shopUrl, store['store_name']
 
   fetchUrl: (url, storeName) ->
     @requestHtmlContent url, (err, content) =>
@@ -16,7 +18,7 @@ class taobao_fetch
         @extractItemsFromContent content, (err, items) =>
           if not err then @db.saveItems(storeName, items)
         @nextPage content, (err, url) =>
-          if not err and url isnt null then @fetchUrl url
+          if not err and url isnt null then @fetchUrl url, storeName
 
   fetchAllStores: () ->
     @db.getStores 'true limit 2', (err, stores) =>
