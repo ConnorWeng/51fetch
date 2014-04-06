@@ -18,7 +18,7 @@ class db
   saveItems: (storeId, storeName, items) ->
     sql = @makeSaveItemSql storeId, storeName, items
     @pool.query sql, (err, result) ->
-      if err then throw err else console.log "#{storeName} is fetched one page."
+      if err then throw err else console.log "id:#{storeId} #{storeName} is fetched one page."
 
   makeSaveItemSql: (storeId, storeName, items) ->
     sql = ''

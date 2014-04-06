@@ -9,7 +9,7 @@ class taobao_fetch
 
   fetchStore: (store) ->
     shopUrl = store['shop_http'] + "/search.htm?search=y&orderType=newOn_desc"
-    console.log store['store_name'] + ":" + shopUrl
+    console.log "id:#{store['store_id']} #{store['store_name']}: #{shopUrl}"
     @fetchUrl shopUrl, store['store_id'], store['store_name']
 
   fetchUrl: (url, storeId, storeName) ->
@@ -21,7 +21,7 @@ class taobao_fetch
           if not err and url isnt null then @fetchUrl url, storeId, storeName
 
   fetchAllStores: () ->
-    @db.getStores 'true limit 2', (err, stores) =>
+    @db.getStores '1 order by store_id', (err, stores) =>
       console.log "the amount of all stores are #{stores.length}"
       @fetchStore store for store in stores
 
