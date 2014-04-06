@@ -12,17 +12,13 @@ class db
     @pool = mysql.createPool config
 
   getStores: (condition, callback) ->
-    @pool.getConnection (err, connection) ->
-      connection.query "select * from ecm_store where #{condition}", (err, result) ->
-        connection.release()
-        callback err, result
+    @pool.query "select * from ecm_store where #{condition}", (err, result) ->
+      callback err, result
 
   saveItems: (storeId, storeName, items) ->
     sql = @makeSaveItemSql storeId, storeName, items
-    @pool.getConnection (err, connection) ->
-      connection.query sql, (err, result) ->
-        connection.release()
-        if err then throw err else console.log "#{storeName} is fetched one page."
+    @pool.query sql, (err, result) ->
+      if err then throw err else console.log "#{storeName} is fetched one page."
 
   makeSaveItemSql: (storeId, storeName, items) ->
     sql = ''
