@@ -32,6 +32,6 @@ class db
   getDateTime: () ->
     date = new Date()
     dateTime = parseInt(date.getTime() / 1000)
-    ''
+    ''                          # TODO: return current datetime
 
 module.exports = db
