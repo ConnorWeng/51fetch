@@ -35,7 +35,7 @@ describe 'taobao_fetch', () ->
       taobao.nextPage html_contains_next_page, (err, url) ->
         assert.isNotNull url
         done()
-    it 'should return null when no next page', () ->
+    it 'should return null when no next page', (done) ->
       taobao.nextPage html_contains_no_next_page, (err, url) ->
         assert.isNull url
         done()
