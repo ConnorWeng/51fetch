@@ -1,20 +1,22 @@
-db = require './database.js'
+database = require './database.js'
 assert = require('chai').assert
 
 describe 'database', () ->
+  db = new database()
+  db.getDateTime = () -> ''
   describe '#getStores()', () ->
     it 'should return store correctly', (done) ->
-      new db().getStores 'store_id = 1 limit 1', (err, stores) ->
+      db.getStores 'store_id = 1 limit 1', (err, stores) ->
         assert.equal stores[0].store_id, '1'
         done()
   # describe '#saveItems()', () ->
   #   it 'should save items correctly', (done) ->
-  #     new db().saveItems 1,2,3, (err, result) ->
+  #     db.saveItems 1,2,3, (err, result) ->
   #       console.log result
   #       done()
   describe '#makeSaveItemSql()', () ->
     it 'should make sql correctly', () ->
-      sql = new db().makeSaveItemSql 'anyStoreId', 'anyStoreName', [{
+      sql = db.makeSaveItemSql 'anyStoreId', 'anyStoreName', [{
             goodsName: 'apple 最新OS系统 U盘安装'
             defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
             price: '65.00'
