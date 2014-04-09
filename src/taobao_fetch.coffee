@@ -23,7 +23,8 @@ class taobao_fetch
     @pool.acquire (err, store) =>
       shopUrl = store['shop_http'] + "/search.htm?search=y&orderType=newOn_desc"
       console.log "id:#{store['store_id']} #{store['store_name']}: #{shopUrl}"
-      @fetchUrl shopUrl, store
+      @fetchCategoriesUrl shopUrl, (err, urls) =>
+        @fetchUrl url, store for url in urls
 
   fetchCategoriesUrl: (shopUrl, callback) =>
     @requestHtmlContent shopUrl, (err, content) =>

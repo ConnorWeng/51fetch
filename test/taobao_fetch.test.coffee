@@ -10,7 +10,7 @@ describe 'taobao_fetch', () ->
       taobao.fetchCategoriesUrl 'http://kustar.taobao.com/', (err, urls) ->
         assert.deepEqual urls, ['http://kustar.taobao.com/category-481678449.htm?search=y&catName=%B3%E4%D6%B5','http://kustar.taobao.com/category-481710447.htm?search=y&parentCatId=481678449&parentCatName=%B3%E4%D6%B5&catName=QQ%B1%D2','http://kustar.taobao.com/category-858007766.htm?search=y&parentCatId=481678449&parentCatName=%B3%E4%D6%B5&catName=%D6%D0%B9%FA%D2%C6%B6%AF','http://kustar.taobao.com/category-858009951.htm?search=y&catName=%D4%AD%B5%A5%CD%E2%C3%B3','http://kustar.taobao.com/category-869527593.htm?search=y&catName=OS+%CF%B5%CD%B3']
         done()
-  describe.skip '#fetchStore()', () ->
+  describe '#fetchStore()', () ->
     it 'should fetch all categories of the store', () ->
       urls = []
       taobao.fetchUrl = (url, store) ->
@@ -18,6 +18,8 @@ describe 'taobao_fetch', () ->
       taobao.pool =
         acquire: (callback) ->
           callback null,
+            store_id: 'anyId'
+            store_name: 'anyStore'
             shop_http: 'http://taobao.com/shop'
       taobao.fetchCategoriesUrl = (shopUrl, callback) ->
         callback null, ['http://taobao.com/shop/category-1.html', 'http://taobao.com/shop/category-2.html']
