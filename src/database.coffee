@@ -15,19 +15,22 @@ class db
     @pool.query "select * from ecm_store where #{condition}", (err, result) ->
       callback err, result
 
-  saveItems: (storeId, storeName, items) ->
-    sql = @makeSaveItemSql storeId, storeName, items
-    @pool.query sql, (err, result) ->
+  saveItems: (storeId, storeName, items, url) ->
+    sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl url
+    @pool.query sql, (err, result) =>
       if err
         throw err
       else
-        console.log "id:#{storeId} #{storeName} is fetched one page."
+        console.log "id:#{storeId} #{storeName} is fetched one page: #{@getCidFromUrl url}."
 
-  makeSaveItemSql: (storeId, storeName, items) ->
+  makeSaveItemSql: (storeId, storeName, items, cid) ->
     sql = ''
     for item in items
-      sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.goodHttp}','#{@getDateTime()}','#{storeName}','#{item.goodsName}','',@o_retcode);"
+      sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.goodHttp}','#{cid}','#{storeName}','#{item.goodsName}','#{@getDateTime()}',@o_retcode);"
     sql
+
+  getCidFromUrl: (url) ->
+    url.match(/category-(\w+).htm/)[1]
 
   getDateTime: () ->
     date = new Date()

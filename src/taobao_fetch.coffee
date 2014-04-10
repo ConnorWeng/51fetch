@@ -10,10 +10,12 @@ class taobao_fetch
     @stores = []
     @pool = Pool
       name: 'fetch'
-      max: 10
+      max: 5
       create: (callback) =>
         if @stores.length > 0
-          callback null, @stores.shift()
+          store = @stores.shift()
+          store.fetchedCategoriesCount = 0
+          callback null, store
         else
           @pool.drain () =>
             @pool.destroyAllNow()
@@ -24,7 +26,10 @@ class taobao_fetch
       shopUrl = store['shop_http'] + "/search.htm?search=y&orderType=newOn_desc"
       console.log "id:#{store['store_id']} #{store['store_name']}: #{shopUrl}"
       @fetchCategoriesUrl shopUrl, (err, urls) =>
-        @fetchUrl url, store for url in urls
+        if not err and urls isnt null
+          @fetchUrl url, store, urls.length for url in urls
+        else
+          console.err "error in fetchCategoriesUrl of url: #{shopUrl}"
 
   fetchCategoriesUrl: (shopUrl, callback) =>
     @requestHtmlContent shopUrl, (err, content) =>
@@ -38,22 +43,24 @@ class taobao_fetch
           if urls.indexOf(url) is -1 and url.indexOf('category-') isnt -1 and url.indexOf('#bd') is -1 then urls.push url
         callback null, urls
 
-  fetchUrl: (url, store) ->
+  fetchUrl: (url, store, categoriesCount) ->
     @requestHtmlContent url, (err, content) =>
       if not err
         @extractItemsFromContent content, (err, items) =>
           if not err and items.length > 0
-            @db.saveItems store['store_id'], store['store_name'], items
+            @db.saveItems store['store_id'], store['store_name'], items, url
           else
-            @pool.release store
+            console.log "error in extractItemsFromContent of #{store['store_id']}"
         @nextPage content, (err, url) =>
           if not err and url isnt null
-            @fetchUrl url, store
+            @fetchUrl url, store, categoriesCount
           else
-            @pool.release store
+            store.fetchedCategoriesCount += 1
+            if store.fetchedCategoriesCount is categoriesCount
+              @pool.release store
 
   fetchAllStores: () ->
-    @db.getStores '1 order by store_id limit 10', (err, stores) =>
+    @db.getStores 'store_id > 10 order by store_id limit 10', (err, stores) =>
       console.log "the amount of all stores are #{stores.length}"
       @stores = stores
       @fetchStore() for store in stores
