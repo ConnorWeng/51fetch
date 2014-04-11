@@ -15,12 +15,13 @@ describe 'taobao_fetch', () ->
       urls = []
       taobao.fetchUrl = (url, store) ->
         urls.push url
+      taobao.stores = [{
+        store_id: 'anyId'
+        store_name: 'anyStore'
+        shop_http: 'http://taobao.com/shop'}]
       taobao.pool =
         acquire: (callback) ->
-          callback null,
-            store_id: 'anyId'
-            store_name: 'anyStore'
-            shop_http: 'http://taobao.com/shop'
+          callback null, 1
       taobao.fetchCategoriesUrl = (shopUrl, callback) ->
         callback null, ['http://taobao.com/shop/category-1.html', 'http://taobao.com/shop/category-2.html']
       taobao.fetchStore()

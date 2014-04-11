@@ -12,17 +12,12 @@ class taobao_fetch
       name: 'fetch'
       max: 5
       create: (callback) =>
-        if @stores.length > 0
-          store = @stores.shift()
-          store.fetchedCategoriesCount = 0
-          callback null, store
-        else
-          @pool.drain () =>
-            @pool.destroyAllNow()
-      destroy: (client) ->
+        callback null, 1
 
   fetchStore: () ->
-    @pool.acquire (err, store) =>
+    @pool.acquire (err, trival) =>
+      store = @stores.shift()
+      store.fetchedCategoriesCount = 0
       shopUrl = store['shop_http'] + "/search.htm?search=y&orderType=newOn_desc"
       console.log "id:#{store['store_id']} #{store['store_name']}: #{shopUrl}"
       @fetchCategoriesUrl shopUrl, (err, urls) =>
@@ -57,7 +52,7 @@ class taobao_fetch
           else
             store.fetchedCategoriesCount += 1
             if store.fetchedCategoriesCount is categoriesCount
-              @pool.release store
+              @pool.release()
 
   fetchAllStores: () ->
     @db.getStores 'store_id > 10 order by store_id limit 10', (err, stores) =>
