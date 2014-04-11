@@ -29,7 +29,7 @@ class taobao_fetch
         if not err and urls isnt null
           @fetchUrl url, store, urls.length for url in urls
         else
-          console.err "error in fetchCategoriesUrl of url: #{shopUrl}"
+          console.error "error in fetchCategoriesUrl of url: #{shopUrl}"
 
   fetchCategoriesUrl: (shopUrl, callback) =>
     @requestHtmlContent shopUrl, (err, content) =>
@@ -50,7 +50,7 @@ class taobao_fetch
           if not err and items.length > 0
             @db.saveItems store['store_id'], store['store_name'], items, url
           else
-            console.log "error in extractItemsFromContent of #{store['store_id']}"
+            console.error "error in extractItemsFromContent of #{store['store_id']}"
         @nextPage content, (err, url) =>
           if not err and url isnt null
             @fetchUrl url, store, categoriesCount
