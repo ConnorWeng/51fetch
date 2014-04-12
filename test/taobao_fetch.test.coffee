@@ -35,8 +35,26 @@ describe 'taobao_fetch', () ->
         if err
           throw err
         else
-          assert.isTrue result.indexOf('共搜索到') isnt -1
+          assert.include result, '共搜索到'
         done()
+    it.skip 'should not be banned after request 100 times', (done) ->
+      this.timeout 180000
+      requestTaobao = () ->
+        taobao.requestHtmlContent 'http://shop109132076.taobao.com/search.htm?spm=a1z10.3.0.0.dgCTRH&search=y&orderType=newOn_desc', (err, result) ->
+          if err
+            throw err
+          else
+            assert.include result, '共搜索到'
+          next()
+      count = 100
+      queue = []
+      while count > 0
+        count -= 1
+        queue.push requestTaobao
+      next = () ->
+        task = queue.shift()
+        if task then task() else done()
+      next()
 
   describe '#extractItemsFromContent()', () ->
     it 'should return a list of items', (done) ->
