@@ -24,9 +24,11 @@ class taobao_fetch
       console.log "id:#{store['store_id']} #{store['store_name']}: #{shopUrl}"
       @fetchCategoriesUrl shopUrl, (err, urls) =>
         if not err and urls isnt null
-          @fetchUrl url, store, urls.length for url in urls
+          clonedUrls = urls.slice 0
+          @fetchUrl url, store, clonedUrls for url in urls
         else
           console.error "error in fetchCategoriesUrl of url: #{shopUrl}"
+          @pool.release()
 
   fetchCategoriesUrl: (shopUrl, callback) =>
     @requestHtmlContent shopUrl, (err, content) =>
@@ -40,21 +42,28 @@ class taobao_fetch
           if urls.indexOf(url) is -1 and url.indexOf('category-') isnt -1 and url.indexOf('#bd') is -1 then urls.push url
         callback null, urls
 
-  fetchUrl: (url, store, categoriesCount) ->
+  fetchUrl: (url, store, urls) ->
     @requestHtmlContent url, (err, content) =>
       if not err
         @extractItemsFromContent content, (err, items) =>
           if not err and items.length > 0
             @db.saveItems store['store_id'], store['store_name'], items, url
           else
-            console.error "error in extractItemsFromContent of #{store['store_id']}"
-        @nextPage content, (err, url) =>
-          if not err and url isnt null
-            @fetchUrl url, store, categoriesCount
+            console.error "error in extractItemsFromContent of #{store['store_name']}"
+        @nextPage content, (err, pageUrl) =>
+          if not err and pageUrl isnt null
+            urls.push pageUrl
+            @fetchUrl pageUrl, store, urls
           else
-            store.fetchedCategoriesCount += 1
-            if store.fetchedCategoriesCount is categoriesCount
-              @pool.release()
+            console.error "error in nextPage of #{store['store_name']}"
+          @release urls, url
+      else
+        @release urls, url
+
+  release: (urls, url) ->
+    urlIndex = urls.indexOf url
+    if ~urlIndex then urls.splice urlIndex, 1
+    if urls.length is 0 then @pool.release()
 
   fetchAllStores: () ->
     @db.getStores 'store_id > 10 order by store_id limit 10', (err, stores) =>
