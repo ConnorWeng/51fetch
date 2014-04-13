@@ -78,7 +78,7 @@ class taobao_fetch
       res.on 'end', () ->
         callback null, result
     req.on 'error', (e) ->
-        console.error url + e
+      callback e, null
 
   extractItemsFromContent: (content, callback) ->
     if typeof content isnt 'string' or content is ''
