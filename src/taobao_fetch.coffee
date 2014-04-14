@@ -55,8 +55,9 @@ class taobao_fetch
         @extractItemsFromContent content, (err, items) =>
           if err
             return console.error "error in extractItemsFromContent of #{store['store_name']} " + err
-          if items.length > 0
-            @db.saveItems store['store_id'], store['store_name'], items, url
+          filteredItems = @filterItems items
+          if filteredItems.length > 0
+            @db.saveItems store['store_id'], store['store_name'], filteredItems, url
         @nextPage content, (err, pageUrl) =>
           if err
             @release urls, url
@@ -68,6 +69,12 @@ class taobao_fetch
       else
         console.error "error in fetchUrl: #{url} " + err
         @release urls, url
+
+  filterItems: (unfilteredItems) ->
+    items = item for item in unfilteredItems when not ~item.goodsName.indexOf('邮费') and
+      not ~item.goodsName.indexOf('运费') and
+      not ~item.goodsName.indexOf('淘宝网 - 淘！我喜欢') and
+      not ~item.goodsName.indexOf('订金专拍')
 
   release: (urls, url) ->
     urlIndex = urls.indexOf url

@@ -95,6 +95,22 @@ describe 'taobao_fetch', () ->
         assert.isNull url
         done()
 
+  describe '#filterItems()', () ->
+    it 'should return items without unused items', () ->
+      unfilteredItems = [{
+        goodsName: '邮费补拍专用'
+      }, {
+        goodsName: '运费加价专用'
+      }, {
+        goodsName: '淘宝网 - 淘！我喜欢'
+      }, {
+        goodsName: '订金专拍'
+      }, {
+        goodsName: '正常宝贝'
+      }]
+      items = taobao.filterItems unfilteredItems
+      assert.deepEqual items, [{goodsName: '正常宝贝'}]
+
 html_contains_two_items = """
 <dl class="item " data-id="37498952035">
   <dt class="photo">
