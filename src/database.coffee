@@ -37,4 +37,11 @@ class db
     dateTime = parseInt(date.getTime() / 1000)
     dateTime
 
+  end: () ->
+    @pool.end (err) ->
+      if err
+        console.error "error in db.end: " + err
+      else
+        console.log "database pool ended."
+
 module.exports = db

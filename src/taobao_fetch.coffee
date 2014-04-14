@@ -18,6 +18,7 @@ class taobao_fetch
       destroy: (client) =>
         @pool.drain () =>
           @pool.destroyAllNow()
+        @db.end()
 
   fetchStore: () ->
     @pool.acquire (err, trival) =>
