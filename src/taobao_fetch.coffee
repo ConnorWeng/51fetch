@@ -34,6 +34,22 @@ class taobao_fetch
           console.error "error in fetchCategoriesUrl of url: #{shopUrl} " + err
           @pool.release()
 
+  updateStoreCategories: (store, callback) ->
+    shopUrl = store['shop_http'] + "/search.htm?search=y&orderType=newOn_desc"
+    @requestHtmlContent shopUrl, (err, content) =>
+      if err or typeof content isnt 'string' or content is ''
+        return callback new Error('content cannot be handled by jsdom'), null
+      jsdom.env content, ['http://libs.baidu.com/jquery/1.7.2/jquery.min.js'], (err, window) =>
+        if err
+          return callback err, null
+        $ = window.$
+        @db.updateStoreCateContent store['store_id'], store['store_name'], $('ul.cats-tree').parent().html().trim().replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
+        urls = []
+        $('a.cat-name').each () ->
+          url = $(this).attr('href')
+          if urls.indexOf(url) is -1 and url.indexOf('category-') isnt -1 and url.indexOf('#bd') is -1 then urls.push url
+        callback null, urls
+
   fetchCategoriesUrl: (shopUrl, callback) =>
     @requestHtmlContent shopUrl, (err, content) =>
       if err or typeof content isnt 'string' or content is ''

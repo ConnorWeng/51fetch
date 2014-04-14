@@ -15,6 +15,12 @@ class db
     @pool.query "select * from ecm_store where #{condition}", (err, result) ->
       callback err, result
 
+  updateStoreCateContent: (storeId, storeName, cateContent) ->
+    @pool.query "update ecm_store set cate_content='#{cateContent}' where store_id = #{storeId}", (err, result) ->
+      if err
+        return console.error "error in updateStoreCateContent: #{storeId},#{cateContent} " + err
+      console.log "id:#{storeId} #{storeName} updated cate_content."
+
   saveItems: (storeId, storeName, items, url) ->
     sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl url
     @pool.query sql, (err, result) =>
