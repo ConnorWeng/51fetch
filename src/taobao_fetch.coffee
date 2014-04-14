@@ -24,14 +24,13 @@ class taobao_fetch
     @pool.acquire (err, trival) =>
       store = @stores.shift()
       store.fetchedCategoriesCount = 0
-      shopUrl = store['shop_http'] + "/search.htm?search=y&orderType=newOn_desc"
-      console.log "id:#{store['store_id']} #{store['store_name']}: #{shopUrl}"
-      @fetchCategoriesUrl shopUrl, (err, urls) =>
+      console.log "id:#{store['store_id']} #{store['store_name']}: #{store['shop_http']}"
+      @updateStoreCategories store, (err, urls) =>
         if not err and urls isnt null
           clonedUrls = urls.slice 0
           @fetchUrl url, store, clonedUrls for url in urls
         else
-          console.error "error in fetchCategoriesUrl of url: #{shopUrl} " + err
+          console.error "error in updateStoreCategories of store url: #{store['shop_http']} " + err
           @pool.release()
 
   updateStoreCategories: (store, callback) ->
@@ -49,21 +48,6 @@ class taobao_fetch
           url = $(this).attr('href')
           if urls.indexOf(url) is -1 and url.indexOf('category-') isnt -1 and url.indexOf('#bd') is -1 then urls.push url
         callback null, urls
-
-  fetchCategoriesUrl: (shopUrl, callback) =>
-    @requestHtmlContent shopUrl, (err, content) =>
-      if err or typeof content isnt 'string' or content is ''
-        return callback new Error('content cannot be handled by jsdom'), null
-      jsdom.env content, ['http://libs.baidu.com/jquery/1.7.2/jquery.min.js'], (err, window) ->
-        if err
-          callback err, null
-        else
-          $ = window.$
-          urls = []
-          $('a.cat-name').each () ->
-            url = $(this).attr('href')
-            if urls.indexOf(url) is -1 and url.indexOf('category-') isnt -1 and url.indexOf('#bd') is -1 then urls.push url
-          callback null, urls
 
   fetchUrl: (url, store, urls) ->
     @requestHtmlContent url, (err, content) =>
