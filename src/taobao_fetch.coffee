@@ -11,10 +11,13 @@ class taobao_fetch
     @stores = []
     @pool = Pool
       name: 'fetch'
-      max: 5
+      max: 1
+      log: true
       create: (callback) =>
         callback null, 1
-      destroy: (client) ->
+      destroy: (client) =>
+        @pool.drain () =>
+          @pool.destroyAllNow()
 
   fetchStore: () ->
     @pool.acquire (err, trival) =>
@@ -27,7 +30,7 @@ class taobao_fetch
           clonedUrls = urls.slice 0
           @fetchUrl url, store, clonedUrls for url in urls
         else
-          console.error "error in fetchCategoriesUrl of url: #{shopUrl}"
+          console.error "error in fetchCategoriesUrl of url: #{shopUrl} " + err
           @pool.release()
 
   fetchCategoriesUrl: (shopUrl, callback) =>
@@ -35,29 +38,34 @@ class taobao_fetch
       if err or typeof content isnt 'string' or content is ''
         return callback new Error('content cannot be handled by jsdom'), null
       jsdom.env content, ['http://libs.baidu.com/jquery/1.7.2/jquery.min.js'], (err, window) ->
-        $ = window.$
-        urls = []
-        $('a.cat-name').each () ->
-          url = $(this).attr('href')
-          if urls.indexOf(url) is -1 and url.indexOf('category-') isnt -1 and url.indexOf('#bd') is -1 then urls.push url
-        callback null, urls
+        if err
+          callback err, null
+        else
+          $ = window.$
+          urls = []
+          $('a.cat-name').each () ->
+            url = $(this).attr('href')
+            if urls.indexOf(url) is -1 and url.indexOf('category-') isnt -1 and url.indexOf('#bd') is -1 then urls.push url
+          callback null, urls
 
   fetchUrl: (url, store, urls) ->
     @requestHtmlContent url, (err, content) =>
       if not err
         @extractItemsFromContent content, (err, items) =>
-          if not err and items.length > 0
+          if err
+            return console.error "error in extractItemsFromContent of #{store['store_name']} " + err
+          if items.length > 0
             @db.saveItems store['store_id'], store['store_name'], items, url
-          else
-            console.error "error in extractItemsFromContent of #{store['store_name']}"
         @nextPage content, (err, pageUrl) =>
-          if not err and pageUrl isnt null
+          if err
+            @release urls, url
+            return console.error "error in nextPage of #{store['store_name']} " + err
+          if pageUrl isnt null
             urls.push pageUrl
             @fetchUrl pageUrl, store, urls
-          else
-            console.error "error in nextPage of #{store['store_name']}"
           @release urls, url
       else
+        console.error "error in fetchUrl: #{url} " + err
         @release urls, url
 
   release: (urls, url) ->
@@ -66,10 +74,13 @@ class taobao_fetch
     if urls.length is 0 then @pool.release()
 
   fetchAllStores: () ->
-    @db.getStores 'store_id > 10 order by store_id limit 10', (err, stores) =>
-      console.log "the amount of all stores are #{stores.length}"
-      @stores = stores
-      @fetchStore() for store in stores
+    @db.getStores 'store_id > 10 order by store_id limit 3', (err, stores) =>
+      if err
+        throw err
+      else
+        console.log "the amount of all stores are #{stores.length}"
+        @stores = stores
+        @fetchStore() for store in stores
 
   requestHtmlContent: (url, callback) ->
     urlObject = URL.parse url
@@ -93,26 +104,32 @@ class taobao_fetch
     if typeof content isnt 'string' or content is ''
       return callback new Error('content cannot be handled by jsdom'), null
     jsdom.env content, ['http://libs.baidu.com/jquery/1.7.2/jquery.min.js'], (err, window) ->
-      $ = window.$
-      items = []
-      $('dl.item').each () ->
-        $item = $(this)
-        items.push
-          goodsName: $item.find('a.item-name').text()
-          defaultImage: $item.find('img').attr('data-ks-lazyload')
-          price: $item.find('.c-price').text().trim()
-          goodHttp: $item.find('a.item-name').attr('href')
-      callback err, items
+      if err
+        callback err, null
+      else
+        $ = window.$
+        items = []
+        $('dl.item').each () ->
+          $item = $(this)
+          items.push
+            goodsName: $item.find('a.item-name').text()
+            defaultImage: $item.find('img').attr('data-ks-lazyload')
+            price: $item.find('.c-price').text().trim()
+            goodHttp: $item.find('a.item-name').attr('href')
+        callback null, items
 
   nextPage: (content, callback) ->
     if typeof content isnt 'string' or content is ''
       return callback new Error('content cannot be handled by jsdom'), null
     jsdom.env content, ['http://libs.baidu.com/jquery/1.7.2/jquery.min.js'], (err, window) ->
-      $ = window.$
-      $nextLink = $('a.J_SearchAsync.next')
-      if $nextLink.length > 0
-        callback null, $nextLink.attr('href')
+      if err
+        callback err, null
       else
-        callback null, null
+        $ = window.$
+        $nextLink = $('a.J_SearchAsync.next')
+        if $nextLink.length > 0
+          callback null, $nextLink.attr('href')
+        else
+          callback null, null
 
 module.exports = taobao_fetch

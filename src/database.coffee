@@ -19,7 +19,7 @@ class db
     sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl url
     @pool.query sql, (err, result) =>
       if err
-        throw err
+        console.error "error in saveItems: #{sql}"
       else
         console.log "id:#{storeId} #{storeName} is fetched one page: #{@getCidFromUrl url}."
 
