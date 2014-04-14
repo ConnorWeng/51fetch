@@ -68,22 +68,34 @@ describe 'taobao_fetch', () ->
   describe '#extractItemsFromContent()', () ->
     it 'should return a list of items', (done) ->
       this.timeout 0
-      taobao.extractItemsFromContent html_contains_two_items, (err, items) ->
+      store =
+        see_price: '减20'
+      taobao.extractItemsFromContent html_contains_two_items, store, (err, items) ->
         if err
           throw err
         else
           assert.deepEqual items, [{
             goodsName: 'apple 最新OS系统 U盘安装'
             defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
-            price: '65.00'
+            price: '45.00'
             goodHttp: 'http://item.taobao.com/item.htm?id=37498952035'
           }, {
             goodsName: 'zara 男士休闲皮衣 专柜正品'
             defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i1/T1.cFWFuRaXXb0JV6a_240x240.jpg'
-            price: '299.00'
+            price: '279.00'
             goodHttp: 'http://item.taobao.com/item.htm?id=37178066336'
           }]
         done()
+
+  describe '#parsePrice()', () ->
+    it 'should return 50', () ->
+      assert.equal taobao.parsePrice('100.00', '减半'), '50.00'
+    it 'should return 80', () ->
+      assert.equal taobao.parsePrice('100.00', '减20'), '80.00'
+    it 'should return 100', () ->
+      assert.equal taobao.parsePrice('100.00', '实价'), '100.00'
+    it 'should return 70', () ->
+      assert.equal taobao.parsePrice('100.00', '*0.7'), '70.00'
 
   describe '#nextPage()', () ->
     it 'should return url when has next page', (done) ->
