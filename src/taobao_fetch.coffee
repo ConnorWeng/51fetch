@@ -82,7 +82,7 @@ class taobao_fetch
     if urls.length is 0 then @pool.release()
 
   fetchAllStores: () ->
-    @db.getStores 'store_id > 10 order by store_id limit 3', (err, stores) =>
+    @db.getStores '1 order by store_id', (err, stores) =>
       if err
         throw err
       else
@@ -104,7 +104,10 @@ class taobao_fetch
       res.on 'data', (chunk) ->
         result += iconv.decode chunk, 'GBK'
       res.on 'end', () ->
-        callback null, result
+        if ~result.indexOf('共搜索到')
+          callback null, result
+        else
+          throw new Error('Mother Fuck! Banned by Taobao!')
     req.on 'error', (e) ->
       callback e, null
 
