@@ -42,12 +42,21 @@ class taobao_fetch
         if err
           return callback err, null
         $ = window.$
-        @db.updateStoreCateContent store['store_id'], store['store_name'], $('ul.cats-tree').parent().html().trim().replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
+        catsTreeHtml = @extractCatsTreeHtml $, store
+        @db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
         urls = []
         $('a.cat-name').each () ->
           url = $(this).attr('href')
           if urls.indexOf(url) is -1 and url.indexOf('category-') isnt -1 and url.indexOf('#bd') is -1 then urls.push url
         callback null, urls
+
+  extractCatsTreeHtml: ($, store) ->
+    catsTreeHtml = $('ul.cats-tree').parent().html()
+    if catsTreeHtml?
+      catsTreeHtml = catsTreeHtml.trim().replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
+    else
+      console.error "id:#{store['store_id']} #{store['store_name']}: catsTreeHtml is empty."
+      catsTreeHtml = ''
 
   fetchUrl: (url, store, urls) ->
     @requestHtmlContent url, (err, content) =>
