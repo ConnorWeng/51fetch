@@ -43,6 +43,7 @@ class taobao_fetch
           return callback err, null
         $ = window.$
         catsTreeHtml = @extractCatsTreeHtml $, store
+        if catsTreeHtml is '' then return callback new Error('catsTreeHtml is empty'), null
         @db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
         urls = []
         $('a.cat-name').each () ->
