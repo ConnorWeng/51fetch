@@ -1,6 +1,7 @@
 taobao_fetch = require './taobao_fetch.js'
 taobao = new taobao_fetch()
 assert = require('chai').assert
+jsdom = require 'jsdom'
 
 describe 'taobao_fetch', () ->
   beforeEach () ->
@@ -67,24 +68,21 @@ describe 'taobao_fetch', () ->
 
   describe '#extractItemsFromContent()', () ->
     it 'should return a list of items', (done) ->
-      this.timeout 0
-      store =
-        see_price: '减20'
-      taobao.extractItemsFromContent html_contains_two_items, store, (err, items) ->
-        if err
-          throw err
-        else
-          assert.deepEqual items, [{
-            goodsName: 'apple 最新OS系统 U盘安装'
-            defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
-            price: '45.00'
-            goodHttp: 'http://item.taobao.com/item.htm?id=37498952035'
-          }, {
-            goodsName: 'zara 男士休闲皮衣 专柜正品'
-            defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i1/T1.cFWFuRaXXb0JV6a_240x240.jpg'
-            price: '279.00'
-            goodHttp: 'http://item.taobao.com/item.htm?id=37178066336'
-          }]
+      jsdom.env html_contains_two_items, ['http://libs.baidu.com/jquery/1.7.2/jquery.min.js'], (err, window) ->
+        store =
+          see_price: '减20'
+        items = taobao.extractItemsFromContent window.$, store
+        assert.deepEqual items, [{
+          goodsName: 'apple 最新OS系统 U盘安装'
+          defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
+          price: '45.00'
+          goodHttp: 'http://item.taobao.com/item.htm?id=37498952035'
+        }, {
+          goodsName: 'zara 男士休闲皮衣 专柜正品'
+          defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i1/T1.cFWFuRaXXb0JV6a_240x240.jpg'
+          price: '279.00'
+          goodHttp: 'http://item.taobao.com/item.htm?id=37178066336'
+        }]
         done()
 
   describe '#parsePrice()', () ->
@@ -99,11 +97,13 @@ describe 'taobao_fetch', () ->
 
   describe '#nextPage()', () ->
     it 'should return url when has next page', (done) ->
-      taobao.nextPage html_contains_next_page, (err, url) ->
+      jsdom.env html_contains_next_page, ['http://libs.baidu.com/jquery/1.7.2/jquery.min.js'], (err, window) ->
+        url = taobao.nextPage window.$
         assert.isNotNull url
         done()
     it 'should return null when no next page', (done) ->
-      taobao.nextPage html_contains_no_next_page, (err, url) ->
+      jsdom.env html_contains_no_next_page, ['http://libs.baidu.com/jquery/1.7.2/jquery.min.js'], (err, window) ->
+        url = taobao.nextPage window.$
         assert.isNull url
         done()
 
