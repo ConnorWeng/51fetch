@@ -20,17 +20,28 @@ class taobao_crawler
 
   fetchStore: (store) ->
     shopUri = @makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
-    @updateStoreCateContent shopUri, store
-    @crawler.queue shopUri
+    @updateStoreCateContent shopUri, store, (err, categoryUris) =>
+      if err
+        return console.error err
+      @crawler.queue categoryUris
 
-  updateStoreCateContent: (shopUri, store) ->
+  updateStoreCateContent: (shopUri, store, callback) ->
     @crawler.queue [
       'uri': shopUri
       'forceUTF8': true
       'callback': (err, result, $) =>
+        if err
+          return callback err, null
         catsTreeHtml = @extractCatsTreeHtml $, store
         if catsTreeHtml isnt ''
           @db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
+          uris = []
+          $('a.cat-name').each (index, element) =>
+            uri = $(element).attr('href')
+            if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and ~uri.indexOf('#bd') then uris.push @makeUriWithStoreInfo uri, store
+          callback null, uris
+        else
+          callback new Error('catsTreeHtml is empty'), null
     ]
 
   extractCatsTreeHtml: ($, store) ->
@@ -42,6 +53,8 @@ class taobao_crawler
       catsTreeHtml = ''
 
   crawlerPage: (err, result, $) =>
+    if err
+      return console.error err
     store = @parseStoreFromUri result.uri
     items = @extractItemsFromContent $, store
     @db.saveItems store['store_id'], store['store_name'], items, result.uri
@@ -94,7 +107,7 @@ class taobao_crawler
       console.error "不支持该see_price: #{seePrice}"
       rawPrice
 
-  destroyDBPool: () ->
+  destroyDBPool: () =>
     @db.end()
 
 module.exports = taobao_crawler

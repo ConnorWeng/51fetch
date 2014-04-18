@@ -29,15 +29,17 @@ describe 'taobao_crawler', () ->
       taobao.fetchAllStores()
 
   describe '#fetchStore()', () ->
-    it 'should queue shopUrl', () ->
+    it 'should queue shopUrl', (done) ->
       store =
         store_id: 'fake_store_id'
         store_name: 'fake_store'
         shop_http: 'http://fake_store.com'
         see_price: 'fake_see_price'
-      taobao.crawler.queue = (uri) ->
-        if typeof uri is 'string'
-          assert.equal uri, "http://fake_store.com/search.htm?search=y&orderType=newOn_desc##fake_store##fake_store_id##fake_see_price"
+      taobao.updateStoreCateContent = (shopUri, store, callback) ->
+        callback null, ['http://fake_store.com/category-fake.html#bd']
+      taobao.crawler.queue = (uris) ->
+        assert.deepEqual uris, ['http://fake_store.com/category-fake.html#bd']
+        done()
       taobao.fetchStore store
 
   describe '#extractItemsFromContent()', () ->
