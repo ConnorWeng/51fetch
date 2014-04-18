@@ -1,4 +1,4 @@
-var taobao_fetch = require('./lib/taobao_fetch.js'),
-    taobao = new taobao_fetch();
+var taobao_crawler = require('./lib/taobao_crawler.js'),
+    taobao = new taobao_crawler();
 
 taobao.fetchAllStores();
