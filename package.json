@@ -16,6 +16,7 @@
     "jsdom": "^0.10.3",
     "mysql": "~2.1.1",
     "iconv-lite": "~0.2.11",
-    "generic-pool": "~2.0.4"
+    "generic-pool": "~2.0.4",
+    "crawler": "^0.2.5"
   }
 }
