@@ -19,10 +19,29 @@ class taobao_crawler
         @fetchStore store for store in stores
 
   fetchStore: (store) ->
-    shopUrl = @makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
-    @crawler.queue shopUrl
+    shopUri = @makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
+    @updateStoreCateContent shopUri, store
+    @crawler.queue shopUri
 
-  crawlerPage: (err, result, $) ->
+  updateStoreCateContent: (shopUri, store) ->
+    @crawler.queue [
+      'uri': shopUri
+      'forceUTF8': true
+      'callback': (err, result, $) =>
+        catsTreeHtml = @extractCatsTreeHtml $, store
+        if catsTreeHtml isnt ''
+          @db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
+    ]
+
+  extractCatsTreeHtml: ($, store) ->
+    catsTreeHtml = $('ul.cats-tree').parent().html()
+    if catsTreeHtml?
+      catsTreeHtml = catsTreeHtml.trim().replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
+    else
+      console.error "id:#{store['store_id']} #{store['store_name']}: catsTreeHtml is empty."
+      catsTreeHtml = ''
+
+  crawlerPage: (err, result, $) =>
     store = @parseStoreFromUri result.uri
     items = @extractItemsFromContent $, store
     @db.saveItems store['store_id'], store['store_name'], items, result.uri
@@ -54,7 +73,7 @@ class taobao_crawler
     uri + "###{store['store_name']}###{store['store_id']}###{store['see_price']}"
 
   parseStoreFromUri: (uri) ->
-    uriParts = result.uri.split '##'
+    uriParts = uri.split '##'
     store =
       'store_name': uriParts[1]
       'store_id': uriParts[2]

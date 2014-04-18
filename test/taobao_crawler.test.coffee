@@ -36,7 +36,8 @@ describe 'taobao_crawler', () ->
         shop_http: 'http://fake_store.com'
         see_price: 'fake_see_price'
       taobao.crawler.queue = (uri) ->
-        assert.equal uri, "http://fake_store.com/search.htm?search=y&orderType=newOn_desc##fake_store##fake_store_id##fake_see_price"
+        if typeof uri is 'string'
+          assert.equal uri, "http://fake_store.com/search.htm?search=y&orderType=newOn_desc##fake_store##fake_store_id##fake_see_price"
       taobao.fetchStore store
 
   describe '#extractItemsFromContent()', () ->
