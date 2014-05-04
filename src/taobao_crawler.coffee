@@ -8,6 +8,7 @@ class taobao_crawler
       'forceUTF8': true
       'callback': @crawlerPage
       'onDrain': @destroyDBPool
+      'maxConnections': 1
 
   fetchAllStores: () ->
     @db.getStores '1 order by store_id', (err, stores) =>

@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha lib/*.test.js"
+    "test": "mocha --reporter=spec lib/*.test.js"
   },
   "author": "Connor Weng",
   "license": "GPL v3",
