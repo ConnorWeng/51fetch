@@ -13,10 +13,9 @@ class taobao_crawler
     @db.getStores '1 order by store_id', (err, stores) =>
       if err
         throw err
-      else
-        console.log "the amount of all stores are #{stores.length}"
-        @stores = stores
-        @fetchStore store for store in stores
+      console.log "the amount of all stores are #{stores.length}"
+      @stores = stores
+      @fetchStore store for store in stores
 
   fetchStore: (store) ->
     shopUri = @makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
