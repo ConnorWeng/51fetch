@@ -14,7 +14,6 @@ class taobao_crawler
     @db.getStores '1 order by store_id', (err, stores) =>
       if err
         throw err
-      console.log "the amount of all stores are #{stores.length}"
       @stores = stores
       @fetchStore store for store in stores
 
