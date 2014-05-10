@@ -8,7 +8,7 @@ describe 'taobao_crawler', () ->
     taobao = new taobao_crawler()
 
   describe '#fetchAllStores()', () ->
-    it 'should call fetchStore() for every store', (done) ->
+    it 'should fetch all stores', (done) ->
       stores = [{
         store_id: 'fake_store_id_1'
         store_name: 'fake_store_1'
@@ -18,29 +18,27 @@ describe 'taobao_crawler', () ->
         store_name: 'fake_store_2'
         shop_http: 'http://fake_store_2.com'
       }]
-      fetchedStores = []
       taobao.db.getStores = (condition, callback) ->
         callback null, stores
-      taobao.fetchStore = (store) ->
-        fetchedStores.push store
-        if fetchedStores.length == stores.length
-          assert.deepEqual fetchedStores, stores
-          done()
+      taobao.fetchStore = () ->
+        assert.deepEqual taobao.stores, stores
+        done()
       taobao.fetchAllStores()
 
   describe '#fetchStore()', () ->
     it 'should queue shopUrl', (done) ->
-      store =
+      taobao.stores = [{
         store_id: 'fake_store_id'
         store_name: 'fake_store'
         shop_http: 'http://fake_store.com'
         see_price: 'fake_see_price'
+      }]
       taobao.updateStoreCateContent = (shopUri, store, callback) ->
         callback null, ['http://fake_store.com/category-fake.html#bd']
       taobao.crawler.queue = (uris) ->
         assert.deepEqual uris, ['http://fake_store.com/category-fake.html#bd']
         done()
-      taobao.fetchStore store
+      taobao.fetchStore()
 
   describe '#extractItemsFromContent()', () ->
     it 'should return filtered items', (done) ->

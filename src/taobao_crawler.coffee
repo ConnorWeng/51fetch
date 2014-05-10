@@ -4,6 +4,7 @@ db = require './database.js'
 class taobao_crawler
   constructor: () ->
     @db = new db()
+    @stores = []
     @crawler = new Crawler
       'forceUTF8': true
       'callback': @crawlerPage
@@ -15,14 +16,17 @@ class taobao_crawler
       if err
         throw err
       @stores = stores
-      @fetchStore store for store in stores
+      @fetchStore()
 
-  fetchStore: (store) ->
-    shopUri = @makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
-    @updateStoreCateContent shopUri, store, (err, categoryUris) =>
-      if err
-        return console.error err
-      @crawler.queue categoryUris
+  fetchStore: () =>
+    if @stores.length > 0
+      store = @stores.shift()
+      shopUri = @makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
+      @updateStoreCateContent shopUri, store, (err, categoryUris) =>
+        if err
+          return console.error err
+        @crawler.queue categoryUris
+      setTimeout @fetchStore, 10000
 
   updateStoreCateContent: (shopUri, store, callback) ->
     @crawler.queue [
