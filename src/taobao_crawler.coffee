@@ -5,10 +5,10 @@ class taobao_crawler
   constructor: () ->
     @db = new db()
     @stores = []
+    @waitingUris = 0
     @crawler = new Crawler
       'forceUTF8': true
       'callback': @crawlerPage
-      'onDrain': @destroyDBPool
       'maxConnections': 1
 
   fetchAllStores: () ->
@@ -20,13 +20,15 @@ class taobao_crawler
 
   fetchStore: () =>
     if @stores.length > 0
-      store = @stores.shift()
-      shopUri = @makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
-      @updateStoreCateContent shopUri, store, (err, categoryUris) =>
-        if err
-          return console.error err
-        @crawler.queue categoryUris
-      setTimeout @fetchStore, 10000
+      if @waitingUris is 0
+        store = @stores.shift()
+        shopUri = @makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
+        @updateStoreCateContent shopUri, store, (err, categoryUris) =>
+          if err
+            return console.error err
+          @waitingUris += categoryUris.length
+          @crawler.queue categoryUris
+      setTimeout @fetchStore, 5000
 
   updateStoreCateContent: (shopUri, store, callback) ->
     @crawler.queue [
@@ -56,6 +58,8 @@ class taobao_crawler
       catsTreeHtml = ''
 
   crawlerPage: (err, result, $) =>
+    console.log "waiting uri count - #{@waitingUris}"
+    @waitingUris -= 1
     if err
       return console.error err
     store = @parseStoreFromUri result.uri
@@ -83,6 +87,7 @@ class taobao_crawler
   queueNextPage: ($, store) ->
     $nextLink = $('a.J_SearchAsync.next')
     if $nextLink.length > 0
+      @waitingUris += 1
       @crawler.queue @makeUriWithStoreInfo $nextLink.attr('href'), store
 
   makeUriWithStoreInfo: (uri, store) ->
