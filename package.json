@@ -8,7 +8,7 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "mocha --reporter=spec -t 10000 lib/*.test.js"
+    "test": "node ./node_modules/mocha/bin/mocha --reporter=spec -t 10000 lib/*.test.js"
   },
   "author": "Connor Weng",
   "license": "GPL v3",
@@ -18,6 +18,7 @@
     "mysql": "~2.1.1",
     "iconv-lite": "~0.2.11",
     "generic-pool": "~2.0.4",
-    "crawler": "^0.2.5"
+    "crawler": "^0.2.5",
+    "mocha": "^1.18.2"
   }
 }
