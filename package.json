@@ -8,17 +8,20 @@
   },
   "scripts": {
     "start": "node index.js",
-    "test": "node ./node_modules/mocha/bin/mocha --reporter=spec -t 10000 lib/*.test.js"
+    "test": "node ./node_modules/mocha/bin/mocha --reporter=spec -t 100000 lib/*.test.js"
   },
   "author": "Connor Weng",
   "license": "GPL v3",
   "devDependencies": {
     "chai": "~1.9.1",
-    "jsdom": "^0.10.3",
     "mysql": "~2.1.1",
     "iconv-lite": "~0.2.11",
     "generic-pool": "~2.0.4",
     "crawler": "^0.2.5",
-    "mocha": "^1.18.2"
+    "mocha": "^1.18.2",
+    "sinon": "^1.9.1",
+    "async": "~0.8.0",
+    "jquery": "^2.1.1",
+    "jsdom": "^0.10.5"
   }
 }
