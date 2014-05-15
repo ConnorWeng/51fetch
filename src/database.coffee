@@ -36,7 +36,7 @@ class db
     sql
 
   getCidFromUrl: (url) ->
-    url.match(/category-(\w+).htm/)[1]
+    url.match(/category-(\w+)(-\w+)?.htm/)[1]
 
   getDateTime: () ->
     date = new Date()
