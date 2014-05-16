@@ -46,7 +46,10 @@ exports.crawlStore = (store, done) ->
       carwlDone = () ->
         count -= 1
         if count is 0 then callback null, null
-      crawlPage uri, carwlDone for uri in uris
+      if uris.length > 0
+        crawlPage uri, carwlDone for uri in uris
+      else
+        callback null, null
   ], (err, result) ->
     if err then console.error err
     done()
