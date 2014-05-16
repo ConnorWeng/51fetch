@@ -13,6 +13,9 @@ db = new database()
 exports.setDatabase = (newDb) ->
   db = newDb
 
+exports.setCrawler = (newCrawler) ->
+  c = newCrawler
+
 exports.getAllStores = (condition, callback) ->
   db.getStores condition, callback
 
