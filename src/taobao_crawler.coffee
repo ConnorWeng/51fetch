@@ -126,4 +126,15 @@ filterItems = (unfilteredItems) ->
   items = item for item in unfilteredItems when not ~item.goodsName.indexOf('邮费') and
     not ~item.goodsName.indexOf('运费') and
     not ~item.goodsName.indexOf('淘宝网 - 淘！我喜欢') and
-    not ~item.goodsName.indexOf('订金专拍')
+    not ~item.goodsName.indexOf('专拍') and
+    not ~item.goodsName.indexOf('数据包') and
+    not ~item.goodsName.indexOf('邮费') and
+    not ~item.goodsName.indexOf('手机套') and
+    not ~item.goodsName.indexOf('手机壳') and
+    not ~item.goodsName.indexOf('定金') and
+    not ~item.goodsName.indexOf('订金') and
+    not ~item.defaultImage.indexOf('http://img.taobao.com/newshop/nopicture.gif') and
+    not ~item.defaultImage.indexOf('http://img01.taobaocdn.com/bao/uploaded/_180x180.jpg') and
+    not ~item.defaultImage.indexOf('http://img01.taobaocdn.com/bao/uploaded/_240x240.jpg') and
+    not ~item.defaultImage.indexOf('http://img01.taobaocdn.com/bao/uploaded/_160x160.jpg') and
+    not item.price <= 0
