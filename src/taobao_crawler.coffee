@@ -133,6 +133,7 @@ filterItems = (unfilteredItems) ->
     not ~item.goodsName.indexOf('手机壳') and
     not ~item.goodsName.indexOf('定金') and
     not ~item.goodsName.indexOf('订金') and
+    not ~item.goodsName.indexOf('下架') and
     not ~item.defaultImage.indexOf('http://img.taobao.com/newshop/nopicture.gif') and
     not ~item.defaultImage.indexOf('http://img01.taobaocdn.com/bao/uploaded/_180x180.jpg') and
     not ~item.defaultImage.indexOf('http://img01.taobaocdn.com/bao/uploaded/_240x240.jpg') and
