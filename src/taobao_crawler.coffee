@@ -21,41 +21,51 @@ exports.getAllStores = (condition, callback) ->
 
 exports.crawlStore = (store, done) ->
   async.waterfall [
-    (callback) ->
-      c.queue [
-        'uri': makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
-        'forceUTF8': true
-        'callback': callback
-      ]
-    (result, callback) ->
-      env result.body, callback
-    (window, callback) ->
-      $ = jquery window
-      catsTreeHtml = extractCatsTreeHtml $, store
-      if catsTreeHtml isnt ''
-        db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
-        uris = []
-        $('a.cat-name').each (index, element) ->
-          uri = $(element).attr('href')
-          if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and ~uri.indexOf('#bd')
-            uris.push makeUriWithStoreInfo(uri, store)
-        window.close()
-        callback null, uris
-      else
-        window.close()
-        callback new Error('NoCategoryContent'), null
-    (uris, callback) ->
-      count = uris.length
-      carwlDone = () ->
-        count -= 1
-        if count is 0 then callback null, null
-      if uris.length > 0
-        crawlPage uri, carwlDone for uri in uris
-      else
-        callback null, null
+    queueStoreUri(store)
+    makeJsDom
+    updateCateContentAndFetchAllCateUris(store)
+    crawlFirstPageOfAllCates
   ], (err, result) ->
     if err then console.error err
     done()
+
+queueStoreUri = (store) ->
+  (callback) ->
+    c.queue [
+      'uri': makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
+      'forceUTF8': true
+      'callback': callback
+    ]
+
+makeJsDom = (result, callback) ->
+  env result.body, callback
+
+updateCateContentAndFetchAllCateUris = (store) ->
+  (window, callback) ->
+    $ = jquery window
+    catsTreeHtml = extractCatsTreeHtml $, store
+    if catsTreeHtml isnt ''
+      db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
+      uris = []
+      $('a.cat-name').each (index, element) ->
+        uri = $(element).attr('href')
+        if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and ~uri.indexOf('#bd')
+          uris.push makeUriWithStoreInfo(uri, store)
+      window.close()
+      callback null, uris
+    else
+      window.close()
+      callback new Error('NoCategoryContent'), null
+
+crawlFirstPageOfAllCates = (uris, callback) ->
+  count = uris.length
+  carwlDone = () ->
+    count -= 1
+    if count is 0 then callback null, null
+  if uris.length > 0
+    crawlPage uri, carwlDone for uri in uris
+  else
+    callback null, null
 
 crawlPage = (pageUri, done) ->
   async.waterfall [
