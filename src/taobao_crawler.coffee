@@ -69,24 +69,30 @@ crawlFirstPageOfAllCates = (uris, callback) ->
 
 crawlPage = (pageUri, done) ->
   async.waterfall [
-    (callback) ->
-      c.queue [
-        'uri': pageUri
-        'jQuery': false
-        'forceUTF8': true
-        'callback': callback
-      ]
-    (result, callback) ->
-      env result.body, (errors, window) ->
-        $ = jquery window
-        store = parseStoreFromUri result.uri
-        items = extractItemsFromContent $, store
-        db.saveItems store['store_id'], store['store_name'], items, result.uri
-        window.close()
-        callback null, null
+    queuePageUri(pageUri)
+    saveItemsFromPage
   ], (err, result) ->
     if err then console.error err
     done()
+
+queuePageUri = (pageUri) ->
+  (callback) ->
+    c.queue [
+      'uri': pageUri
+      'jQuery': false
+      'forceUTF8': true
+      'callback': callback
+    ]
+
+saveItemsFromPage = (result, callback) ->
+  env result.body, (errors, window) ->
+    $ = jquery window
+    store = parseStoreFromUri result.uri
+    items = extractItemsFromContent $, store
+    db.saveItems store['store_id'], store['store_name'], items, result.uri
+    window.close()
+    callback null, null
+
 
 extractCatsTreeHtml = ($, store) ->
   catsTreeHtml = $('ul.cats-tree').parent().html()
