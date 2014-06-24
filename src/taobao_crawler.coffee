@@ -93,7 +93,6 @@ saveItemsFromPage = (result, callback) ->
     window.close()
     callback null, null
 
-
 extractCatsTreeHtml = ($, store) ->
   catsTreeHtml = $('ul.cats-tree').parent().html()
   if catsTreeHtml?
