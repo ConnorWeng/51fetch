@@ -12,7 +12,6 @@ task 'watch', '', ->
 task 'build', '', ->
     compileCode config.source
     compileCode config.test
-    invoke 'test'
 
 watchCode = (dir) ->
     watchSrc = exec "coffee -o #{config.lib}/ -cw #{dir}/"
