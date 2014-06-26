@@ -59,11 +59,11 @@ updateCateContentAndFetchAllCateUris = (store) ->
 
 crawlFirstPageOfAllCates = (uris, callback) ->
   count = uris.length
-  carwlDone = () ->
+  crawlDone = () ->
     count -= 1
     if count is 0 then callback null, null
   if uris.length > 0
-    crawlPage uri, carwlDone for uri in uris
+    crawlPage uri, crawlDone for uri in uris
   else
     callback null, null
 
