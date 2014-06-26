@@ -15,6 +15,9 @@ class db
     @pool.query "select * from ecm_store where #{condition}", (err, result) ->
       callback err, result
 
+  updateItemDetail: (id, desc, skus) ->
+    []
+
   updateStoreCateContent: (storeId, storeName, cateContent) ->
     @pool.query "update ecm_store set cate_content='#{cateContent}' where store_id = #{storeId}", (err, result) ->
       if err

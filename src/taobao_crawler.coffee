@@ -19,6 +19,84 @@ exports.setCrawler = (newCrawler) ->
 exports.getAllStores = (condition, callback) ->
   db.getStores condition, callback
 
+exports.crawlItem = (itemUri, done) ->
+  async.waterfall [
+    queueItemUri itemUri
+    updateItemDetail itemUri
+  ], (err, result) ->
+    if err then console.error err
+    done()
+
+queueItemUri = (itemUri) ->
+  (callback) ->
+    c.queue [
+      'uri': itemUri
+      'jQuery': false
+      'forceUTF8': true
+      'callback': callback
+    ]
+
+updateItemDetail = (itemUri) ->
+  (result, callback) ->
+    body = result.body
+    desc = ''
+    skus = ''
+    async.waterfall [
+      fetchDescFrom body
+      (result, callback) ->
+        desc = result
+        callback null
+      fetchSkusFrom body
+      (result, callback) ->
+        skus = result
+        callback null
+      (callback) ->
+        console.log desc
+        console.log skus
+        db.updateItemDetail getNumIidFrom(itemUri), desc, skus
+        callback null
+    ], (err, result) ->
+      if err then console.error err
+      callback null
+
+getNumIidFrom = (uri) ->
+  pattern = /id=(\d+)+/i
+  matches = pattern.exec uri
+  matches[1]
+
+fetchDescFrom = (body) ->
+  (callback) ->
+    startIndex = body.indexOf 'http://dsc.taobaocdn.com'
+    endIndex = body.indexOf '")', startIndex + 1
+    length = endIndex - startIndex
+    descUri = body.substr startIndex, length
+    c.queue [
+      'uri': descUri
+      'jQuery': false
+      'forceUTF8': true
+      'callback': (err, result) ->
+        if err then callback err
+        eval result.body
+        callback null, desc
+    ]
+
+fetchSkusFrom = (body) ->
+  (callback) ->
+    sizeProperties = getSkuProperties(body, '<ul data-property="尺寸" class="J_TSaleProp tb-clearfix">')
+    colorProperties = getSkuProperties(body, '<ul data-property="颜色分类" class="J_TSaleProp tb-clearfix tb-img">')
+    skuProperties = [sizeProperties, colorProperties]
+    callback null, skuProperties
+
+getSkuProperties = (body, tag) ->
+  startIndex = body.indexOf tag
+  endIndex = body.indexOf '</ul>', startIndex
+  part = body.substring startIndex, endIndex + 5
+  pattern = /<span>(.+)<\/span>/ig
+  skuProperties = []
+  while (matches = pattern.exec part) isnt null
+    skuProperties.push matches[1]
+  skuProperties
+
 exports.crawlStore = (store, done) ->
   async.waterfall [
     queueStoreUri(store)
