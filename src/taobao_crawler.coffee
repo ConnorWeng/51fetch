@@ -51,9 +51,7 @@ updateItemDetail = (itemUri) ->
         skus = result
         callback null
       (callback) ->
-        console.log desc
-        console.log skus
-        db.updateItemDetail getNumIidFrom(itemUri), desc, skus
+        db.updateItemDetail getNumIidFrom(itemUri), desc, skus, itemUri
         callback null
     ], (err, result) ->
       if err then console.error err
@@ -84,7 +82,10 @@ fetchSkusFrom = (body) ->
   (callback) ->
     sizeProperties = getSkuProperties(body, '<ul data-property="尺寸" class="J_TSaleProp tb-clearfix">')
     colorProperties = getSkuProperties(body, '<ul data-property="颜色分类" class="J_TSaleProp tb-clearfix tb-img">')
-    skuProperties = [sizeProperties, colorProperties]
+    skuProperties = []
+    for sizeProp in sizeProperties
+      for colorProp in colorProperties
+        skuProperties.push [sizeProp, colorProp]
     callback null, skuProperties
 
 getSkuProperties = (body, tag) ->

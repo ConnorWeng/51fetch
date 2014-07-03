@@ -15,8 +15,14 @@ class db
     @pool.query "select * from ecm_store where #{condition}", (err, result) ->
       callback err, result
 
-  updateItemDetail: (id, desc, skus) ->
-    []
+  updateItemDetail: (id, desc, skus, goodHttp) ->
+    @pool.query "select goods_id from ecm_goods where good_http = #{goodHttp}", (err, result) ->
+      if err
+        console.error "error in updateItemDetail: #{goodHttp}"
+      else
+        @pool.query "update ecm_goods set description = '#{desc}' where good_http = '#{goodHttp}'", (err, result) ->
+          if err
+            console.error "error in updateItemDetail: #{goodHttp}"
 
   updateStoreCateContent: (storeId, storeName, cateContent) ->
     @pool.query "update ecm_store set cate_content='#{cateContent}' where store_id = #{storeId}", (err, result) ->

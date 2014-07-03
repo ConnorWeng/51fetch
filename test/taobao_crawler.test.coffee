@@ -37,7 +37,7 @@ describe 'taobao_crawler', () ->
     it 'should crawl item details from given item uri', (done) ->
       taobao_crawler.setCrawler new crawler
       taobao_crawler.crawlItem 'http://item.taobao.com/item.htm?id=17829399091', () ->
-        assert.isTrue databaseStub.updateItemDetail.calledWith('17829399091', DESC, [['S', 'M', 'L', 'XL'], ['黑色']])
+        assert.isTrue databaseStub.updateItemDetail.calledWith('17829399091', DESC, [['S', '黑色'], ['M', '黑色'], ['L', '黑色'], ['XL', '黑色']], 'http://item.taobao.com/item.htm?id=17829399091')
         done()
 
 CATS_TREE_HTML = '''
