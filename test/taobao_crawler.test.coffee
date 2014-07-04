@@ -34,11 +34,18 @@ describe 'taobao_crawler', () ->
         assert.isTrue databaseStub.saveItems.calledWith('1', 'Aok自治区')
         done()
   describe '#crawlItem', () ->
-    it 'should crawl item details from given item uri', (done) ->
-      taobao_crawler.setCrawler new crawler
+    it 'should update item detail in database', (done) ->
+      db = new database
+        host: 'localhost'
+        user: 'root'
+        password: '57826502'
+        database: 'ecmall'
+        prot: 3306
+      taobao_crawler.setCrawler newCrawler
+      taobao_crawler.setDatabase db
       taobao_crawler.crawlItem 'http://item.taobao.com/item.htm?id=17829399091', () ->
-        assert.isTrue databaseStub.updateItemDetail.calledWith('17829399091', DESC, [['S', '黑色'], ['M', '黑色'], ['L', '黑色'], ['XL', '黑色']], 'http://item.taobao.com/item.htm?id=17829399091')
         done()
+      # taobao_crawler.updateItemDetailInDatabase DESC, [['黑色', 'S'], ['黑色', 'M'], ['黑色', 'L'], ['黑色', 'XL']], 'http://item.taobao.com/item.htm?id=17829399091', () ->
 
 CATS_TREE_HTML = '''
 <ul class="J_TCatsTree cats-tree J_TWidget">

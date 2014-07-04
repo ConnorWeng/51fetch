@@ -1,9 +1,12 @@
 database = require './database.js'
 assert = require('chai').assert
 
+db = null
+
 describe 'database', () ->
-  db = new database()
-  db.getDateTime = () -> ''
+  beforeEach () ->
+    db = new database()
+    db.getDateTime = () -> ''
 
   describe '#getStores()', () ->
     it 'should return store correctly', (done) ->

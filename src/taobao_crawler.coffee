@@ -51,16 +51,24 @@ updateItemDetail = (itemUri) ->
         skus = result
         callback null
       (callback) ->
-        db.updateItemDetail getNumIidFrom(itemUri), desc, skus, itemUri
-        callback null
+        updateItemDetailInDatabase desc, skus, itemUri, callback
     ], (err, result) ->
       if err then console.error err
       callback null
 
-getNumIidFrom = (uri) ->
-  pattern = /id=(\d+)+/i
-  matches = pattern.exec uri
-  matches[1]
+updateItemDetailInDatabase = (desc, skus, itemUri, callback) ->
+  goodsId = ''
+  async.waterfall [
+    (callback) ->
+      db.getGoodsId itemUri, callback
+    (goods_id, callback) ->
+      goodsId = goods_id
+      db.updateGoods desc, itemUri, callback
+    (result, callback) ->
+      db.updateSpecs skus, goodsId, callback
+  ], (err, result) ->
+    if err then console.error err
+    callback null
 
 fetchDescFrom = (body) ->
   (callback) ->
@@ -85,7 +93,7 @@ fetchSkusFrom = (body) ->
     skuProperties = []
     for sizeProp in sizeProperties
       for colorProp in colorProperties
-        skuProperties.push [sizeProp, colorProp]
+        skuProperties.push [colorProp, sizeProp]
     callback null, skuProperties
 
 getSkuProperties = (body, tag) ->
