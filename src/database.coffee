@@ -16,19 +16,18 @@ class db
     @pool.query "select * from ecm_store where #{condition}", (err, result) ->
       callback err, result
 
-  getGoodsId: (goodHttp, callback) ->
-    @pool.query "select goods_id from ecm_goods where good_http = '#{goodHttp}'", (err, result) ->
-      goodsId = result[0].goods_id
-      callback null, goodsId
+  getGood: (goodHttp, callback) ->
+    @pool.query "select * from ecm_goods where good_http = '#{goodHttp}'", (err, result) ->
+      callback null, result[0]
 
   updateGoods: (desc, goodHttp, callback) ->
     @pool.query "update ecm_goods set description = '#{desc}', spec_name_1 = '颜色', spec_name_2 = '尺码' where good_http = '#{goodHttp}'", (err, result) ->
       callback err, result
 
-  updateSpecs: (skus, goodsId, callback) ->
+  updateSpecs: (skus, goodsId, price, callback) ->
     insertSql = ''
     for sku in skus
-      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2) values ('#{goodsId}', '#{sku[0]}', '#{sku[1]}');"
+      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('#{goodsId}', '#{sku[0]}', '#{sku[1]}',#{price}, 1000);"
     @pool.query insertSql, callback
 
   updateStoreCateContent: (storeId, storeName, cateContent) ->

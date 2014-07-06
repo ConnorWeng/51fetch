@@ -58,14 +58,16 @@ updateItemDetail = (itemUri) ->
 
 updateItemDetailInDatabase = (desc, skus, itemUri, callback) ->
   goodsId = ''
+  price = ''
   async.waterfall [
     (callback) ->
-      db.getGoodsId itemUri, callback
-    (goods_id, callback) ->
-      goodsId = goods_id
+      db.getGood itemUri, callback
+    (good, callback) ->
+      goodsId = good.goods_id
+      price = good.price
       db.updateGoods desc, itemUri, callback
     (result, callback) ->
-      db.updateSpecs skus, goodsId, callback
+      db.updateSpecs skus, goodsId, price, callback
   ], (err, result) ->
     if err then console.error err
     callback null
