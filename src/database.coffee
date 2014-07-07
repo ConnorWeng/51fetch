@@ -16,12 +16,20 @@ class db
     @pool.query "select * from ecm_store where #{condition}", (err, result) ->
       callback err, result
 
+  getUnfetchedGoods: (callback) ->
+    @pool.query "select * from ecm_goods g where g.goods_id not in (select goods_id from ecm_goods_spec)", (err, result) ->
+      callback err, result
+
   getGood: (goodHttp, callback) ->
     @pool.query "select * from ecm_goods where good_http = '#{goodHttp}'", (err, result) ->
-      callback null, result[0]
+      if err
+        console.error "error in getGood: #{goodHttp}"
+      callback err, result[0]
 
   updateGoods: (desc, goodHttp, callback) ->
     @pool.query "update ecm_goods set description = '#{desc}', spec_name_1 = '颜色', spec_name_2 = '尺码' where good_http = '#{goodHttp}'", (err, result) ->
+      if err
+        console.error "error in update goods: #{goodHttp}"
       callback err, result
 
   updateSpecs: (skus, goodsId, price, callback) ->

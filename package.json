@@ -8,7 +8,8 @@
   },
   "scripts": {
     "start": "cake build && node index.js",
-    "test": "cake build && node ./node_modules/mocha/bin/mocha --reporter=spec -t 100000 lib/*.test.js"
+    "test": "cake build && node ./node_modules/mocha/bin/mocha --reporter=spec -t 100000 lib/*.test.js",
+    "items": "cake build && node crawlItem.js"
   },
   "author": "Connor Weng",
   "license": "GPL v3",

@@ -53,7 +53,10 @@ updateItemDetail = (itemUri) ->
       (callback) ->
         updateItemDetailInDatabase desc, skus, itemUri, callback
     ], (err, result) ->
-      if err then console.error err
+      if err
+        console.error err
+      else
+        console.log "updated item: #{itemUri}"
       callback null
 
 updateItemDetailInDatabase = (desc, skus, itemUri, callback) ->
