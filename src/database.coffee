@@ -17,7 +17,7 @@ class db
       callback err, result
 
   getUnfetchedGoods: (callback) ->
-    @pool.query "select * from ecm_goods g where g.goods_id not in (select goods_id from ecm_goods_spec)", (err, result) ->
+    @pool.query "select * from ecm_goods g where g.good_http is not null and g.goods_id not in (select goods_id from ecm_goods_spec)", (err, result) ->
       callback err, result
 
   getGood: (goodHttp, callback) ->
