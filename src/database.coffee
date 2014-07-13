@@ -27,7 +27,7 @@ class db
       callback err, result[0]
 
   updateGoods: (desc, goodHttp, callback) ->
-    @pool.query "update ecm_goods set description = '#{desc}', spec_name_1 = '颜色', spec_name_2 = '尺码' where good_http = '#{goodHttp}'", (err, result) ->
+    @pool.query "update ecm_goods set description = '#{desc}', spec_name_1 = '颜色', spec_name_2 = '尺码', spec_qty = 2 where good_http = '#{goodHttp}'", (err, result) ->
       if err
         console.error "error in update goods: #{goodHttp}"
       callback err, result
