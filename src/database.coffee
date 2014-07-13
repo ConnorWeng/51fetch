@@ -32,11 +32,20 @@ class db
         console.error "error in update goods: #{goodHttp}"
       callback err, result
 
+  updateDefaultSpec: (goodsId, specId, callback) ->
+    @pool.query "update ecm_goods set default_spec = #{specId} where goods_id = #{goodsId}", (err, result) ->
+      if err
+        console.error "error in update default spec, goodsId:#{goodsId}, specId:#{specId}"
+      callback err, result
+
   updateSpecs: (skus, goodsId, price, callback) ->
     insertSql = ''
     for sku in skus
       insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('#{goodsId}', '#{sku[0]}', '#{sku[1]}',#{price}, 1000);"
-    @pool.query insertSql, callback
+    @pool.query insertSql, (err, result) ->
+      if err
+        console.error "error in updateSpecs, goodsId:#{goodsId}"
+      callback err, result
 
   updateStoreCateContent: (storeId, storeName, cateContent) ->
     @pool.query "update ecm_store set cate_content='#{cateContent}' where store_id = #{storeId}", (err, result) ->

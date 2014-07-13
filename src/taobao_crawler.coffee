@@ -71,6 +71,11 @@ updateItemDetailInDatabase = (desc, skus, itemUri, callback) ->
       db.updateGoods desc, itemUri, callback
     (result, callback) ->
       db.updateSpecs skus, goodsId, price, callback
+    (result, callback) ->
+      if result.length > 0
+        db.updateDefaultSpec goodsId, result[0].insertId, callback
+      else
+        callback null
   ], (err, result) ->
     if err then console.error err
     callback null
