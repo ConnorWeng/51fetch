@@ -1,8 +1,10 @@
+http = require 'http'
 async = require 'async'
 env = require('jsdom').env
 jquery = require('jquery')
 crawler = require('crawler').Crawler
 database = require('./database')
+config = require './config'
 
 c = new crawler
   'forceUTF8': true
@@ -75,7 +77,10 @@ updateItemDetailInDatabase = (desc, skus, itemUri, callback) ->
       if result.length > 0
         db.updateDefaultSpec goodsId, result[0].insertId, callback
       else
-        callback null
+        callback new Error('updateSpecs\'s result is empty')
+    (result, callback) ->
+      http.get "#{config.remote_service_address}&goodid=#{goodsId}", (res) ->
+        if res.statusCode is 200 then callback null else callback new Error('remote update default image service error')
   ], (err, result) ->
     if err then console.error err
     callback null
@@ -98,7 +103,7 @@ fetchDescFrom = (body) ->
 
 fetchSkusFrom = (body) ->
   (callback) ->
-    sizeProperties = getSkuProperties(body, '<ul data-property="尺寸" class="J_TSaleProp tb-clearfix">')
+    sizeProperties = getSkuProperties(body, '<ul data-property="尺码" class="J_TSaleProp tb-clearfix">')
     colorProperties = getSkuProperties(body, '<ul data-property="颜色分类" class="J_TSaleProp tb-clearfix tb-img">')
     skuProperties = []
     for sizeProp in sizeProperties

@@ -5,7 +5,7 @@ var db = new database({
     host: 'localhost',
     user: 'root',
     password: '57826502',
-    database: 'ecmall',
+    database: 'ecmall51',
     port: 3306
 });
 
