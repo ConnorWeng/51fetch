@@ -20,6 +20,10 @@ class db
     @pool.query "select * from ecm_goods g where g.good_http is not null and g.goods_id not in (select goods_id from ecm_goods_spec)", (err, result) ->
       callback err, result
 
+  getGoodsWithRemoteImage: (callback) ->
+    @pool.query "select * from ecm_goods g where g.default_image like '%taobaocdn.com%'", (err, result) ->
+      callback err, result
+
   getGood: (goodHttp, callback) ->
     @pool.query "select * from ecm_goods where good_http = '#{goodHttp}'", (err, result) ->
       if err
