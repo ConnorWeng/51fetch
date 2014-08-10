@@ -103,8 +103,12 @@ fetchDescFrom = (body) ->
 
 fetchSkusFrom = (body) ->
   (callback) ->
-    sizeProperties = getSkuProperties(body, '<ul data-property="尺码" class="J_TSaleProp tb-clearfix">')
-    colorProperties = getSkuProperties(body, '<ul data-property="颜色分类" class="J_TSaleProp tb-clearfix tb-img">')
+    sizeProperties = getSkuProperties body, '<ul data-property="尺码" class="J_TSaleProp tb-clearfix">'
+    if sizeProperties.length is 0
+      sizeProperties = getSkuProperties body, '<ul data-property="尺寸" class="J_TSaleProp tb-clearfix">'
+    colorProperties = getSkuProperties body, '<ul data-property="颜色分类" class="J_TSaleProp tb-clearfix tb-img">'
+    if colorProperties.length is 0
+      colorProperties = getSkuProperties body, '<ul data-property="主要颜色" class="J_TSaleProp tb-clearfix tb-img">'
     skuProperties = []
     for sizeProp in sizeProperties
       for colorProp in colorProperties
