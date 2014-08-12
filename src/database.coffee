@@ -7,10 +7,14 @@ class db
         host: 'localhost'
         user: 'root'
         password: '57826502'
-        database: 'test2'
+        database: 'ecmall51'
         port: 3306
     config.multipleStatements = true
     @pool = mysql.createPool config
+
+  runSql: (sql, callback) ->
+    @pool.query sql, (err, result) ->
+      callback err, result
 
   getStores: (condition, callback) ->
     @pool.query "select * from ecm_store where #{condition}", (err, result) ->
