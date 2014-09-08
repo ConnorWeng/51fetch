@@ -223,7 +223,7 @@ extractItemsFromContent = ($, store) ->
     $item = $(element)
     items.push
       goodsName: $item.find('a.item-name').text()
-      defaultImage: $item.find('img').attr('data-ks-lazyload')
+      defaultImage: $item.find('img').attr('src')
       price: parsePrice $item.find('.c-price').text().trim(), store['see_price']
       goodHttp: $item.find('a.item-name').attr('href')
   filterItems items
