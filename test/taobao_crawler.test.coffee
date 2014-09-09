@@ -6,9 +6,7 @@ taobao_crawler = require './taobao_crawler'
 memwatch = require 'memwatch'
 
 newCrawler = null
-
-databaseStub = sinon.createStubInstance database
-taobao_crawler.setDatabase databaseStub
+databaseStub = null
 
 memwatch.on 'leak', (info) ->
   console.log info
@@ -16,6 +14,9 @@ memwatch.on 'leak', (info) ->
 describe 'taobao_crawler', () ->
   beforeEach () ->
     newCrawler = new crawler
+    taobao_crawler.setCrawler newCrawler
+    databaseStub = sinon.createStubInstance database
+    taobao_crawler.setDatabase databaseStub
   describe '#crawlStore', () ->
     it 'should crawl category content and items on the first page of each categories', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
@@ -24,6 +25,9 @@ describe 'taobao_crawler', () ->
           uri: 'http://shop65626141.taobao.com##Aok自治区##1##减半'
         }
       taobao_crawler.setCrawler newCrawler
+      taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
+        assert.include uris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791#bd##Aok自治区##1##减半'
+        callback null, null
       store =
         store_id: '1'
         store_name: 'Aok自治区'
@@ -31,7 +35,22 @@ describe 'taobao_crawler', () ->
         see_price: '减半'
       taobao_crawler.crawlStore store, () ->
         assert.isTrue databaseStub.updateStoreCateContent.calledWith('1', 'Aok自治区')
-        assert.isTrue databaseStub.saveItems.calledWith('1', 'Aok自治区')
+        done()
+  describe '#crawlAllPagesOfAllCates', ->
+    it 'should callback when all uris are handled', (done) ->
+      taobao_crawler.setSaveItemsFromPageAndQueueNext (err, result) ->
+      taobao_crawler.crawlAllPagesOfAllCates ['http://localhost/', 'http://localhost/'], ->
+        done()
+  describe '#saveItemsFromPageAndQueueNext', ->
+    it 'should save items to db and queue next page uri', (done) ->
+      sinon.stub newCrawler, 'queue', (options) ->
+        assert.equal options[0]['uri'], 'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price'
+      taobao_crawler.setCrawler newCrawler
+      taobao_crawler.saveItemsFromPageAndQueueNext null,
+        uri: 'any_uri##any_store_name##any_store_id##any_see_price'
+        body: PAGINATION_HTML
+      , () ->
+        assert.isTrue databaseStub.saveItems.calledWith('any_store_id', 'any_store_name')
         done()
 
 CATS_TREE_HTML = '''
@@ -338,4 +357,22 @@ CATS_TREE_HTML = '''
 
 DESC = '''
 <p><img align="absmiddle" src="http://img01.taobaocdn.com/imgextra/i1/681970627/T2AVsbXxtXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img04.taobaocdn.com/imgextra/i4/681970627/T2vcEXXspaXXXXXXXX_!!681970627.jpg">这条是真心爱啊 &nbsp; &nbsp;拿来自己穿的</p><div>&nbsp;</div><div>不过想想还是跟大家分享一下吧 &nbsp;</div><div>&nbsp;</div><div>裤型很有范 &nbsp; &nbsp; 小哈伦的 &nbsp; &nbsp;民族风 &nbsp; &nbsp; 慵懒调调</div><div>&nbsp;</div><div>单个色感觉很棒 &nbsp; &nbsp;都是我的菜</div><div>&nbsp;</div><div>&nbsp; &nbsp; &nbsp; 提醒各位买家注意看一下我标的实测尺寸 &nbsp; &nbsp;&nbsp;</div><div>&nbsp;</div><div>&nbsp; &nbsp;很值得入手的秋冬潮搭裤子 &nbsp; &nbsp; &nbsp;很喜欢~</div><div>&nbsp;</div><div>裤子不长 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;请亲们参考阿蒙标出的实测尺寸</div><div>&nbsp;</div><div>&nbsp;</div><div>【尺寸】</div><div>S: 腰围56-70 &nbsp; &nbsp;臀围90 &nbsp; &nbsp; 前裆25 &nbsp; &nbsp; 大腿围50 &nbsp; &nbsp; 小腿围32 &nbsp; &nbsp; 裤脚26 &nbsp; &nbsp; &nbsp;裤长86</div><div>&nbsp;</div><div>M: 腰围60-74 &nbsp; &nbsp;臀围95 &nbsp; &nbsp; 前裆26 &nbsp; &nbsp; 大腿围52 &nbsp; &nbsp; 小腿围34 &nbsp; &nbsp; 裤脚27<span style="white-space: pre;"></span>&nbsp; &nbsp;裤长87</div><div>&nbsp;</div><div>L: 腰围64-78 &nbsp; &nbsp;臀围100 &nbsp; &nbsp;前裆27 &nbsp; &nbsp; 大腿围54 &nbsp; &nbsp; 小腿围36 &nbsp; &nbsp; 裤脚28 &nbsp; &nbsp; &nbsp;裤长88</div><div>&nbsp;</div><div>XL 腰围68-82 &nbsp; &nbsp;臀围105 &nbsp; &nbsp;前裆28 &nbsp; &nbsp; 大腿围56 &nbsp; &nbsp; 小腿围37 &nbsp; &nbsp; 裤脚29 &nbsp; &nbsp; &nbsp;裤长89</div><div>&nbsp;</div><p>&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;（所有尺寸平铺手测量 &nbsp; 允许2CM内误差）<img align="absmiddle" src="http://img02.taobaocdn.com/imgextra/i2/681970627/T2_sMcXtJXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img02.taobaocdn.com/imgextra/i2/681970627/T286ZdXppXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img02.taobaocdn.com/imgextra/i2/681970627/T2.ln.XuBaXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img01.taobaocdn.com/imgextra/i1/681970627/T2ZDZXXvxXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img03.taobaocdn.com/imgextra/i3/681970627/T2ri7bXvVXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img03.taobaocdn.com/imgextra/i3/681970627/T2iJEdXqtXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img03.taobaocdn.com/imgextra/i3/681970627/T28QsdXpdXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img01.taobaocdn.com/imgextra/i1/681970627/T22CIcXrRXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img02.taobaocdn.com/imgextra/i2/681970627/T2EGgXXtpaXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img01.taobaocdn.com/imgextra/i1/681970627/T2ZDZXXvxXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img03.taobaocdn.com/imgextra/i3/681970627/T2wzEaXxhXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img01.taobaocdn.com/imgextra/i1/681970627/T2OyEXXrXaXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img02.taobaocdn.com/imgextra/i2/681970627/T2dlUbXvhXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img01.taobaocdn.com/imgextra/i1/681970627/T2usIaXyXXXXXXXXXX_!!681970627.jpg"><img align="absmiddle" src="http://img03.taobaocdn.com/imgextra/i3/681970627/T2CWUdXqlXXXXXXXXX_!!681970627.jpg"></p>
+'''
+
+PAGINATION_HTML = '''
+<div class="pagination">
+  <a class="disable">上一页</a>
+  <a class="page-cur">1</a>
+  <a class="J_SearchAsync" href="http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&amp;search=y&amp;spm=a1z10.1.0.0.PLAAVw&amp;orderType=hotsell_desc&amp;pageNo=2#anchor">2</a>
+  <a class="J_SearchAsync next" href="http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&amp;search=y&amp;spm=a1z10.1.0.0.PLAAVw&amp;orderType=hotsell_desc&amp;pageNo=2#anchor">下一页</a>
+  <form action="http://shop109065161.taobao.com/search.htm" method="get">
+    <input type="hidden" name="mid" value="w-6309713619-0">
+    <input type="hidden" name="search" value="y">
+    <input type="hidden" name="spm" value="a1z10.1.0.0.PLAAVw">
+    <input type="hidden" name="orderType" value="hotsell_desc">
+    到第 <input type="text" value="1" size="3" name="pageNo"> 页
+    <button type="submit">确定</button>
+  </form>
+  <!--END OF  pagination-->
+</div>
 '''

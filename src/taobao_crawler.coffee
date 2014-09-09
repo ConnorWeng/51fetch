@@ -130,7 +130,7 @@ exports.crawlStore = (store, done) ->
     queueStoreUri(store)
     makeJsDom
     updateCateContentAndFetchAllCateUris(store)
-    crawlFirstPageOfAllCates
+    crawlAllPagesOfAllCates
   ], (err, result) ->
     if err then console.error err
     done()
@@ -162,6 +162,38 @@ updateCateContentAndFetchAllCateUris = (store) ->
     else
       window.close()
       callback new Error('NoCategoryContent'), null
+
+crawlAllPagesOfAllCates = (uris, callback) ->
+  quitCrawlingPages = ->
+    c.options.onDrain = false
+    callback null, null
+  c.options.onDrain = quitCrawlingPages
+  for uri in uris
+    store = parseStoreFromUri uri
+    c.queue [
+      'uri': makeUriWithStoreInfo uri, store
+      'forceUTF8': true
+      'callback': saveItemsFromPageAndQueueNext
+    ]
+
+saveItemsFromPageAndQueueNext = (err, result, callback) ->
+  env result.body, (errors, window) ->
+    $ = jquery window
+    store = parseStoreFromUri result.uri
+    items = extractItemsFromContent $, store
+    db.saveItems store['store_id'], store['store_name'], items, result.uri
+    nextUri = nextPageUri $
+    window.close()
+    if nextUri?
+      c.queue [
+        'uri': makeUriWithStoreInfo nextUri, store
+        'forceUTF8': true
+        'callback': saveItemsFromPageAndQueueNext
+      ]
+    callback?()
+
+nextPageUri = ($) ->
+  $('div.pagination a.next').attr('href')
 
 crawlFirstPageOfAllCates = (uris, callback) ->
   count = uris.length
@@ -260,3 +292,9 @@ filterItems = (unfilteredItems) ->
     not ~item.defaultImage.indexOf('http://img01.taobaocdn.com/bao/uploaded/_240x240.jpg') and
     not ~item.defaultImage.indexOf('http://img01.taobaocdn.com/bao/uploaded/_160x160.jpg') and
     not (item.price <= 0)
+
+if process.env.NODE_ENV is 'test'
+  exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
+  exports.setCrawlAllPagesOfAllCates = (f) -> crawlAllPagesOfAllCates = f
+  exports.saveItemsFromPageAndQueueNext = saveItemsFromPageAndQueueNext
+  exports.setSaveItemsFromPageAndQueueNext = (f) -> saveItemsFromPageAndQueueNext = f
