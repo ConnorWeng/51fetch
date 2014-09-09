@@ -8,18 +8,6 @@ describe 'database', () ->
     db = new database()
     db.getDateTime = () -> ''
 
-  describe '#getStores()', () ->
-    it 'should return store correctly', (done) ->
-      db.getStores 'store_id = 1 limit 1', (err, stores) ->
-        assert.equal stores[0].store_id, '1'
-        done()
-
-  # describe '#saveItems()', () ->
-  #   it 'should save items correctly', (done) ->
-  #     db.saveItems 1,2,3, (err, result) ->
-  #       console.log result
-  #       done()
-
   describe '#makeSaveItemSql()', () ->
     it 'should make sql correctly', () ->
       sql = db.makeSaveItemSql 'anyStoreId', 'anyStoreName', [{
