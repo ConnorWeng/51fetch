@@ -4,10 +4,10 @@ async = require 'async'
 class db
   constructor: (databaseConfig) ->
     if databaseConfig? then config = databaseConfig else config =
-        host: 'localhost'
-        user: 'root'
-        password: '57826502'
-        database: 'ecmall51'
+        host: 'rdsqr7ne2m2ifjm.mysql.rds.aliyuncs.com'
+        user: 'wangpi51'
+        password: '51374b78b104'
+        database: 'wangpi51'
         port: 3306
     config.multipleStatements = true
     @pool = mysql.createPool config
@@ -76,7 +76,7 @@ class db
     sql
 
   getCidFromUrl: (url) ->
-    url.match(/category-(\w+)(-\w+)?.htm/)[1]
+    url.match(/category-(\w+)(-\w+)?.htm/)?[1] || ''
 
   getDateTime: () ->
     date = new Date()

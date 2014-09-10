@@ -27,3 +27,5 @@ describe 'database', () ->
     it 'should return cid', () ->
       assert.equal db.getCidFromUrl('http://shop66794029.taobao.com/category-881893802.htm?search=y&catName=%CF%C4%BF%EE%CC%D7%D7%B0#bd##韩酷休闲服饰##217##减20'), '881893802'
       assert.equal db.getCidFromUrl('http://shop66794029.taobao.com/category-496276028-125439445.htm?search=y&catName=%C1%AC%D2%C2%C8%B9#bd##韩酷休闲服饰##217##减20'), '496276028'
+    it 'should return empty string', ->
+      assert.equal db.getCidFromUrl('wrong_url'), ''

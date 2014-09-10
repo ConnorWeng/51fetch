@@ -17,30 +17,42 @@ describe 'taobao_crawler', () ->
     taobao_crawler.setCrawler newCrawler
     databaseStub = sinon.createStubInstance database
     taobao_crawler.setDatabase databaseStub
+
   describe '#crawlStore', () ->
-    it 'should crawl category content and items on the first page of each categories', (done) ->
+    stubCrawler = (htmlContent) ->
       sinon.stub newCrawler, 'queue', (options) ->
         options[0]['callback'] null, {
-          body: CATS_TREE_HTML
-          uri: 'http://shop65626141.taobao.com##Aok自治区##1##减半'
+          body: htmlContent
+          uri: 'http://shop_url##store_name##store_id##see_price'
         }
       taobao_crawler.setCrawler newCrawler
+    store =
+        store_id: 'store_id'
+        store_name: 'store_name'
+        shop_http: 'http://shop_url'
+        see_price: 'see_price'
+    it 'should crawl category content and all category uris', (done) ->
+      stubCrawler CATS_TREE_HTML
       taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
-        assert.include uris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791#bd##Aok自治区##1##减半'
+        assert.include uris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791#bd##store_name##store_id##see_price'
         callback null, null
-      store =
-        store_id: '1'
-        store_name: 'Aok自治区'
-        shop_http: 'http://shop65626141.taobao.com'
-        see_price: '减半'
-      taobao_crawler.crawlStore store, () ->
-        assert.isTrue databaseStub.updateStoreCateContent.calledWith('1', 'Aok自治区')
+      taobao_crawler.crawlStore store, ->
+        assert.isTrue databaseStub.updateStoreCateContent.calledWith('store_id', 'store_name')
         done()
+    it 'should crawl items from newOn_desc when cats tree is empty', (done) ->
+      stubCrawler CATS_TREE_WITHOUT_CATS_HTML
+      taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
+        assert.deepEqual uris, ['http://384007168.taobao.com/search.htm?search=y&orderType=newOn_desc##store_name##store_id##see_price']
+        callback null, null
+      taobao_crawler.crawlStore store, ->
+        done()
+
   describe '#crawlAllPagesOfAllCates', ->
     it 'should callback when all uris are handled', (done) ->
       taobao_crawler.setSaveItemsFromPageAndQueueNext (err, result) ->
       taobao_crawler.crawlAllPagesOfAllCates ['http://localhost/', 'http://localhost/'], ->
         done()
+
   describe '#saveItemsFromPageAndQueueNext', ->
     it 'should save items to db and queue next page uri', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
@@ -375,4 +387,39 @@ PAGINATION_HTML = '''
   </form>
   <!--END OF  pagination-->
 </div>
+'''
+
+CATS_TREE_WITHOUT_CATS_HTML = '''
+<ul class="J_TAllCatsTree cats-tree">
+  <li class="cat fst-cat">
+    <h4 class="cat-hd fst-cat-hd has-children">
+      <i class="cat-icon fst-cat-icon"></i>
+      <a href="http://384007168.taobao.com/search.htm?search=y" class="cat-name fst-cat-name">所有宝贝</a>
+    </h4>
+
+    <div class="snd-pop">
+      <div class="snd-pop-inner">
+        <ul class="fst-cat-bd">
+          <li class="cat snd-cat">
+            <h4 class="cat-hd snd-cat-hd">
+              <i class="cat-icon snd-cat-icon"></i>
+              <a href="http://384007168.taobao.com/search.htm?search=y&orderType=hotsell_desc"
+                 class="by-label by-sale snd-cat-name" rel="nofollow" >按销量</a>
+            </h4>
+            <h4 class="cat-hd snd-cat-hd">
+              <i class="cat-icon snd-cat-icon"></i>
+              <a href="http://384007168.taobao.com/search.htm?search=y&orderType=newOn_desc"
+                 class="by-label by-new snd-cat-name" rel="nofollow" >按新品</a>
+            </h4>
+            <h4 class="cat-hd snd-cat-hd">
+              <i class="cat-icon snd-cat-icon"></i>
+              <a href="http://384007168.taobao.com/search.htm?search=y&orderType=price_asc"
+                 class="by-label by-price snd-cat-name" rel="nofollow" >按价格</a>
+            </h4>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </li>
+</ul>
 '''
