@@ -220,10 +220,15 @@ extractItemsFromContent = ($, store) ->
     $item = $(element)
     items.push
       goodsName: $item.find('a.item-name').text()
-      defaultImage: $item.find('img').attr('src')
+      defaultImage: extractDefaultImage $item
       price: parsePrice $item.find('.c-price').text().trim(), store['see_price']
       goodHttp: $item.find('a.item-name').attr('href')
   filterItems items
+
+extractDefaultImage = ($item) ->
+  defaultImage = $item.find('img').attr('src')
+  if defaultImage is 'http://a.tbcdn.cn/s.gif' then defaultImage = $item.find('img').attr('data-ks-lazyload')
+  defaultImage
 
 parsePrice = (price, seePrice) ->
   rawPrice = parseFloat price
