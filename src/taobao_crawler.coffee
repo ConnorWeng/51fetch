@@ -196,42 +196,6 @@ saveItemsFromPageAndQueueNext = (err, result, callback) ->
 nextPageUri = ($) ->
   $('div.pagination a.next').attr('href')
 
-crawlFirstPageOfAllCates = (uris, callback) ->
-  count = uris.length
-  crawlDone = () ->
-    count -= 1
-    if count is 0 then callback null, null
-  if uris.length > 0
-    crawlPage uri, crawlDone for uri in uris
-  else
-    callback null, null
-
-crawlPage = (pageUri, done) ->
-  async.waterfall [
-    queuePageUri(pageUri)
-    saveItemsFromPage
-  ], (err, result) ->
-    if err then console.error err
-    done()
-
-queuePageUri = (pageUri) ->
-  (callback) ->
-    c.queue [
-      'uri': pageUri
-      'jQuery': false
-      'forceUTF8': true
-      'callback': callback
-    ]
-
-saveItemsFromPage = (result, callback) ->
-  env result.body, (errors, window) ->
-    $ = jquery window
-    store = parseStoreFromUri result.uri
-    items = extractItemsFromContent $, store
-    db.saveItems store['store_id'], store['store_name'], items, result.uri
-    window.close()
-    callback null, null
-
 extractCatsTreeHtml = ($, store) ->
   catsTreeHtml = $('ul.cats-tree').parent().html()
   if catsTreeHtml?
