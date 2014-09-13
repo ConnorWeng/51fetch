@@ -65,6 +65,18 @@ describe 'taobao_crawler', () ->
         assert.isTrue databaseStub.saveItems.calledWith('any_store_id', 'any_store_name')
         done()
 
+  describe '#parsePrice', ->
+    it 'should return half when see_price is 减半', ->
+      assert.equal taobao_crawler.parsePrice('50.4', '减半'), 25.20
+    it 'should return raw price when see_price is 三折', ->
+      assert.equal taobao_crawler.parsePrice('50.5', '三折'), 50.50
+    it 'should return raw price when see_price is 打三折', ->
+      assert.equal taobao_crawler.parsePrice('50.5', '打三折'), 50.50
+    it 'should return price * 0.2 when see_price is 2折', ->
+      assert.equal taobao_crawler.parsePrice('50.4', '2折'), 10.08
+    it 'should return price * 0.2 when see_price is 打2折', ->
+      assert.equal taobao_crawler.parsePrice('50.4', '打2折'), 10.08
+
 CATS_TREE_HTML = '''
 <ul class="J_TCatsTree cats-tree J_TWidget">
   <li class="cat fst-cat float">

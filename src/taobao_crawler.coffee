@@ -232,15 +232,22 @@ extractDefaultImage = ($item) ->
 
 parsePrice = (price, seePrice) ->
   rawPrice = parseFloat price
-  if not seePrice? then return rawPrice.toFixed(2)
+  finalPrice = rawPrice
+  if not seePrice? then finalPrice = rawPrice.toFixed(2)
   if seePrice.indexOf('减半') isnt -1
-    (rawPrice / 2).toFixed(2)
+    finalPrice = (rawPrice / 2).toFixed(2)
   else if seePrice.indexOf('减') is 0
-    (rawPrice - parseFloat(seePrice.substr(1))).toFixed(2)
+    finalPrice = (rawPrice - parseFloat(seePrice.substr(1))).toFixed(2)
   else if seePrice is '实价'
-    rawPrice.toFixed(2)
+    finalPrice = rawPrice.toFixed(2)
   else if seePrice.indexOf('*') is 0
-    (rawPrice * parseFloat(seePrice.substr(1))).toFixed(2)
+    finalPrice = (rawPrice * parseFloat(seePrice.substr(1))).toFixed(2)
+  else if seePrice.indexOf('打') is 0
+    finalPrice = (rawPrice * (parseFloat(seePrice.substr(1)) / 10)).toFixed(2)
+  else if seePrice.indexOf('折') is seePrice.length - 1
+    finalPrice = (rawPrice * (parseFloat(seePrice) / 10)).toFixed(2)
+  if isNaN(finalPrice) isnt true
+    finalPrice
   else
     console.error "不支持该see_price: #{seePrice}"
     rawPrice
@@ -264,6 +271,7 @@ filterItems = (unfilteredItems) ->
     not (item.price <= 0)
 
 if process.env.NODE_ENV is 'test'
+  exports.parsePrice = parsePrice
   exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
   exports.setCrawlAllPagesOfAllCates = (f) -> crawlAllPagesOfAllCates = f
   exports.saveItemsFromPageAndQueueNext = saveItemsFromPageAndQueueNext
