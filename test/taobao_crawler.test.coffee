@@ -77,6 +77,25 @@ describe 'taobao_crawler', () ->
     it 'should return price * 0.2 when see_price is 打2折', ->
       assert.equal taobao_crawler.parsePrice('50.4', '打2折'), 10.08
 
+  describe '#getNumIidFromUri', ->
+    it 'should return 41033455520', ->
+      assert.equal taobao_crawler.getNumIidFromUri('http://item.taobao.com/item.htm?spm=a1z10.1.w4004-5944377767.2.iS5MoU&id=41033455520'), '41033455520'
+      assert.equal taobao_crawler.getNumIidFromUri('http://item.taobao.com/item.htm?id=41033455520&spm=a1z10.1.w4004-5944377767.2.iS5MoU'), '41033455520'
+
+  describe '#parseSkus', ->
+    it 'should return skus array', ->
+      assert.deepEqual taobao_crawler.parseSkus(
+        sku: [
+          {properties_name: '1627207:3232484:颜色分类:天蓝色;20509:28314:尺码:S'},
+          {properties_name: '1627207:3232484:颜色分类:天蓝色;20509:28317:尺码:XL'},
+          {properties_name: '1627207:3232481:颜色分类:巧克力色;20509:28316:尺码:L'},
+        ]
+      ), [
+        ['天蓝色', 'S'],
+        ['天蓝色', 'XL'],
+        ['巧克力色', 'L'],
+      ]
+
 CATS_TREE_HTML = '''
 <ul class="J_TCatsTree cats-tree J_TWidget">
   <li class="cat fst-cat float">

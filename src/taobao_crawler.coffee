@@ -3,8 +3,9 @@ async = require 'async'
 env = require('jsdom').env
 jquery = require('jquery')
 crawler = require('crawler').Crawler
-database = require('./database')
+database = require './database'
 config = require './config'
+taobao_api = require './taobao_api'
 
 c = new crawler
   'forceUTF8': true
@@ -20,6 +21,16 @@ exports.setCrawler = (newCrawler) ->
 
 exports.getAllStores = (condition, callback) ->
   db.getStores condition, callback
+
+exports.crawlItemViaApi = (itemUri, done) ->
+  numIid = getNumIidFromUri itemUri
+  taobao_api.getTaobaoItem numIid, 'title,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', (err, item) ->
+    if err
+      console.error err
+      done()
+    else
+      skus = parseSkus item.skus
+      updateItemDetailInDatabase item.desc, skus, itemUri, done
 
 exports.crawlItem = (itemUri, done) ->
   async.waterfall [
@@ -270,9 +281,30 @@ filterItems = (unfilteredItems) ->
     not ~item.defaultImage.indexOf('http://img01.taobaocdn.com/bao/uploaded/_160x160.jpg') and
     not (item.price <= 0)
 
+getNumIidFromUri = (uri) ->
+  matches = /item\.htm\?.*id=(\d+)/.exec uri
+  if matches?
+    matches[1]
+  else
+    throw new Error('there is no numIid in uri')
+
+parseSkus = (itemSkus) ->
+  skuArray = itemSkus.sku
+  skus = []
+  for sku in skuArray
+    propertiesNameArray = sku.properties_name.split ';'
+    properties = []
+    for propertiesName in propertiesNameArray
+      [pid, vid, name, value] = propertiesName.split ':'
+      properties.push value
+    skus.push properties
+  skus
+
 if process.env.NODE_ENV is 'test'
   exports.parsePrice = parsePrice
   exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
   exports.setCrawlAllPagesOfAllCates = (f) -> crawlAllPagesOfAllCates = f
   exports.saveItemsFromPageAndQueueNext = saveItemsFromPageAndQueueNext
   exports.setSaveItemsFromPageAndQueueNext = (f) -> saveItemsFromPageAndQueueNext = f
+  exports.getNumIidFromUri = getNumIidFromUri
+  exports.parseSkus = parseSkus
