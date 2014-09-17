@@ -76,6 +76,9 @@ describe 'taobao_crawler', () ->
       assert.equal taobao_crawler.parsePrice('50.4', '2折'), 10.08
     it 'should return price * 0.2 when see_price is 打2折', ->
       assert.equal taobao_crawler.parsePrice('50.4', '打2折'), 10.08
+    it 'should return price in goods name when see_price is P', ->
+      assert.equal taobao_crawler.parsePrice('111', 'P', '我是一个任意宝贝 P22'), 22
+      assert.equal taobao_crawler.parsePrice('111', 'P', '我是一个任意宝贝 P33.3xxx'), 33.3
 
   describe '#getNumIidFromUri', ->
     it 'should return 41033455520', ->

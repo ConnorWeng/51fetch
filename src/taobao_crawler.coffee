@@ -241,7 +241,7 @@ extractDefaultImage = ($item) ->
   if defaultImage is 'http://a.tbcdn.cn/s.gif' then defaultImage = $item.find('img').attr('data-ks-lazyload')
   defaultImage
 
-parsePrice = (price, seePrice) ->
+parsePrice = (price, seePrice, goodsName) ->
   rawPrice = parseFloat price
   finalPrice = rawPrice
   if not seePrice? then finalPrice = rawPrice.toFixed(2)
@@ -257,6 +257,8 @@ parsePrice = (price, seePrice) ->
     finalPrice = (rawPrice * (parseFloat(seePrice.substr(1)) / 10)).toFixed(2)
   else if seePrice.indexOf('折') is seePrice.length - 1
     finalPrice = (rawPrice * (parseFloat(seePrice) / 10)).toFixed(2)
+  else if seePrice is 'P'
+    finalPrice = parseFloat /P(\d+(\.\d+)?)/.exec(goodsName)?[1]
   if isNaN(finalPrice) isnt true
     finalPrice
   else
