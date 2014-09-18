@@ -1,4 +1,4 @@
-database = require './database.js'
+database = require '../src/database'
 assert = require('chai').assert
 
 db = null

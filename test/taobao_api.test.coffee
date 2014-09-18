@@ -1,4 +1,4 @@
-taobao_api = require './taobao_api'
+taobao_api = require '../src/taobao_api'
 assert = require('chai').assert
 
 describe 'taobao_api', ->

@@ -1,8 +1,8 @@
 assert = require('chai').assert
 sinon = require 'sinon'
 crawler = require('crawler').Crawler
-database = require './database'
-taobao_crawler = require './taobao_crawler'
+database = require '../src/database'
+taobao_crawler = require '../src/taobao_crawler'
 memwatch = require 'memwatch'
 
 newCrawler = null
