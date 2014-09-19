@@ -32,45 +32,15 @@ exports.crawlItemViaApi = (itemUri, done) ->
       skus = parseSkus item.skus
       updateItemDetailInDatabase item.desc, skus, itemUri, done
 
-exports.crawlItem = (itemUri, done) ->
+exports.crawlStore = (store, done) ->
   async.waterfall [
-    queueItemUri itemUri
-    updateItemDetail itemUri
+    queueStoreUri(store)
+    makeJsDom
+    updateCateContentAndFetchAllCateUris(store)
+    crawlAllPagesOfAllCates
   ], (err, result) ->
     if err then console.error err
     done()
-
-queueItemUri = (itemUri) ->
-  (callback) ->
-    c.queue [
-      'uri': itemUri
-      'jQuery': false
-      'forceUTF8': true
-      'callback': callback
-    ]
-
-updateItemDetail = (itemUri) ->
-  (result, callback) ->
-    body = result.body
-    desc = ''
-    skus = ''
-    async.waterfall [
-      fetchDescFrom body
-      (result, callback) ->
-        desc = result
-        callback null
-      fetchSkusFrom body
-      (result, callback) ->
-        skus = result
-        callback null
-      (callback) ->
-        updateItemDetailInDatabase desc, skus, itemUri, callback
-    ], (err, result) ->
-      if err
-        console.error err
-      else
-        console.log "updated item: #{itemUri}"
-      callback null
 
 updateItemDetailInDatabase = (desc, skus, itemUri, callback) ->
   goodsId = ''
@@ -95,56 +65,6 @@ updateItemDetailInDatabase = (desc, skus, itemUri, callback) ->
   ], (err, result) ->
     if err then console.error err
     callback null
-
-fetchDescFrom = (body) ->
-  (callback) ->
-    startIndex = body.indexOf 'http://dsc.taobaocdn.com'
-    endIndex = body.indexOf '")', startIndex + 1
-    length = endIndex - startIndex
-    descUri = body.substr startIndex, length
-    c.queue [
-      'uri': descUri
-      'jQuery': false
-      'forceUTF8': true
-      'callback': (err, result) ->
-        if err then callback err
-        eval result.body
-        callback null, desc
-    ]
-
-fetchSkusFrom = (body) ->
-  (callback) ->
-    sizeProperties = getSkuProperties body, '<ul data-property="尺码" class="J_TSaleProp tb-clearfix">'
-    if sizeProperties.length is 0
-      sizeProperties = getSkuProperties body, '<ul data-property="尺寸" class="J_TSaleProp tb-clearfix">'
-    colorProperties = getSkuProperties body, '<ul data-property="颜色分类" class="J_TSaleProp tb-clearfix tb-img">'
-    if colorProperties.length is 0
-      colorProperties = getSkuProperties body, '<ul data-property="主要颜色" class="J_TSaleProp tb-clearfix tb-img">'
-    skuProperties = []
-    for sizeProp in sizeProperties
-      for colorProp in colorProperties
-        skuProperties.push [colorProp, sizeProp]
-    callback null, skuProperties
-
-getSkuProperties = (body, tag) ->
-  startIndex = body.indexOf tag
-  endIndex = body.indexOf '</ul>', startIndex
-  part = body.substring startIndex, endIndex + 5
-  pattern = /<span>(.+)<\/span>/ig
-  skuProperties = []
-  while (matches = pattern.exec part) isnt null
-    skuProperties.push matches[1]
-  skuProperties
-
-exports.crawlStore = (store, done) ->
-  async.waterfall [
-    queueStoreUri(store)
-    makeJsDom
-    updateCateContentAndFetchAllCateUris(store)
-    crawlAllPagesOfAllCates
-  ], (err, result) ->
-    if err then console.error err
-    done()
 
 queueStoreUri = (store) ->
   (callback) ->
