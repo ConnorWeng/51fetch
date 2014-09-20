@@ -13,7 +13,9 @@ setDatabase db
 crawl = ->
   if unfetchedGoods.length > 0
     good = unfetchedGoods.shift()
-    crawlItemViaApi good.good_http, crawl
+    crawlItemViaApi good.good_http, ->
+      console.log "#{good.goods_id}: #{good.goods_name} updated"
+      crawl()
   else
     console.log 'complete'
     db.end()
