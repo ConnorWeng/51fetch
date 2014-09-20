@@ -115,6 +115,10 @@ describe 'taobao_crawler', () ->
         attrValue: '通勤'
       }]
 
+  describe '#removeSingleQuotes', ->
+    it 'should remove all single quotes in given string', ->
+      assert.equal taobao_crawler.removeSingleQuotes("abcdefg'hi jklmn'opq rst'uvwxyz"), "abcdefghi jklmnopq rstuvwxyz"
+
 CATS_TREE_HTML = '''
 <ul class="J_TCatsTree cats-tree J_TWidget">
   <li class="cat fst-cat float">

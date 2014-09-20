@@ -33,7 +33,7 @@ exports.crawlItemViaApi = (itemUri, done) ->
       attrs = parseAttrs item.props_name
       updateItemDetailInDatabase
         itemUri: itemUri
-        desc: item.desc
+        desc: removeSingleQuotes item.desc
         skus: skus
         attrs: attrs
       , done
@@ -243,6 +243,9 @@ parseAttrs = (propsName) ->
       attrValue: attrValue
   attrs
 
+removeSingleQuotes = (content) ->
+  content.replace /'/g, ''
+
 if process.env.NODE_ENV is 'test'
   exports.parsePrice = parsePrice
   exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
@@ -252,3 +255,4 @@ if process.env.NODE_ENV is 'test'
   exports.getNumIidFromUri = getNumIidFromUri
   exports.parseSkus = parseSkus
   exports.parseAttrs = parseAttrs
+  exports.removeSingleQuotes = removeSingleQuotes
