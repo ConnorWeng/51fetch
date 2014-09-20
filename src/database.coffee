@@ -61,6 +61,18 @@ class db
         return console.error "error in updateStoreCateContent: #{storeId},#{cateContent} " + err
       console.log "id:#{storeId} #{storeName} updated cate_content."
 
+  saveItemAttr: (goodsId, attrs, callback) ->
+    sql = ''
+    for attr in attrs
+      {attrId, attrName, attrValue} = attr
+      sql += "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('#{attrId}', '#{attrName}', 'text', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id) values ('#{goodsId}', '#{attrName}', '#{attrValue}', '#{attrId}');"
+    @pool.query sql, (err, result) ->
+      callback err, result
+
+  deleteItemAttr: (goodsId, callback) ->
+    @pool.query "delete from ecm_goods_attr where goods_id = #{goodsId}", (err, result) ->
+      callback err, result
+
   saveItems: (storeId, storeName, items, url) ->
     sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl url
     @pool.query sql, (err, result) =>

@@ -1,5 +1,6 @@
-database = require '../src/database'
 assert = require('chai').assert
+sinon = require 'sinon'
+database = require '../src/database'
 
 db = null
 
@@ -29,3 +30,17 @@ describe 'database', () ->
       assert.equal db.getCidFromUrl('http://shop66794029.taobao.com/category-496276028-125439445.htm?search=y&catName=%C1%AC%D2%C2%C8%B9#bd##韩酷休闲服饰##217##减20'), '496276028'
     it 'should return empty string', ->
       assert.equal db.getCidFromUrl('wrong_url'), ''
+
+  describe '#saveItemAttr', ->
+    it 'should run the correct insert sql', ->
+      sinon.stub db.pool, 'query', ->
+      db.saveItemAttr 1, [{
+        attrId: '1'
+        attrName: 'attr1'
+        attrValue: 'val1'
+      }, {
+        attrId: '2'
+        attrName: 'attr2'
+        attrValue: 'val2'
+      }], ->
+      assert.isTrue db.pool.query.calledWith "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('1', 'attr1', 'text', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id) values ('1', 'attr1', 'val1', '1');replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('2', 'attr2', 'text', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id) values ('1', 'attr2', 'val2', '2');"

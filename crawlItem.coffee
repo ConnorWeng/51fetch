@@ -1,8 +1,14 @@
-{crawlItemViaApi} = require './src/taobao_crawler'
+{setDatabase, crawlItemViaApi} = require './src/taobao_crawler'
 database = require './src/database'
 
 unfetchedGoods = []
 db = new database
+  host: 'rdsqr7ne2m2ifjm.mysql.rds.aliyuncs.com'
+  user: 'wangpi51'
+  password: '51374b78b104'
+  database: 'ecmall51'
+  port: 3306
+setDatabase db
 
 crawl = ->
   if unfetchedGoods.length > 0

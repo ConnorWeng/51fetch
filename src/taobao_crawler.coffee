@@ -5,7 +5,7 @@ jquery = require('jquery')
 crawler = require('crawler').Crawler
 database = require './database'
 config = require './config'
-taobao_api = require './taobao_api'
+{getTaobaoItem} = require './taobao_api'
 
 c = new crawler
   'forceUTF8': true
@@ -24,13 +24,19 @@ exports.getAllStores = (condition, callback) ->
 
 exports.crawlItemViaApi = (itemUri, done) ->
   numIid = getNumIidFromUri itemUri
-  taobao_api.getTaobaoItem numIid, 'title,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', (err, item) ->
+  getTaobaoItem numIid, 'title,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', (err, item) ->
     if err
       console.error err
       done()
     else
       skus = parseSkus item.skus
-      updateItemDetailInDatabase item.desc, skus, itemUri, done
+      attrs = parseAttrs item.props_name
+      updateItemDetailInDatabase
+        itemUri: itemUri
+        desc: item.desc
+        skus: skus
+        attrs: attrs
+      , done
 
 exports.crawlStore = (store, done) ->
   async.waterfall [
@@ -42,7 +48,7 @@ exports.crawlStore = (store, done) ->
     if err then console.error err
     done()
 
-updateItemDetailInDatabase = (desc, skus, itemUri, callback) ->
+updateItemDetailInDatabase = ({desc, skus, itemUri, attrs}, callback) ->
   goodsId = ''
   price = ''
   async.waterfall [
@@ -59,6 +65,10 @@ updateItemDetailInDatabase = (desc, skus, itemUri, callback) ->
         db.updateDefaultSpec goodsId, result[0].insertId, callback
       else
         callback new Error('updateSpecs\'s result is empty')
+    (result, callback) ->
+      db.deleteItemAttr goodsId, callback
+    (result, callback) ->
+      db.saveItemAttr goodsId, attrs, callback
     (result, callback) ->
       http.get "#{config.remote_service_address}&goodid=#{goodsId}", (res) ->
         if res.statusCode is 200 then callback null else callback new Error('remote update default image service error')
@@ -211,7 +221,7 @@ getNumIidFromUri = (uri) ->
     throw new Error('there is no numIid in uri')
 
 parseSkus = (itemSkus) ->
-  skuArray = itemSkus.sku
+  skuArray = itemSkus?.sku || []
   skus = []
   for sku in skuArray
     propertiesNameArray = sku.properties_name.split ';'
@@ -222,6 +232,17 @@ parseSkus = (itemSkus) ->
     skus.push properties
   skus
 
+parseAttrs = (propsName) ->
+  attrs = []
+  propsArray = propsName.split ';'
+  for props in propsArray
+    [attrId, trival, attrName, attrValue] = props.split ':'
+    attrs.push
+      attrId: attrId
+      attrName: attrName
+      attrValue: attrValue
+  attrs
+
 if process.env.NODE_ENV is 'test'
   exports.parsePrice = parsePrice
   exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
@@ -230,3 +251,4 @@ if process.env.NODE_ENV is 'test'
   exports.setSaveItemsFromPageAndQueueNext = (f) -> saveItemsFromPageAndQueueNext = f
   exports.getNumIidFromUri = getNumIidFromUri
   exports.parseSkus = parseSkus
+  exports.parseAttrs = parseAttrs

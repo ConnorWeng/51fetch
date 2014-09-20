@@ -99,6 +99,22 @@ describe 'taobao_crawler', () ->
         ['巧克力色', 'L'],
       ]
 
+  describe '#parseAttrs', ->
+    it 'should return attributes array', ->
+      assert.deepEqual taobao_crawler.parseAttrs('20418023:157305307:主图来源:自主实拍图;13021751:3381429:货号:858#;20608:6384766:风格:通勤'), [{
+        attrId: '20418023'
+        attrName: '主图来源'
+        attrValue: '自主实拍图'
+      },{
+        attrId: '13021751'
+        attrName: '货号'
+        attrValue: '858#'
+      }, {
+        attrId: '20608'
+        attrName: '风格'
+        attrValue: '通勤'
+      }]
+
 CATS_TREE_HTML = '''
 <ul class="J_TCatsTree cats-tree J_TWidget">
   <li class="cat fst-cat float">
