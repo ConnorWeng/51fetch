@@ -59,6 +59,8 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs}, callback) ->
       price = good.price
       db.updateGoods desc, itemUri, callback
     (result, callback) ->
+      db.deleteSpecs goodsId, callback
+    (result, callback) ->
       db.updateSpecs skus, goodsId, price, callback
     (result, callback) ->
       insertId = if result.length > 0 then result[0].insertId else result.insertId

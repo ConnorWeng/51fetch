@@ -55,6 +55,10 @@ class db
         console.error "error in updateSpecs, goodsId:#{goodsId}"
       callback err, result
 
+  deleteSpecs: (goodsId, callback) ->
+    @pool.query "delete from ecm_goods_spec where goods_id = #{goodsId}", (err, result) ->
+      callback err, result
+
   updateStoreCateContent: (storeId, storeName, cateContent) ->
     @pool.query "update ecm_store set cate_content='#{cateContent}' where store_id = #{storeId}", (err, result) ->
       if err
