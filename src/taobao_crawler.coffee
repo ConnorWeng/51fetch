@@ -61,10 +61,8 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs}, callback) ->
     (result, callback) ->
       db.updateSpecs skus, goodsId, price, callback
     (result, callback) ->
-      if result.length > 0
-        db.updateDefaultSpec goodsId, result[0].insertId, callback
-      else
-        callback new Error('updateSpecs\'s result is empty')
+      insertId = if result.length > 0 then result[0].insertId else result.insertId
+      db.updateDefaultSpec goodsId, insertId, callback
     (result, callback) ->
       db.deleteItemAttr goodsId, callback
     (result, callback) ->
