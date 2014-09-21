@@ -14,6 +14,16 @@ exports.getTaobaoItem = (numIid, fields, callback) ->
     else
       handleError err, result, callback
 
+exports.getItemCats = (cids, fields, callback) ->
+  apiParams =
+    'cids': cids
+    'fields': fields
+  execute 'taobao.itemcats.get', apiParams, (err, result) ->
+    if result.itemcats_get_response?.item_cats?
+      callback null, result.itemcats_get_response.item_cats
+    else
+      handleError err, result, callback
+
 execute = (method, apiParams, callback) ->
   sysParams =
     'app_key': config.taobao_app_key
