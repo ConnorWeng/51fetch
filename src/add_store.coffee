@@ -34,7 +34,7 @@ register = (store, index) ->
   options =
     hostname: 'mall.51zwd.com'
     port: 80
-    path: "/sms_http.php?username=#{store.im_ww}"
+    path: "/sms_http.php?username=#{store.im_qq}"
     method: 'POST'
     headers:
       'Content-Type': 'application/x-www-form-urlencoded'
