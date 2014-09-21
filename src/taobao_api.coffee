@@ -5,17 +5,24 @@ querystring = require 'querystring'
 config = require './config'
 
 exports.getTaobaoItem = (numIid, fields, callback) ->
+  apiParams =
+    'num_iid': numIid
+    'fields': fields
+  execute 'taobao.item.get', apiParams, (err, result) ->
+    if result.item_get_response?.item?
+      callback null, result.item_get_response.item
+    else
+      handleError err, result, callback
+
+execute = (method, apiParams, callback) ->
   sysParams =
     'app_key': config.taobao_app_key
     'v': '2.0'
     'format': 'json'
     'sign_method': 'md5'
-    'method': 'taobao.item.get'
+    'method': method
     'timestamp': phpjs.date 'Y-m-d H:i:s'
     'partner_id': 'top-sdk-php-20140420'
-  apiParams =
-    'num_iid': numIid
-    'fields': fields
   sign = generateSign phpjs.array_merge sysParams, apiParams
   sysParams['sign'] = sign
   options =
@@ -31,12 +38,17 @@ exports.getTaobaoItem = (numIid, fields, callback) ->
       data += chunk;
     res.on 'end', ->
       res = JSON.parse data
-      if res.item_get_response?.item?
-        callback null, res.item_get_response.item
-      else
-        callback new Error(data)
+      callback null, res
+    res.on 'error', (err) ->
+      callback err, null
   req.write "#{querystring.stringify apiParams}\n"
   req.end()
+
+handleError = (err, result, callback) ->
+  if err
+    callback err, null
+  else
+    callback new Error(result), null
 
 generateSign = (params) ->
   sortedParams = ksort params
