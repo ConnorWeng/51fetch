@@ -5,7 +5,7 @@ jquery = require('jquery')
 crawler = require('crawler').Crawler
 database = require './database'
 config = require './config'
-{getTaobaoItem} = require './taobao_api'
+{getTaobaoItem, getItemCats} = require './taobao_api'
 
 c = new crawler
   'forceUTF8': true
@@ -31,12 +31,14 @@ exports.crawlItemViaApi = (itemUri, done) ->
     else
       skus = parseSkus item.skus
       attrs = parseAttrs item.props_name
-      updateItemDetailInDatabase
-        itemUri: itemUri
-        desc: removeSingleQuotes item.desc
-        skus: skus
-        attrs: attrs
-      , done
+      getHierarchalCats item.cid, (err, cats) ->
+        updateItemDetailInDatabase
+          itemUri: itemUri
+          desc: removeSingleQuotes item.desc
+          skus: skus
+          attrs: attrs
+          cats: cats
+        , done
 
 exports.crawlStore = (store, done) ->
   async.waterfall [
@@ -48,16 +50,20 @@ exports.crawlStore = (store, done) ->
     if err then console.error err
     done()
 
-updateItemDetailInDatabase = ({desc, skus, itemUri, attrs}, callback) ->
+updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats}, callback) ->
   goodsId = ''
   price = ''
+  storeId = ''
   async.waterfall [
     (callback) ->
       db.getGood itemUri, callback
     (good, callback) ->
       goodsId = good.goods_id
       price = good.price
+      storeId = good.store_id
       db.updateGoods desc, itemUri, callback
+    (result, callback) ->
+      db.updateCats goodsId, storeId, cats, callback
     (result, callback) ->
       db.deleteSpecs goodsId, callback
     (result, callback) ->
@@ -243,6 +249,16 @@ parseAttrs = (propsName) ->
       attrValue: attrValue
   attrs
 
+getHierarchalCats = (cid, callback) ->
+  cats = []
+  next = (err, itemcats) ->
+    cats.push itemcats[0]
+    if itemcats[0].parent_cid is 0
+      callback null, cats
+    else
+      getItemCats itemcats[0].parent_cid, 'name, cid, parent_cid', next
+  getItemCats cid, 'name, cid, parent_cid', next
+
 removeSingleQuotes = (content) ->
   content.replace /'/g, ''
 
@@ -256,3 +272,6 @@ if process.env.NODE_ENV is 'test'
   exports.parseSkus = parseSkus
   exports.parseAttrs = parseAttrs
   exports.removeSingleQuotes = removeSingleQuotes
+
+if process.env.NODE_ENV is 'e2e'
+  exports.getHierarchalCats = getHierarchalCats

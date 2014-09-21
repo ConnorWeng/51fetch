@@ -9,6 +9,7 @@
   "scripts": {
     "start": "coffee index.coffee",
     "test": "export NODE_ENV=test && node ./node_modules/mocha/bin/mocha --compilers=coffee:coffee-script/register --reporter=spec",
+    "e2e": "export NODE_ENV=e2e && node ./node_modules/mocha/bin/mocha --compilers=coffee:coffee-script/register --reporter=spec -t 10000 ./e2e/*",
     "items": "coffee crawlItem.coffee"
   },
   "author": "Connor Weng",

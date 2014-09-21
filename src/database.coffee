@@ -40,6 +40,19 @@ class db
         console.error "error in update goods: #{goodHttp}"
       callback err, result
 
+  updateCats: (goodsId, storeId, cats, callback) ->
+    sql = "update ecm_goods set cate_id_1 = #{cats.pop().cid}"
+    i = 1
+    while cats.length > 0
+      cat = cats.pop()
+      cateId = cat.cid
+      cateName = cat.name
+      parentCid = cat.parent_cid
+      sql += ", cate_id_#{++i} = #{cateId}"
+    sql += " where goods_id = #{goodsId}"
+    @pool.query sql, (err, result) ->
+      callback err, result
+
   updateDefaultSpec: (goodsId, specId, callback) ->
     @pool.query "update ecm_goods set default_spec = #{specId} where goods_id = #{goodsId}", (err, result) ->
       if err

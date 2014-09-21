@@ -16,11 +16,11 @@ exports.getTaobaoItem = (numIid, fields, callback) ->
 
 exports.getItemCats = (cids, fields, callback) ->
   apiParams =
-    'cids': cids
+    'cids': "#{cids}"
     'fields': fields
   execute 'taobao.itemcats.get', apiParams, (err, result) ->
-    if result.itemcats_get_response?.item_cats?
-      callback null, result.itemcats_get_response.item_cats
+    if result.itemcats_get_response?.item_cats?.item_cat?
+      callback null, result.itemcats_get_response.item_cats.item_cat
     else
       handleError err, result, callback
 

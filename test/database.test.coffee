@@ -44,3 +44,17 @@ describe 'database', () ->
         attrValue: 'val2'
       }], ->
       assert.isTrue db.pool.query.calledWith "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('1', 'attr1', 'text', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id) values ('1', 'attr1', 'val1', '1');replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('2', 'attr2', 'text', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id) values ('1', 'attr2', 'val2', '2');"
+
+  describe '#updateCats', ->
+    it 'should run the correct update sql', ->
+      sinon.stub db.pool, 'query', ->
+      db.updateCats 1, 2, [{
+        "cid": 162103
+        "name": "毛衣"
+        "parent_cid": 16
+      }, {
+        "cid": 16
+        "name": "女装/女士精品"
+        "parent_cid": 0
+      }], ->
+      assert.isTrue db.pool.query.calledWith 'update ecm_goods set cate_id_1 = 16, cate_id_2 = 162103 where goods_id = 1'
