@@ -7,11 +7,6 @@ querystring = require 'querystring'
 database = require './database'
 
 db = new database
-  host: 'localhost'
-  user: 'root'
-  password: '57826502'
-  database: 'ecmall51'
-  port: 3306
 
 db.getStores '1 limit 10', (err, stores) ->
   db.end()
@@ -37,9 +32,9 @@ register = (store, index) ->
     serv_modpic: store.serv_modpic
     serv_golden: store.serv_golden
   options =
-    hostname: 'ecmall.51zwd.com'
+    hostname: 'mall.51zwd.com'
     port: 80
-    path: "/sms_http.php?numRe=#{index+80}"
+    path: "/sms_http.php?username=#{store.im_ww}"
     method: 'POST'
     headers:
       'Content-Type': 'application/x-www-form-urlencoded'
