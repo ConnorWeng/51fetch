@@ -54,14 +54,21 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats}, callback) ->
   goodsId = ''
   price = ''
   storeId = ''
+  store = {}
+  good = {}
   async.waterfall [
     (callback) ->
       db.getGood itemUri, callback
-    (good, callback) ->
+    (result, callback) ->
+      good = result
       goodsId = good.goods_id
       price = good.price
       storeId = good.store_id
       db.updateGoods desc, itemUri, callback
+    (result, callback) ->
+      db.getStores "store_id = #{storeId}", (err, stores) ->
+        store = stores[0]
+        callback err, stores
     (result, callback) ->
       db.updateCats goodsId, storeId, cats, callback
     (result, callback) ->
@@ -69,11 +76,20 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats}, callback) ->
     (result, callback) ->
       db.updateSpecs skus, goodsId, price, callback
     (result, callback) ->
-      insertId = if result.length > 0 then result[0].insertId else result.insertId
-      db.updateDefaultSpec goodsId, insertId, callback
+      if result?
+        insertId = if result.length > 0 then result[0].insertId else result.insertId
+        db.updateDefaultSpec goodsId, insertId, callback
+      else
+        callback null, null
     (result, callback) ->
       db.deleteItemAttr goodsId, callback
     (result, callback) ->
+      outerId = makeOuterId store, good.goods_name, parsePrice(price, store.see_price, good.goods_name)
+      outerIdAttr =
+        attrId: '1'
+        attrName: '商家编码'
+        attrValue: outerId
+      attrs.push outerIdAttr
       db.saveItemAttr goodsId, attrs, callback
     (result, callback) ->
       http.get "#{config.remote_service_address}&goodid=#{goodsId}", (res) ->
@@ -262,6 +278,18 @@ getHierarchalCats = (cid, callback) ->
 removeSingleQuotes = (content) ->
   content.replace /'/g, ''
 
+makeOuterId = (store, title, price) ->
+  seller = store.shop_mall + store.address
+  huohao = getHuoHao title
+  "#{seller}_P#{price}_#{huohao}#"
+
+getHuoHao = (title) ->
+  regex = /[A-Z]?\d+/g
+  matches = regex.exec title
+  while matches? and matches[0].length is 4 and matches[0].substr(0, 3) is '201'
+    matches = regex.exec title
+  matches?[0] || ''
+
 if process.env.NODE_ENV is 'test'
   exports.parsePrice = parsePrice
   exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
@@ -272,6 +300,8 @@ if process.env.NODE_ENV is 'test'
   exports.parseSkus = parseSkus
   exports.parseAttrs = parseAttrs
   exports.removeSingleQuotes = removeSingleQuotes
+  exports.getHuoHao = getHuoHao
+  exports.makeOuterId = makeOuterId
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

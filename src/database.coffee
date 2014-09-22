@@ -63,10 +63,13 @@ class db
     insertSql = ''
     for sku in skus
       insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('#{goodsId}', '#{sku[0]}', '#{sku[1]}',#{price}, 1000);"
-    @pool.query insertSql, (err, result) ->
-      if err
-        console.error "error in updateSpecs, goodsId:#{goodsId}"
-      callback err, result
+    if insertSql isnt ''
+      @pool.query insertSql, (err, result) ->
+        if err
+          console.error "error in updateSpecs, goodsId:#{goodsId}"
+        callback err, result
+    else
+      callback null, null
 
   deleteSpecs: (goodsId, callback) ->
     @pool.query "delete from ecm_goods_spec where goods_id = #{goodsId}", (err, result) ->

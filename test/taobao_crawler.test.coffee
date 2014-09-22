@@ -119,6 +119,20 @@ describe 'taobao_crawler', () ->
     it 'should remove all single quotes in given string', ->
       assert.equal taobao_crawler.removeSingleQuotes("abcdefg'hi jklmn'opq rst'uvwxyz"), "abcdefghi jklmnopq rstuvwxyz"
 
+  describe '#makeOuterId', ->
+    it 'should return outer id', ->
+      assert.equal taobao_crawler.makeOuterId(
+        'shop_mall': 'mall'
+        'address': 'address'
+      , '705#title', 15), 'malladdress_P15_705#'
+
+  describe '#getHuoHao', ->
+    it 'should return huo hao', ->
+      assert.equal taobao_crawler.getHuoHao('705#title'), 705
+      assert.equal taobao_crawler.getHuoHao('title705'), 705
+      assert.equal taobao_crawler.getHuoHao('2014title705'), 705
+      assert.equal taobao_crawler.getHuoHao('title'), ''
+
 CATS_TREE_HTML = '''
 <ul class="J_TCatsTree cats-tree J_TWidget">
   <li class="cat fst-cat float">
