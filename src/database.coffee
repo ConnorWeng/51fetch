@@ -105,6 +105,10 @@ class db
     @pool.query "update ecm_goods set cids = '' where store_id = #{storeId}", (err, result) ->
       callback err, result
 
+  deleteDelistItems: (storeId, callback) ->
+    @pool.query "delete from ecm_goods where store_id = #{storeId} and last_update < #{@todayZeroTime()}", (err, result) ->
+      callback err, result
+
   makeSaveItemSql: (storeId, storeName, items, cid) ->
     sql = ''
     for item in items
@@ -116,6 +120,13 @@ class db
 
   getDateTime: () ->
     date = new Date()
+    dateTime = parseInt(date.getTime() / 1000)
+    dateTime
+
+  todayZeroTime: ->
+    date = new Date
+    date.setHours 0
+    date.setMinutes 0
     dateTime = parseInt(date.getTime() / 1000)
     dateTime
 

@@ -47,6 +47,7 @@ exports.crawlStore = (store, done) ->
     updateCateContentAndFetchAllCateUris(store)
     clearCids(store)
     crawlAllPagesOfAllCates
+    deleteDelistItems(store)
   ], (err, result) ->
     if err then console.error err
     done()
@@ -117,14 +118,14 @@ updateCateContentAndFetchAllCateUris = (store) ->
     if catsTreeHtml isnt ''
       db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
       uris = []
-      $('a.cat-name').each (index, element) ->
-        uri = $(element).attr('href')
-        if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and ~uri.indexOf('#bd')
-          uris.push makeUriWithStoreInfo(uri, store)
       if $('a.by-new').length isnt 0
         uris.push makeUriWithStoreInfo($('a.by-new').attr('href'), store)
       else if $('#J_Cats a:eq(3)').length isnt 0
         uris.push makeUriWithStoreInfo($('#J_Cats a:eq(3)').attr('href'), store)
+      $('a.cat-name').each (index, element) ->
+        uri = $(element).attr('href')
+        if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and ~uri.indexOf('#bd')
+          uris.push makeUriWithStoreInfo(uri, store)
       window.close()
       callback null, uris
     else
@@ -151,6 +152,10 @@ crawlAllPagesOfAllCates = (uris, callback) ->
       'forceUTF8': true
       'callback': saveItemsFromPageAndQueueNext
     ]
+
+deleteDelistItems = (store) ->
+  (result, callback) ->
+    db.deleteDelistItems store['store_id'], callback
 
 saveItemsFromPageAndQueueNext = (err, result, callback) ->
   env result.body, (errors, window) ->
