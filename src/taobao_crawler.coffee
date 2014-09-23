@@ -112,7 +112,7 @@ makeJsDom = (result, callback) ->
 updateCateContentAndFetchAllCateUris = (store) ->
   (window, callback) ->
     $ = jquery window
-    catsTreeHtml = extractCatsTreeHtml $, store
+    catsTreeHtml = removeSingleQuotes extractCatsTreeHtml $, store
     if catsTreeHtml isnt ''
       db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
       uris = []
@@ -120,7 +120,11 @@ updateCateContentAndFetchAllCateUris = (store) ->
         uri = $(element).attr('href')
         if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and ~uri.indexOf('#bd')
           uris.push makeUriWithStoreInfo(uri, store)
-      if uris.length is 0 then uris.push makeUriWithStoreInfo($('a.by-new').attr('href'), store)
+      if uris.length is 0
+        if $('a.by-new').length isnt 0
+          uris.push makeUriWithStoreInfo($('a.by-new').attr('href'), store)
+        else if $('#J_Cats a:eq(3)').length isnt 0
+          uris.push makeUriWithStoreInfo($('#J_Cats a:eq(3)').attr('href'), store)
       window.close()
       callback null, uris
     else
@@ -163,6 +167,8 @@ extractCatsTreeHtml = ($, store) ->
   catsTreeHtml = $('ul.cats-tree').parent().html()
   if catsTreeHtml?
     catsTreeHtml = catsTreeHtml.trim().replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
+  else if (catsTreeHtml = $('ul#J_Cats').parent().html()) and catsTreeHtml?
+    catsTreeHtml
   else
     console.error "id:#{store['store_id']} #{store['store_name']}: catsTreeHtml is empty."
     catsTreeHtml = ''
@@ -179,13 +185,22 @@ parseStoreFromUri = (uri) ->
 
 extractItemsFromContent = ($, store) ->
   items = []
-  $('dl.item').each (index, element) ->
-    $item = $(element)
-    items.push
-      goodsName: $item.find('a.item-name').text()
-      defaultImage: extractDefaultImage $item
-      price: parsePrice $item.find('.c-price').text().trim(), store['see_price']
-      goodHttp: $item.find('a.item-name').attr('href')
+  if $('dl.item').length > 0
+    $('dl.item').each (index, element) ->
+      $item = $(element)
+      items.push
+        goodsName: $item.find('a.item-name').text()
+        defaultImage: extractDefaultImage $item
+        price: parsePrice $item.find('.c-price').text().trim(), store['see_price']
+        goodHttp: $item.find('a.item-name').attr('href')
+  else if $('div.item').length > 0
+    $('div.item').each (index, element) ->
+      $item = $(element)
+      items.push
+        goodsName: $item.find('.desc a').text().trim()
+        defaultImage: extractDefaultImage $item
+        price: parsePrice $item.find('.price strong').text().trim(), store['see_price']
+        goodHttp: $item.find('.desc a').attr('href')
   filterItems items
 
 extractDefaultImage = ($item) ->
