@@ -120,11 +120,10 @@ updateCateContentAndFetchAllCateUris = (store) ->
         uri = $(element).attr('href')
         if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and ~uri.indexOf('#bd')
           uris.push makeUriWithStoreInfo(uri, store)
-      if uris.length is 0
-        if $('a.by-new').length isnt 0
-          uris.push makeUriWithStoreInfo($('a.by-new').attr('href'), store)
-        else if $('#J_Cats a:eq(3)').length isnt 0
-          uris.push makeUriWithStoreInfo($('#J_Cats a:eq(3)').attr('href'), store)
+      if $('a.by-new').length isnt 0
+        uris.push makeUriWithStoreInfo($('a.by-new').attr('href'), store)
+      else if $('#J_Cats a:eq(3)').length isnt 0
+        uris.push makeUriWithStoreInfo($('#J_Cats a:eq(3)').attr('href'), store)
       window.close()
       callback null, uris
     else
