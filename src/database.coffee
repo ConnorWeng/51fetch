@@ -101,6 +101,10 @@ class db
       else
         console.log "id:#{storeId} #{storeName} is fetched one page: #{@getCidFromUrl url}."
 
+  clearCids: (storeId, callback) ->
+    @pool.query "update ecm_goods set cids = '' where store_id = #{storeId}", (err, result) ->
+      callback err, result
+
   makeSaveItemSql: (storeId, storeName, items, cid) ->
     sql = ''
     for item in items

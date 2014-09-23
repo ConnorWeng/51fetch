@@ -45,6 +45,7 @@ exports.crawlStore = (store, done) ->
     queueStoreUri(store)
     makeJsDom
     updateCateContentAndFetchAllCateUris(store)
+    clearCids(store)
     crawlAllPagesOfAllCates
   ], (err, result) ->
     if err then console.error err
@@ -129,6 +130,14 @@ updateCateContentAndFetchAllCateUris = (store) ->
     else
       window.close()
       callback new Error('NoCategoryContent'), null
+
+clearCids = (store) ->
+  (uris, callback) ->
+    db.clearCids store['store_id'], (err, result) ->
+      if err
+        callback err, null
+      else
+        callback null, uris
 
 crawlAllPagesOfAllCates = (uris, callback) ->
   quitCrawlingPages = ->
