@@ -130,7 +130,7 @@ updateCateContentAndFetchAllCateUris = (store) ->
       callback null, uris
     else
       window.close()
-      callback new Error('NoCategoryContent'), null
+      callback new Error("NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"), null
 
 clearCids = (store) ->
   (uris, callback) ->
@@ -177,14 +177,24 @@ nextPageUri = ($) ->
   $('div.pagination a.next').attr('href')
 
 extractCatsTreeHtml = ($, store) ->
-  catsTreeHtml = $('ul.cats-tree').parent().html()
-  if catsTreeHtml?
-    catsTreeHtml = catsTreeHtml.trim().replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
-  else if (catsTreeHtml = $('ul#J_Cats').parent().html()) and catsTreeHtml?
-    catsTreeHtml
-  else
+  TEMPLATES = [
+    CATS_TREE: 'ul.cats-tree'
+    REPLACE: (html) ->
+      html.replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
+  ,
+    CATS_TREE: 'ul#J_Cats'
+    REPLACE: (html) ->
+      html
+  ]
+  catsTreeHtml = ''
+  for template in TEMPLATES
+    if $(template.CATS_TREE).length > 0
+      html = $(template.CATS_TREE).parent().html().trim()
+      catsTreeHtml = template.REPLACE html
+      break
+  if catsTreeHtml is ''
     console.error "id:#{store['store_id']} #{store['store_name']}: catsTreeHtml is empty."
-    catsTreeHtml = ''
+  catsTreeHtml
 
 makeUriWithStoreInfo = (uri, store) ->
   uri + "###{store['store_name']}###{store['store_id']}###{store['see_price']}"
@@ -336,6 +346,7 @@ if process.env.NODE_ENV is 'test'
   exports.getHuoHao = getHuoHao
   exports.makeOuterId = makeOuterId
   exports.extractItemsFromContent = extractItemsFromContent
+  exports.extractCatsTreeHtml = extractCatsTreeHtml
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

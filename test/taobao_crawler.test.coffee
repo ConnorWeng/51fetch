@@ -40,7 +40,7 @@ describe 'taobao_crawler', () ->
     taobao_crawler.setClearCids mockDbOperationWithStoreArgs
     taobao_crawler.setDeleteDelistItems mockDbOperationWithStoreArgs
     it 'should crawl category content and all category uris', (done) ->
-      stubCrawler CATS_TREE_HTML
+      stubCrawler CATS_TREE_HTML_TEMPLATE_A
       taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
         assert.include uris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791#bd##store_name##store_id##see_price'
         callback null, null
@@ -72,6 +72,19 @@ describe 'taobao_crawler', () ->
       , () ->
         assert.isTrue databaseStub.saveItems.calledWith('any_store_id', 'any_store_name')
         done()
+
+  describe '#extractCatsTreeHtml', ->
+    expectCatsTreeHtmlInclude = (html, expected, done) ->
+      env html, (errors, window) ->
+        $ = jquery window
+        html = taobao_crawler.extractCatsTreeHtml $,
+          store_id: 'store_id'
+        assert.include html, expected
+        done()
+    it 'should return cats tree html from template A', (done) ->
+      expectCatsTreeHtmlInclude CATS_TREE_HTML_TEMPLATE_A, '蕾丝衫/雪纺衫', done
+    it 'should return cats tree html from template B', (done) ->
+      expectCatsTreeHtmlInclude CATS_TREE_HTML_TEMPLATE_B, '按新品', done
 
   describe '#extractItemsFromContent', ->
     expectItemsFromHtml = (html, seePrice, expected, done) ->
@@ -173,7 +186,8 @@ describe 'taobao_crawler', () ->
       assert.equal taobao_crawler.getHuoHao('2014title705'), 705
       assert.equal taobao_crawler.getHuoHao('title'), ''
 
-CATS_TREE_HTML = '''
+CATS_TREE_HTML_TEMPLATE_A = '''
+<div>
 <ul class="J_TCatsTree cats-tree J_TWidget">
   <li class="cat fst-cat float">
     <h4 class="cat-hd fst-cat-hd">
@@ -473,6 +487,21 @@ CATS_TREE_HTML = '''
     <p class="rate J_TRate"></p>
   </dd>
 </dl>
+</div>
+'''
+
+CATS_TREE_HTML_TEMPLATE_B = '''
+<div class="bd">
+  <ul id="J_Cats" class="cats J_TWidget" data-widget-type="Accordion" data-widget-config="{'triggerCls': 'cat-hd', 'panelCls': 'cat-bd','multiple': 'true', 'activeTriggerCls': 'collapse'}">
+    <li class="cat J_CatHeader">
+    <h4><i></i><a rel="shopCategoryList" href='http://shop68788405.taobao.com/search.htm'>查看所有宝贝>></a></h4>
+    <a rel="shopCategoryList" href="http://shop68788405.taobao.com/search.htm?orderType=hotsell_desc" rel="nofollow" >按销量</a>
+    <a rel="shopCategoryList" href="http://shop68788405.taobao.com/search.htm?orderType=newOn_desc" rel="nofollow" >按新品</a>
+    <a rel="shopCategoryList" href="http://shop68788405.taobao.com/search.htm?orderType=price" rel="nofollow" >按价格</a>
+    <a rel="shopCategoryList" href="http://shop68788405.taobao.com/search.htm?orderType=hotkeep_desc" rel="nofollow" >按收藏</a>
+  </li>
+  </ul>
+</div>
 '''
 
 DESC = '''
