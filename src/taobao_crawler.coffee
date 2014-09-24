@@ -117,20 +117,31 @@ updateCateContentAndFetchAllCateUris = (store) ->
     catsTreeHtml = removeSingleQuotes extractCatsTreeHtml $, store
     if catsTreeHtml isnt ''
       db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
-      uris = []
-      if $('a.by-new').length isnt 0
-        uris.push makeUriWithStoreInfo($('a.by-new').attr('href'), store)
-      else if $('#J_Cats a:eq(3)').length isnt 0
-        uris.push makeUriWithStoreInfo($('#J_Cats a:eq(3)').attr('href'), store)
-      $('a.cat-name').each (index, element) ->
-        uri = $(element).attr('href')
-        if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and ~uri.indexOf('#bd')
-          uris.push makeUriWithStoreInfo(uri, store)
+      uris = extractUris $, store
       window.close()
       callback null, uris
     else
       window.close()
       callback new Error("NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"), null
+
+extractUris = ($, store) ->
+  TEMPLATES = [
+    BY_NEW: 'a.by-new'
+    CAT_NAME: 'a.cat-name'
+  ,
+    BY_NEW: '#J_Cats a:eq(2)'
+    CAT_NAME: 'NON_EXISTS_YET'
+  ]
+  uris = []
+  for template in TEMPLATES
+    if $(template.BY_NEW).length > 0
+      uris.push makeUriWithStoreInfo($(template.BY_NEW).attr('href'), store)
+    $(template.CAT_NAME).each (index, element) ->
+      uri = $(element).attr('href')
+      if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and ~uri.indexOf('#bd')
+        uris.push makeUriWithStoreInfo(uri, store)
+    if $(template.BY_NEW).length > 0 then break
+  uris
 
 clearCids = (store) ->
   (uris, callback) ->
@@ -336,6 +347,7 @@ if process.env.NODE_ENV is 'test'
   exports.setCrawlAllPagesOfAllCates = (f) -> crawlAllPagesOfAllCates = f
   exports.setClearCids = (f) -> clearCids = f
   exports.setDeleteDelistItems = (f) -> deleteDelistItems = f
+  exports.setMakeUriWithStoreInfo = (f) -> makeUriWithStoreInfo = f
   exports.parsePrice = parsePrice
   exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
   exports.saveItemsFromPageAndQueueNext = saveItemsFromPageAndQueueNext
@@ -347,6 +359,8 @@ if process.env.NODE_ENV is 'test'
   exports.makeOuterId = makeOuterId
   exports.extractItemsFromContent = extractItemsFromContent
   exports.extractCatsTreeHtml = extractCatsTreeHtml
+  exports.extractUris = extractUris
+  exports.makeUriWithStoreInfo = makeUriWithStoreInfo
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

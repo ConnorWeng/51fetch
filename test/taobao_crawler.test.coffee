@@ -9,6 +9,7 @@ memwatch = require 'memwatch'
 
 newCrawler = null
 databaseStub = null
+originMakeUriWithStoreInfo = taobao_crawler.makeUriWithStoreInfo
 
 memwatch.on 'leak', (info) ->
   console.log info
@@ -19,6 +20,7 @@ describe 'taobao_crawler', () ->
     taobao_crawler.setCrawler newCrawler
     databaseStub = sinon.createStubInstance database
     taobao_crawler.setDatabase databaseStub
+    taobao_crawler.setMakeUriWithStoreInfo originMakeUriWithStoreInfo
 
   describe '#crawlStore', () ->
     stubCrawler = (htmlContent) ->
@@ -72,6 +74,21 @@ describe 'taobao_crawler', () ->
       , () ->
         assert.isTrue databaseStub.saveItems.calledWith('any_store_id', 'any_store_name')
         done()
+
+  describe '#extractUris', ->
+    beforeEach ->
+      taobao_crawler.setMakeUriWithStoreInfo (uri, store) ->
+        uri
+    expectUrisInclude = (html, expectedArray..., done) ->
+      env html, (errors, window) ->
+        $ = jquery window
+        uris = taobao_crawler.extractUris $, null
+        assert.include uris, expected for expected in expectedArray
+        done()
+    it 'should return uris from template A', (done) ->
+      expectUrisInclude CATS_TREE_HTML_TEMPLATE_A, 'http://shop65626141.taobao.com/category-858663529.htm?search=y&catName=30%D4%AA--45%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9#bd', 'http://shop65626141.taobao.com/category-757163049.htm?search=y&catName=%BA%AB%B0%E6%D0%DD%CF%D0%CA%B1%D7%B0#bd', done
+    it 'should return uris from template B', (done) ->
+      expectUrisInclude CATS_TREE_HTML_TEMPLATE_B, 'http://shop68788405.taobao.com/search.htm?orderType=newOn_desc', done
 
   describe '#extractCatsTreeHtml', ->
     expectCatsTreeHtmlInclude = (html, expected, done) ->
