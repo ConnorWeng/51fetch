@@ -197,23 +197,26 @@ parseStoreFromUri = (uri) ->
     'see_price': uriParts[3]
 
 extractItemsFromContent = ($, store) ->
+  TEMPLATES = [
+    ITEM: 'dl.item'
+    ITEM_NAME: 'a.item-name'
+    PRICE: '.c-price'
+  ,
+    ITEM: 'div.item'
+    ITEM_NAME: '.desc a'
+    PRICE: '.price strong'
+  ]
   items = []
-  if $('dl.item').length > 0
-    $('dl.item').each (index, element) ->
-      $item = $(element)
-      items.push
-        goodsName: $item.find('a.item-name').text()
-        defaultImage: extractDefaultImage $item
-        price: parsePrice $item.find('.c-price').text().trim(), store['see_price']
-        goodHttp: $item.find('a.item-name').attr('href')
-  else if $('div.item').length > 0
-    $('div.item').each (index, element) ->
-      $item = $(element)
-      items.push
-        goodsName: $item.find('.desc a').text().trim()
-        defaultImage: extractDefaultImage $item
-        price: parsePrice $item.find('.price strong').text().trim(), store['see_price']
-        goodHttp: $item.find('.desc a').attr('href')
+  for template in TEMPLATES
+    if $(template.ITEM).length > 0
+      $(template.ITEM).each (index, element) ->
+        $item = $(element)
+        items.push
+          goodsName: $item.find(template.ITEM_NAME).text().trim()
+          defaultImage: extractDefaultImage $item
+          price: parsePrice $item.find(template.PRICE).text().trim(), store['see_price']
+          goodHttp: $item.find(template.ITEM_NAME).attr('href')
+      break
   filterItems items
 
 extractDefaultImage = ($item) ->
@@ -332,6 +335,7 @@ if process.env.NODE_ENV is 'test'
   exports.removeSingleQuotes = removeSingleQuotes
   exports.getHuoHao = getHuoHao
   exports.makeOuterId = makeOuterId
+  exports.extractItemsFromContent = extractItemsFromContent
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

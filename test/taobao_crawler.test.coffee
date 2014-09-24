@@ -1,6 +1,8 @@
 assert = require('chai').assert
 sinon = require 'sinon'
 crawler = require('crawler').Crawler
+env = require('jsdom').env
+jquery = require 'jquery'
 database = require '../src/database'
 taobao_crawler = require '../src/taobao_crawler'
 memwatch = require 'memwatch'
@@ -70,6 +72,38 @@ describe 'taobao_crawler', () ->
       , () ->
         assert.isTrue databaseStub.saveItems.calledWith('any_store_id', 'any_store_name')
         done()
+
+  describe '#extractItemsFromContent', ->
+    expectItemsFromHtml = (html, seePrice, expected, done) ->
+      env html, (errors, window) ->
+        $ = jquery window
+        items = taobao_crawler.extractItemsFromContent $, {see_price: seePrice}
+        assert.deepEqual items, expected
+        done()
+    it 'should return items array from html template A', (done) ->
+      expectItemsFromHtml ITEMS_HTML_TEMPLATE_A, '减10', [
+        goodsName: '865# 2014秋冬 新品拼皮百搭显瘦女呢料短裤（送腰带）'
+        defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i2/T1Xy3SFXliXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
+        price: '30.00'
+        goodHttp: 'http://item.taobao.com/item.htm?id=40890292076'
+      ,
+        goodsName: '867# 2014秋冬新品韩版显瘦蕾丝花边拼接短裤百搭呢料短裤热裤'
+        defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i2/TB1ap8wGXXXXXbXXVXXXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
+        price: '30.00'
+        goodHttp: 'http://item.taobao.com/item.htm?id=40889940937'
+      ], done
+    it 'should return items array from html template B', (done) ->
+      expectItemsFromHtml ITEMS_HTML_TEMPLATE_B, '减半', [
+        goodsName: '#6801#现货4码3色小清新必备学院派彩色时尚拼色长袖卫衣'
+        defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i4/T1HXpZFk4iXXXXXXXX_!!0-item_pic.jpg_160x160.jpg'
+        price: '18.00'
+        goodHttp: 'http://item.taobao.com/item.htm?id=41324376021&'
+      ,
+        goodsName: '实拍#8821#棒球服女 韩版潮情侣装棒球衫开衫卫衣女学生外套班服'
+        defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i2/TB1xHOkGXXXXXX0XFXXXXXXXXXX_!!0-item_pic.jpg_160x160.jpg'
+        price: '34.00'
+        goodHttp: 'http://item.taobao.com/item.htm?id=41083856074&'
+      ], done
 
   describe '#parsePrice', ->
     it 'should return half when see_price is 减半', ->
@@ -496,4 +530,95 @@ CATS_TREE_WITHOUT_CATS_HTML = '''
     </div>
   </li>
 </ul>
+'''
+
+ITEMS_HTML_TEMPLATE_A = '''
+<dl class="item " data-id="40890292076">
+  <dt class="photo">
+    <a href="http://item.taobao.com/item.htm?id=40890292076" target="_blank">
+      <img alt="865# 2014秋冬 新品拼皮百搭显瘦女呢料短裤（送腰带）"  src="http://img01.taobaocdn.com/bao/uploaded/i2/T1Xy3SFXliXXXXXXXX_!!0-item_pic.jpg_240x240.jpg"  >
+    </a>
+  </dt>
+  <dd class="detail">
+    <a class="item-name" href="http://item.taobao.com/item.htm?id=40890292076" target="_blank">865# 2014秋冬 新品拼皮百搭显瘦女呢料短裤（送腰带）</a>
+    <div class="attribute">
+      <div class="cprice-area"><span class="symbol">&yen;</span><span class="c-price">40.00 </span></div>
+      <div class="sale-area">已售：<span class="sale-num">0</span>件</div>
+    </div>
+  </dd>
+  <dd class="rates">
+    <div class="title">
+      <h4>
+        评论(<a href="http://item.taobao.com/item.htm?id=40890292076&on_comment=1" target="_blank"><span>0</span></a>)
+      </h4>
+    </div>
+    <p class="rate J_TRate"></p>
+  </dd>
+</dl>
+
+<dl class="item " data-id="40889940937">
+  <dt class="photo">
+    <a href="http://item.taobao.com/item.htm?id=40889940937" target="_blank">
+      <img alt="867# 2014秋冬新品韩版显瘦蕾丝花边拼接短裤百搭呢料短裤热裤"  src="http://img01.taobaocdn.com/bao/uploaded/i2/TB1ap8wGXXXXXbXXVXXXXXXXXXX_!!0-item_pic.jpg_240x240.jpg"  >
+    </a>
+  </dt>
+  <dd class="detail">
+    <a class="item-name" href="http://item.taobao.com/item.htm?id=40889940937" target="_blank">867# 2014秋冬新品韩版显瘦蕾丝花边拼接短裤百搭呢料短裤热裤</a>
+    <div class="attribute">
+      <div class="cprice-area"><span class="symbol">&yen;</span><span class="c-price">40.00 </span></div>
+      <div class="sale-area">已售：<span class="sale-num">0</span>件</div>
+    </div>
+  </dd>
+  <dd class="rates">
+    <div class="title">
+      <h4>
+        评论(<a href="http://item.taobao.com/item.htm?id=40889940937&on_comment=1" target="_blank"><span>0</span></a>)
+      </h4>
+    </div>
+    <p class="rate J_TRate"></p>
+  </dd>
+</dl>
+'''
+
+ITEMS_HTML_TEMPLATE_B = '''
+<div class="item">
+  <div class="pic">
+    <a href="http://item.taobao.com/item.htm?id=41324376021&" target="_blank">
+      <img src="http://a.tbcdn.cn/s.gif" data-ks-lazyload="http://img01.taobaocdn.com/bao/uploaded/i4/T1HXpZFk4iXXXXXXXX_!!0-item_pic.jpg_160x160.jpg" />
+    </a>
+  </div>
+  <div class="desc">
+    <a target="_blank" href="http://item.taobao.com/item.htm?id=41324376021&" class="permalink" style="">
+      #6801#现货4码3色小清新必备学院派彩色时尚拼色长袖卫衣
+    </a>
+  </div>
+  <div class="price">
+    <span>
+      一口价                            </span>
+    <strong>36.00 元</strong>
+  </div>
+  <div class="sales-amount">
+  最近30天售出<em>0</em>件
+  </div>
+</div>
+<div class="item">
+  <div class="pic">
+    <a href="http://item.taobao.com/item.htm?id=41083856074&" target="_blank">
+      <img src="http://a.tbcdn.cn/s.gif" data-ks-lazyload="http://img01.taobaocdn.com/bao/uploaded/i2/TB1xHOkGXXXXXX0XFXXXXXXXXXX_!!0-item_pic.jpg_160x160.jpg" />
+    </a>
+  </div>
+  <div class="desc">
+    <a target="_blank" href="http://item.taobao.com/item.htm?id=41083856074&" class="permalink" style="">
+      实拍#8821#棒球服女 韩版潮情侣装棒球衫开衫卫衣女学生外套班服
+    </a>
+  </div>
+  <div class="price">
+    <span>
+      一口价                            </span>
+    <strong>68.00 元</strong>
+  </div>
+  <div class="sales-amount">
+  最近30天售出<em>0</em>件
+  </div>
+</div>
 '''
