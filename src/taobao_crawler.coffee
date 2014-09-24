@@ -319,11 +319,13 @@ getHuoHao = (title) ->
   matches?[0] || ''
 
 if process.env.NODE_ENV is 'test'
+  exports.setSaveItemsFromPageAndQueueNext = (f) -> saveItemsFromPageAndQueueNext = f
+  exports.setCrawlAllPagesOfAllCates = (f) -> crawlAllPagesOfAllCates = f
+  exports.setClearCids = (f) -> clearCids = f
+  exports.setDeleteDelistItems = (f) -> deleteDelistItems = f
   exports.parsePrice = parsePrice
   exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
-  exports.setCrawlAllPagesOfAllCates = (f) -> crawlAllPagesOfAllCates = f
   exports.saveItemsFromPageAndQueueNext = saveItemsFromPageAndQueueNext
-  exports.setSaveItemsFromPageAndQueueNext = (f) -> saveItemsFromPageAndQueueNext = f
   exports.getNumIidFromUri = getNumIidFromUri
   exports.parseSkus = parseSkus
   exports.parseAttrs = parseAttrs

@@ -31,6 +31,12 @@ describe 'taobao_crawler', () ->
         store_name: 'store_name'
         shop_http: 'http://shop_url'
         see_price: 'see_price'
+    mockDbOperationWithStoreArgs = (s) ->
+      (result, callback) ->
+        assert.equal s, store
+        callback null, result
+    taobao_crawler.setClearCids mockDbOperationWithStoreArgs
+    taobao_crawler.setDeleteDelistItems mockDbOperationWithStoreArgs
     it 'should crawl category content and all category uris', (done) ->
       stubCrawler CATS_TREE_HTML
       taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
