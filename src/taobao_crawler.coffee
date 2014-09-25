@@ -265,7 +265,9 @@ parsePrice = (price, seePrice, goodsName) ->
     rawPrice
 
 filterItems = (unfilteredItems) ->
-  items = item for item in unfilteredItems when not ~item.goodsName.indexOf('邮费') and
+  items = item for item in unfilteredItems when item.goodsName? and
+    item.defaultImage? and
+    not ~item.goodsName.indexOf('邮费') and
     not ~item.goodsName.indexOf('运费') and
     not ~item.goodsName.indexOf('淘宝网 - 淘！我喜欢') and
     not ~item.goodsName.indexOf('专拍') and
@@ -356,6 +358,7 @@ if process.env.NODE_ENV is 'test'
   exports.extractCatsTreeHtml = extractCatsTreeHtml
   exports.extractUris = extractUris
   exports.makeUriWithStoreInfo = makeUriWithStoreInfo
+  exports.filterItems = filterItems
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

@@ -203,6 +203,25 @@ describe 'taobao_crawler', () ->
       assert.equal taobao_crawler.getHuoHao('2014title705'), 705
       assert.equal taobao_crawler.getHuoHao('title'), ''
 
+  describe '#filterItems', ->
+    it 'should return filtered items', ->
+      assert.deepEqual taobao_crawler.filterItems([
+        goodsName: undefined
+        defaultImage: undefined
+        price: undefined
+        goodHttp: undefined
+      ,
+        goodsName: 'goods name'
+        defaultImage: 'default image'
+        price: '40.00'
+        goodHttp: 'uri'
+      ]), [
+        goodsName: 'goods name'
+        defaultImage: 'default image'
+        price: '40.00'
+        goodHttp: 'uri'
+      ]
+
 CATS_TREE_HTML_TEMPLATE_A = '''
 <div>
 <ul class="J_TCatsTree cats-tree J_TWidget">
