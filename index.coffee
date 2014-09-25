@@ -9,7 +9,7 @@ crawl = ->
   else
     console.log 'completed.'
 
-getAllStores '1 order by store_id limit 1', (err, unfetchedStores) ->
+getAllStores 'state = 1 order by store_id', (err, unfetchedStores) ->
   if err then throw err
   stores = unfetchedStores
   crawl()
