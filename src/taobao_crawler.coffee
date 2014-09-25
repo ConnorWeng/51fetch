@@ -230,7 +230,7 @@ extractItemsFromContent = ($, store) ->
         items.push
           goodsName: $item.find(template.ITEM_NAME).text().trim()
           defaultImage: extractDefaultImage $item
-          price: parsePrice $item.find(template.PRICE).text().trim(), store['see_price']
+          price: parsePrice $item.find(template.PRICE).text().trim(), store['see_price'], $item.find(template.ITEM_NAME).text().trim()
           goodHttp: $item.find(template.ITEM_NAME).attr('href')
       break
   filterItems items
@@ -261,7 +261,7 @@ parsePrice = (price, seePrice, goodsName) ->
   if isNaN(finalPrice) isnt true
     finalPrice
   else
-    console.error "不支持该see_price: #{seePrice}"
+    console.error "不支持该see_price: #{price} #{seePrice} #{goodsName}"
     rawPrice
 
 filterItems = (unfilteredItems) ->
