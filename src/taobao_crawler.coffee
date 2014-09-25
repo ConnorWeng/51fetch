@@ -7,6 +7,26 @@ database = require './database'
 config = require './config'
 {getTaobaoItem, getItemCats} = require './taobao_api'
 
+TEMPLATES = [
+  BY_NEW: 'a.by-new'
+  CAT_NAME: 'a.cat-name'
+  CATS_TREE: 'ul.cats-tree'
+  REPLACE: (html, store) ->
+    html.replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
+  ITEM: 'dl.item'
+  ITEM_NAME: 'a.item-name'
+  PRICE: '.c-price'
+,
+  BY_NEW: '#J_Cats a:eq(2)'
+  CAT_NAME: 'NON_EXISTS_YET'
+  CATS_TREE: 'ul#J_Cats'
+  REPLACE: (html, store) ->
+    html
+  ITEM: 'div.item'
+  ITEM_NAME: '.desc a'
+  PRICE: '.price strong'
+]
+
 c = new crawler
   'forceUTF8': true
   'maxConnections': 1
@@ -125,13 +145,6 @@ updateCateContentAndFetchAllCateUris = (store) ->
       callback new Error("NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"), null
 
 extractUris = ($, store) ->
-  TEMPLATES = [
-    BY_NEW: 'a.by-new'
-    CAT_NAME: 'a.cat-name'
-  ,
-    BY_NEW: '#J_Cats a:eq(2)'
-    CAT_NAME: 'NON_EXISTS_YET'
-  ]
   uris = []
   for template in TEMPLATES
     if $(template.BY_NEW).length > 0
@@ -188,20 +201,11 @@ nextPageUri = ($) ->
   $('div.pagination a.next').attr('href')
 
 extractCatsTreeHtml = ($, store) ->
-  TEMPLATES = [
-    CATS_TREE: 'ul.cats-tree'
-    REPLACE: (html) ->
-      html.replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
-  ,
-    CATS_TREE: 'ul#J_Cats'
-    REPLACE: (html) ->
-      html
-  ]
   catsTreeHtml = ''
   for template in TEMPLATES
     if $(template.CATS_TREE).length > 0
       html = $(template.CATS_TREE).parent().html().trim()
-      catsTreeHtml = template.REPLACE html
+      catsTreeHtml = template.REPLACE html, store
       break
   if catsTreeHtml is ''
     console.error "id:#{store['store_id']} #{store['store_name']}: catsTreeHtml is empty."
@@ -218,15 +222,6 @@ parseStoreFromUri = (uri) ->
     'see_price': uriParts[3]
 
 extractItemsFromContent = ($, store) ->
-  TEMPLATES = [
-    ITEM: 'dl.item'
-    ITEM_NAME: 'a.item-name'
-    PRICE: '.c-price'
-  ,
-    ITEM: 'div.item'
-    ITEM_NAME: '.desc a'
-    PRICE: '.price strong'
-  ]
   items = []
   for template in TEMPLATES
     if $(template.ITEM).length > 0
