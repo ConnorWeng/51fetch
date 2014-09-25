@@ -78,7 +78,7 @@ class db
   updateStoreCateContent: (storeId, storeName, cateContent) ->
     @pool.query "update ecm_store set cate_content='#{cateContent}' where store_id = #{storeId}", (err, result) ->
       if err
-        return console.error "error in updateStoreCateContent: #{storeId},#{cateContent} " + err
+        return console.error "error in updateStoreCateContent: #{storeId} #{storeName} " + err
       console.log "id:#{storeId} #{storeName} updated cate_content."
 
   saveItemAttr: (goodsId, attrs, callback) ->
@@ -99,7 +99,7 @@ class db
       if err
         console.error "error in saveItems: #{err}"
       else
-        console.log "id:#{storeId} #{storeName} is fetched one page: #{@getCidFromUrl url}."
+        console.log "id:#{storeId} #{storeName} is fetched one page: #{@getCidFromUrl url} counts: #{items.length}."
 
   clearCids: (storeId, callback) ->
     @pool.query "update ecm_goods set cids = '' where store_id = #{storeId}", (err, result) ->
