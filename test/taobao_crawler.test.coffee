@@ -218,6 +218,11 @@ describe 'taobao_crawler', () ->
         defaultImage: 'default image'
         price: '40.00'
         goodHttp: 'uri'
+      ,
+        goodsName: ''
+        defaultImage: 'default image'
+        price: '40.00'
+        goodHttp: 'uri'
       ]), [
         goodsName: 'goods name'
         defaultImage: 'default image'

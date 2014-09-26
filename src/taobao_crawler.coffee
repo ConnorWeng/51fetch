@@ -266,6 +266,7 @@ parsePrice = (price, seePrice, goodsName) ->
 
 filterItems = (unfilteredItems) ->
   items = item for item in unfilteredItems when item.goodsName? and
+    item.goodsName isnt '' and
     item.defaultImage? and
     not ~item.goodsName.indexOf('邮费') and
     not ~item.goodsName.indexOf('运费') and
