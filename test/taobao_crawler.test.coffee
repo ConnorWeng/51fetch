@@ -149,6 +149,9 @@ describe 'taobao_crawler', () ->
     it 'should return price in goods name when see_price is P', ->
       assert.equal taobao_crawler.parsePrice('111', 'P', '我是一个任意宝贝 P22'), 22
       assert.equal taobao_crawler.parsePrice('111', 'P', '我是一个任意宝贝 P33.3xxx'), 33.3
+      assert.equal taobao_crawler.parsePrice('111', 'P', '我是一个任意宝贝 p22'), 22
+      assert.equal taobao_crawler.parsePrice('111', 'P', '我是一个任意宝贝 F33'), 33
+      assert.equal taobao_crawler.parsePrice('111', 'P', '我是一个任意宝贝 f33'), 33
 
   describe '#getNumIidFromUri', ->
     it 'should return 41033455520', ->
