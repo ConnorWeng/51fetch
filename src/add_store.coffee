@@ -1,6 +1,3 @@
-#
-# have to modify index manually according to the max of member's user_name
-#
 http = require 'http'
 querystring = require 'querystring'
 
@@ -8,12 +5,22 @@ database = require './database'
 
 db = new database
 
-db.getStores '1 limit 10', (err, stores) ->
+unaddedStores = []
+
+db.getStores '1 order by store_id', (err, stores) ->
   db.end()
   if err then throw err
-  register store, index for store, index in stores
+  unaddedStores = stores
+  register()
 
-register = (store, index) ->
+register = ->
+  if unaddedStores.length > 0
+    store = unaddedStores.shift()
+    registerImpl store, register
+  else
+    console.log 'completed.'
+
+registerImpl = (store, callback) ->
   data = querystring.stringify
     shop_mall: store.shop_mall
     floor: store.floor
@@ -46,5 +53,6 @@ register = (store, index) ->
       body += chunk;
     res.on 'end', () ->
       console.log body
+      callback()
   req.write "#{data}\n"
   req.end()
