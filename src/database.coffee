@@ -41,15 +41,22 @@ class db
       callback err, result
 
   updateCats: (goodsId, storeId, cats, callback) ->
-    sql = "update ecm_goods set cate_id_1 = #{cats.pop().cid}"
+    sql = ''
+    gcategorySql = ''
+    goodsSql = ''
+    cat = cats.pop()
+    gcategorySql = "replace into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (#{cat.cid}, 0, '#{cat.name}', #{cat.parent_cid});"
+    goodsSql = "update ecm_goods set cate_id_1 = #{cat.cid}"
     i = 1
     while cats.length > 0
       cat = cats.pop()
       cateId = cat.cid
       cateName = cat.name
       parentCid = cat.parent_cid
-      sql += ", cate_id_#{++i} = #{cateId}"
-    sql += " where goods_id = #{goodsId}"
+      gcategorySql += "replace into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (#{cateId}, 0, '#{cateName}', #{parentCid});"
+      goodsSql += ", cate_id_#{++i} = #{cateId}"
+    goodsSql += " where goods_id = #{goodsId};"
+    sql = gcategorySql + goodsSql
     @pool.query sql, (err, result) ->
       callback err, result
 
