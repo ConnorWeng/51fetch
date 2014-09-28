@@ -52,13 +52,17 @@ exports.crawlItemViaApi = (itemUri, done) ->
       skus = parseSkus item.skus
       attrs = parseAttrs item.props_name
       getHierarchalCats item.cid, (err, cats) ->
-        updateItemDetailInDatabase
-          itemUri: itemUri
-          desc: removeSingleQuotes item.desc
-          skus: skus
-          attrs: attrs
-          cats: cats
-        , done
+        if err or cats.length is 0
+          console.error "getHierarchalCats Error: cid #{item.cid} #{err}"
+          done()
+        else
+          updateItemDetailInDatabase
+            itemUri: itemUri
+            desc: removeSingleQuotes item.desc
+            skus: skus
+            attrs: attrs
+            cats: cats
+          , done
 
 exports.crawlStore = (store, done) ->
   async.waterfall [
@@ -318,11 +322,14 @@ parseAttrs = (propsName) ->
 getHierarchalCats = (cid, callback) ->
   cats = []
   next = (err, itemcats) ->
-    cats.push itemcats[0]
-    if itemcats[0].parent_cid is 0
-      callback null, cats
+    if err or itemcats.length is 0
+      callback err, cats
     else
-      getItemCats itemcats[0].parent_cid, 'name, cid, parent_cid', next
+      cats.push itemcats[0]
+      if itemcats[0].parent_cid is 0
+        callback null, cats
+      else
+        getItemCats itemcats[0].parent_cid, 'name, cid, parent_cid', next
   getItemCats cid, 'name, cid, parent_cid', next
 
 removeSingleQuotes = (content) ->
