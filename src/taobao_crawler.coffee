@@ -186,6 +186,7 @@ deleteDelistItems = (store) ->
     db.deleteDelistItems store['store_id'], callback
 
 saveItemsFromPageAndQueueNext = (err, result, callback) ->
+  debug result.body
   env result.body, (errors, window) ->
     $ = jquery window
     store = parseStoreFromUri result.uri
@@ -346,6 +347,11 @@ getHuoHao = (title) ->
   while matches? and matches[0].length is 4 and matches[0].substr(0, 3) is '201'
     matches = regex.exec title
   matches?[0] || ''
+
+debug = (content) ->
+  if process.env.NODE_ENV is 'debug'
+    console.log '=============================================================='
+    console.log content
 
 if process.env.NODE_ENV is 'test'
   exports.setSaveItemsFromPageAndQueueNext = (f) -> saveItemsFromPageAndQueueNext = f
