@@ -29,7 +29,7 @@ TEMPLATES = [
 
 c = new crawler
   'forceUTF8': true
-  'maxConnections': 1
+  'rateLimits': 2000
   'jQuery': false
 db = new database()
 
