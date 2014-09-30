@@ -12,6 +12,13 @@ class db
     config.multipleStatements = true
     @pool = mysql.createPool config
 
+  query: (sql, callback) ->
+    @pool.query sql, (err, result) =>
+      if err?.code is 'PROTOCOL_CONNECTION_LOST'
+        @query sql, callback
+      else
+        callback err, result
+
   runSql: (sql, callback) ->
     @pool.query sql, (err, result) ->
       callback err, result
