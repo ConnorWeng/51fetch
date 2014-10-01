@@ -13,7 +13,7 @@ TEMPLATES = [
   CATS_TREE: 'ul.cats-tree'
   REPLACE: (html, store) ->
     html.replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
-  ITEM: 'dl.item'
+  ITEM: '.shop-hesper-bd dl.item'
   ITEM_NAME: 'a.item-name'
   PRICE: '.c-price'
 ,
@@ -22,7 +22,7 @@ TEMPLATES = [
   CATS_TREE: 'ul#J_Cats'
   REPLACE: (html, store) ->
     html
-  ITEM: 'div.item'
+  ITEM: '.shop-hesper-bd div.item'
   ITEM_NAME: '.desc a'
   PRICE: '.price strong'
 ]

@@ -606,6 +606,7 @@ CATS_TREE_WITHOUT_CATS_HTML = '''
 '''
 
 ITEMS_HTML_TEMPLATE_A = '''
+<div class="shop-hesper-bd grid">
 <dl class="item " data-id="40890292076">
   <dt class="photo">
     <a href="http://item.taobao.com/item.htm?id=40890292076" target="_blank">
@@ -651,9 +652,11 @@ ITEMS_HTML_TEMPLATE_A = '''
     <p class="rate J_TRate"></p>
   </dd>
 </dl>
+</div>
 '''
 
 ITEMS_HTML_TEMPLATE_B = '''
+<div class="shop-hesper-bd grid">
 <div class="item">
   <div class="pic">
     <a href="http://item.taobao.com/item.htm?id=41324376021&" target="_blank">
@@ -693,5 +696,6 @@ ITEMS_HTML_TEMPLATE_B = '''
   <div class="sales-amount">
   最近30天售出<em>0</em>件
   </div>
+</div>
 </div>
 '''
