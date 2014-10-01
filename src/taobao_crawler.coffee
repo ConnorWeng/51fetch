@@ -28,6 +28,7 @@ TEMPLATES = [
 ]
 
 c = new crawler
+  'method': 'POST'
   'forceUTF8': true
   'rateLimits': 2000
   'jQuery': false
@@ -376,3 +377,4 @@ if process.env.NODE_ENV is 'test'
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats
+  exports.crawler = c
