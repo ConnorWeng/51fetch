@@ -195,16 +195,20 @@ saveItemsFromPageAndQueueNext = (err, result, callback) ->
   env result.body, (errors, window) ->
     $ = jquery window
     store = parseStoreFromUri result.uri
-    items = extractItemsFromContent $, store
-    db.saveItems store['store_id'], store['store_name'], items, result.uri
-    nextUri = nextPageUri $
-    window.close()
-    if nextUri?
-      c.queue [
-        'uri': makeUriWithStoreInfo nextUri, store
-        'forceUTF8': true
-        'callback': saveItemsFromPageAndQueueNext
-      ]
+    if $('.item-not-found').length > 0
+      console.log "id:#{store['store_id']} #{store['store_name']} has one empty page: #{result.uri}"
+      window.close()
+    else
+      items = extractItemsFromContent $, store
+      db.saveItems store['store_id'], store['store_name'], items, result.uri
+      nextUri = nextPageUri $
+      window.close()
+      if nextUri?
+        c.queue [
+          'uri': makeUriWithStoreInfo nextUri, store
+          'forceUTF8': true
+          'callback': saveItemsFromPageAndQueueNext
+        ]
     callback?()
 
 nextPageUri = ($) ->

@@ -71,9 +71,15 @@ describe 'taobao_crawler', () ->
       taobao_crawler.saveItemsFromPageAndQueueNext null,
         uri: 'any_uri##any_store_name##any_store_id##any_see_price'
         body: PAGINATION_HTML
-      , () ->
+      , ->
         assert.isTrue databaseStub.saveItems.calledWith('any_store_id', 'any_store_name')
         done()
+    it 'should do not call db function when item not found', ->
+      taobao_crawler.saveItemsFromPageAndQueueNext null,
+        uri: 'any_uri##any_store_name##any_store_id##any_see_price'
+        body: '<p class="item-not-found"></p>'
+      , ->
+        assert.isTrue databaseStub.saveItems.neverCalledWith()
 
   describe '#extractUris', ->
     beforeEach ->
