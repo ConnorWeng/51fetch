@@ -134,7 +134,11 @@ queueStoreUri = (store) ->
     ]
 
 makeJsDom = (result, callback) ->
-  env result.body, callback
+  if result.body is ''
+    store = parseStoreFromUri result.uri
+    callback new Error("id:#{store['store_id']} #{store['store_name']} doesn't exist"), null
+  else
+    env result.body, callback
 
 updateCateContentAndFetchAllCateUris = (store) ->
   (window, callback) ->
