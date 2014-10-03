@@ -236,6 +236,14 @@ describe 'taobao_crawler', () ->
         goodHttp: 'uri'
       ]
 
+  describe '#isRealPic', ->
+    it 'should return 1 if title contains "实拍"', ->
+      assert.equal taobao_crawler.isRealPic('宝贝标题含有实拍', ''), 1
+    it 'should return 1 if props name contains "157305307"', ->
+      assert.equal taobao_crawler.isRealPic('', '1:2:3;1:157305307:3'), 1
+    it 'should return 0 if cannot find "实拍" in title or "157305307" in props name', ->
+      assert.equal taobao_crawler.isRealPic('', ''), 0
+
 CATS_TREE_HTML_TEMPLATE_A = '''
 <div>
 <ul class="J_TCatsTree cats-tree J_TWidget">

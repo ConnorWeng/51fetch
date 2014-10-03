@@ -63,6 +63,7 @@ exports.crawlItemViaApi = (itemUri, done) ->
             skus: skus
             attrs: attrs
             cats: cats
+            realPic: isRealPic item.title, item.props_name
           , done
 
 exports.crawlStore = (store, done) ->
@@ -77,7 +78,7 @@ exports.crawlStore = (store, done) ->
     if err then console.error err
     done()
 
-updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats}, callback) ->
+updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic}, callback) ->
   goodsId = ''
   price = ''
   storeId = ''
@@ -91,7 +92,7 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats}, callback) ->
       goodsId = good.goods_id
       price = good.price
       storeId = good.store_id
-      db.updateGoods desc, itemUri, callback
+      db.updateGoods desc, itemUri, realPic, callback
     (result, callback) ->
       db.getStores "store_id = #{storeId}", (err, stores) ->
         store = stores[0]
@@ -357,6 +358,12 @@ getHuoHao = (title) ->
     matches = regex.exec title
   matches?[0] || ''
 
+isRealPic = (title, propsName) ->
+  if ~title.indexOf('实拍') or ~propsName.indexOf('157305307')
+    1
+  else
+    0
+
 debug = (content) ->
   if process.env.NODE_ENV is 'debug'
     console.log '=============================================================='
@@ -382,6 +389,7 @@ if process.env.NODE_ENV is 'test'
   exports.extractUris = extractUris
   exports.makeUriWithStoreInfo = makeUriWithStoreInfo
   exports.filterItems = filterItems
+  exports.isRealPic = isRealPic
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

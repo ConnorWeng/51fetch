@@ -41,8 +41,8 @@ class db
         console.error "error in getGood: #{goodHttp}"
       callback err, result[0]
 
-  updateGoods: (desc, goodHttp, callback) ->
-    @query "update ecm_goods set description = '#{desc}', spec_name_1 = '颜色', spec_name_2 = '尺码', spec_qty = 2 where good_http = '#{goodHttp}'", (err, result) ->
+  updateGoods: (desc, goodHttp, realPic, callback) ->
+    @query "update ecm_goods set description = '#{desc}', spec_name_1 = '颜色', spec_name_2 = '尺码', spec_qty = 2, realpic = #{realPic} where good_http = '#{goodHttp}'", (err, result) ->
       if err
         console.error "error in update goods: #{goodHttp}"
       callback err, result
