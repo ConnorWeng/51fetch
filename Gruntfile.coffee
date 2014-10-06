@@ -26,5 +26,15 @@ module.exports = (grunt) ->
         serverSep: '/'
         concurrency: 4
         progress: true
+      wangzong:
+        auth:
+          host: '120.24.63.15'
+          authKey: 'wangzong'
+        src: './'
+        dest: '/alidata/www/test2/node/51fetch_all/'
+        exclusions: ['.DS_Store', 'node_modules', '.git', '.ftppass', 'sftpCache.json']
+        serverSep: '/'
+        concurrency: 4
+        progress: true
 
   grunt.loadNpmTasks 'grunt-sftp-deploy'
