@@ -182,14 +182,17 @@ describe 'taobao_crawler', () ->
     it 'should return attributes array', ->
       assert.deepEqual taobao_crawler.parseAttrs('20418023:157305307:主图来源:自主实拍图;13021751:3381429:货号:858#;20608:6384766:风格:通勤'), [{
         attrId: '20418023'
+        valueId: '157305307'
         attrName: '主图来源'
         attrValue: '自主实拍图'
       },{
         attrId: '13021751'
+        valueId: '3381429'
         attrName: '货号'
         attrValue: '858#'
       }, {
         attrId: '20608'
+        valueId: '6384766'
         attrName: '风格'
         attrValue: '通勤'
       }]

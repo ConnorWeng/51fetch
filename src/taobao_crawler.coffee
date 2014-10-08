@@ -326,9 +326,10 @@ parseAttrs = (propsName) ->
   attrs = []
   propsArray = propsName.split ';'
   for props in propsArray
-    [attrId, trival, attrName, attrValue] = props.split ':'
+    [attrId, valueId, attrName, attrValue] = props.split ':'
     attrs.push
       attrId: attrId
+      valueId: valueId
       attrName: attrName
       attrValue: attrValue
   attrs

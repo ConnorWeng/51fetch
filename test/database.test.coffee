@@ -36,14 +36,16 @@ describe 'database', () ->
       sinon.stub db.pool, 'query', ->
       db.saveItemAttr 1, [{
         attrId: '1'
+        valueId: 'vid1'
         attrName: 'attr1'
         attrValue: 'val1'
       }, {
         attrId: '2'
+        valueId: 'vid2'
         attrName: 'attr2'
         attrValue: 'val2'
       }], ->
-      assert.isTrue db.pool.query.calledWith "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('1', 'attr1', 'text', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id) values ('1', 'attr1', 'val1', '1');replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('2', 'attr2', 'text', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id) values ('1', 'attr2', 'val2', '2');"
+      assert.isTrue db.pool.query.calledWith "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('1', 'attr1', 'select', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id, value_id) values ('1', 'attr1', 'val1', '1', 'vid1');replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('2', 'attr2', 'select', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id, value_id) values ('1', 'attr2', 'val2', '2', 'vid2');"
 
   describe '#updateCats', ->
     it 'should run the correct update sql', ->
