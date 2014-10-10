@@ -115,6 +115,7 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic}, callb
       outerId = makeOuterId store, good.goods_name, parsePrice(price, store.see_price, good.goods_name)
       outerIdAttr =
         attrId: '1'
+        valueId: '1'
         attrName: '商家编码'
         attrValue: outerId
       attrs.push outerIdAttr
