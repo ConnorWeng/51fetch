@@ -92,7 +92,7 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic}, callb
       goodsId = good.goods_id
       price = good.price
       storeId = good.store_id
-      db.updateGoods desc, itemUri, realPic, callback
+      db.updateGoods desc, itemUri, realPic, skus, callback
     (result, callback) ->
       db.getStores "store_id = #{storeId}", (err, stores) ->
         store = stores[0]
@@ -319,7 +319,11 @@ parseSkus = (itemSkus) ->
     properties = []
     for propertiesName in propertiesNameArray
       [pid, vid, name, value] = propertiesName.split ':'
-      properties.push value
+      properties.push
+        pid: pid
+        vid: vid
+        name: name
+        value: value
     skus.push properties
   skus
 

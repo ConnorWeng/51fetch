@@ -173,9 +173,37 @@ describe 'taobao_crawler', () ->
           {properties_name: '1627207:3232481:颜色分类:巧克力色;20509:28316:尺码:L'},
         ]
       ), [
-        ['天蓝色', 'S'],
-        ['天蓝色', 'XL'],
-        ['巧克力色', 'L'],
+        [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+        ,
+          pid: '20509'
+          vid: '28314'
+          name: '尺码'
+          value: 'S'
+        ], [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+        ,
+          pid: '20509'
+          vid: '28317'
+          name: '尺码'
+          value: 'XL'
+        ], [
+          pid: '1627207'
+          vid: '3232481'
+          name: '颜色分类'
+          value: '巧克力色'
+        ,
+          pid: '20509'
+          vid: '28316'
+          name: '尺码'
+          value: 'L'
+        ]
       ]
 
   describe '#parseAttrs', ->

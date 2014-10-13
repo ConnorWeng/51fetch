@@ -41,8 +41,11 @@ class db
         console.error "error in getGood: #{goodHttp}"
       callback err, result[0]
 
-  updateGoods: (desc, goodHttp, realPic, callback) ->
-    @query "update ecm_goods set description = '#{desc}', spec_name_1 = '颜色', spec_name_2 = '尺码', spec_qty = 2, realpic = #{realPic} where good_http = '#{goodHttp}'", (err, result) ->
+  updateGoods: (desc, goodHttp, realPic, skus, callback) ->
+    specName1 = skus[0]?[0]?.name || ''
+    specName2 = skus[0]?[1]?.name || ''
+    specQty = skus[0]?.length || 0
+    @query "update ecm_goods set description = '#{desc}', spec_name_1 = '#{specName1}', spec_name_2 = '#{specName2}', spec_qty = #{specQty}, realpic = #{realPic} where good_http = '#{goodHttp}'", (err, result) ->
       if err
         console.error "error in update goods: #{goodHttp}"
       callback err, result
@@ -76,14 +79,15 @@ class db
   updateSpecs: (skus, goodsId, price, callback) ->
     insertSql = ''
     for sku in skus
-      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('#{goodsId}', '#{sku[0]}', '#{sku[1]}',#{price}, 1000);"
-    if insertSql isnt ''
-      @query insertSql, (err, result) ->
-        if err
-          console.error "error in updateSpecs, goodsId:#{goodsId}"
-        callback err, result
-    else
-      callback null, null
+      spec1 = sku[0]?.value
+      spec2 = sku[1]?.value || ''
+      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{price}, 1000);"
+    if insertSql is ''
+      insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('#{goodsId}', '', '', #{price}, 1000);"
+    @query insertSql, (err, result) ->
+      if err
+        console.error "error in updateSpecs, goodsId:#{goodsId}"
+      callback err, result
 
   deleteSpecs: (goodsId, callback) ->
     @query "delete from ecm_goods_spec where goods_id = #{goodsId}", (err, result) ->

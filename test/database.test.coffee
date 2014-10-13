@@ -75,3 +75,60 @@ describe 'database', () ->
       db.query 'some sql', (err, callback) ->
         assert.equal count, 3
         done();
+
+  describe '#updateSpecs', ->
+    it 'should run the correct update sql', ->
+      sinon.stub db.pool, 'query', ->
+      db.updateSpecs [
+        [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+        ,
+          pid: '20509'
+          vid: '28314'
+          name: '尺码'
+          value: 'S'
+        ], [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+        ,
+          pid: '20509'
+          vid: '28317'
+          name: '尺码'
+          value: 'XL'
+        ]
+      ], 1, 11, ->
+      assert.isTrue db.pool.query.calledWith "insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('1', '天蓝色', 'S', 11, 1000);insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('1', '天蓝色', 'XL', 11, 1000);"
+
+  describe '#updateGoods', ->
+    beforeEach ->
+      sinon.stub db.pool, 'query', ->
+    it 'should be 1 spec', ->
+      db.updateGoods 'desc', 'good http', 1, [
+        [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+        ]
+      ], ->
+      assert.isTrue db.pool.query.calledWith "update ecm_goods set description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '', spec_qty = 1, realpic = 1 where good_http = 'good http'"
+    it 'should be 2 specs', ->
+      db.updateGoods 'desc', 'good http', 1, [
+        [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+        ,
+          pid: '20509'
+          vid: '28314'
+          name: '尺码'
+          value: 'S'
+        ]
+      ], ->
+      assert.isTrue db.pool.query.calledWith "update ecm_goods set description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '尺码', spec_qty = 2, realpic = 1 where good_http = 'good http'"
