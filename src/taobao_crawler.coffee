@@ -30,7 +30,7 @@ TEMPLATES = [
 c = new crawler
   'method': 'POST'
   'forceUTF8': true
-  'rateLimits': 2000
+  'rateLimits': 1000
   'jQuery': false
 db = new database()
 
