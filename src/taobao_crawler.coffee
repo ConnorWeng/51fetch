@@ -276,7 +276,10 @@ parsePrice = (price, seePrice, goodsName) ->
   else if seePrice.indexOf('折') is seePrice.length - 1
     finalPrice = (rawPrice * (parseFloat(seePrice) / 10)).toFixed(2)
   else if seePrice is 'P'
-    finalPrice = parseFloat /[PpFf](\d+(\.\d+)?)/.exec(goodsName)?[1]
+    if /[Pp](\d+(\.\d+)?)/.test goodsName
+      finalPrice = parseFloat /[Pp](\d+(\.\d+)?)/.exec(goodsName)?[1]
+    else if /[Ff](\d+(\.\d+)?)/.test goodsName
+      finalPrice = parseFloat /[Ff](\d+(\.\d+)?)/.exec(goodsName)?[1]
   if isNaN(finalPrice) isnt true
     finalPrice
   else
