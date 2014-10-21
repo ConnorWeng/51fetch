@@ -194,24 +194,28 @@ deleteDelistItems = (store) ->
 
 saveItemsFromPageAndQueueNext = (err, result, callback) ->
   debug result.body
-  env result.body, (errors, window) ->
-    $ = jquery window
-    store = parseStoreFromUri result.uri
-    if $('.item-not-found').length > 0
-      console.log "id:#{store['store_id']} #{store['store_name']} has one empty page: #{result.uri}"
-      window.close()
-    else
-      items = extractItemsFromContent $, store
-      db.saveItems store['store_id'], store['store_name'], items, result.uri
-      nextUri = nextPageUri $
-      window.close()
-      if nextUri?
-        c.queue [
-          'uri': makeUriWithStoreInfo nextUri, store
-          'forceUTF8': true
-          'callback': saveItemsFromPageAndQueueNext
-        ]
+  if result.body is ''
+    console.error "Error: #{result.uri} return empty content"
     callback?()
+  else
+    env result.body, (errors, window) ->
+      $ = jquery window
+      store = parseStoreFromUri result.uri
+      if $('.item-not-found').length > 0
+        console.log "id:#{store['store_id']} #{store['store_name']} has one empty page: #{result.uri}"
+        window.close()
+      else
+        items = extractItemsFromContent $, store
+        db.saveItems store['store_id'], store['store_name'], items, result.uri
+        nextUri = nextPageUri $
+        window.close()
+        if nextUri?
+          c.queue [
+            'uri': makeUriWithStoreInfo nextUri, store
+            'forceUTF8': true
+            'callback': saveItemsFromPageAndQueueNext
+          ]
+      callback?()
 
 nextPageUri = ($) ->
   $('div.pagination a.next').attr('href')
