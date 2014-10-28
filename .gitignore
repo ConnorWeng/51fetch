@@ -4,3 +4,5 @@ node_modules/
 npm-debug.log
 .ftppass
 sftpCache.json
+add_store_csv.*
+*.csv
