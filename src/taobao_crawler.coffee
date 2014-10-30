@@ -269,6 +269,11 @@ parsePrice = (price, seePrice, goodsName) ->
   if not seePrice? then finalPrice = rawPrice.toFixed(2)
   if seePrice.indexOf('减半') isnt -1
     finalPrice = (rawPrice / 2).toFixed(2)
+  else if seePrice is 'P' or seePrice is '减P' or seePrice is '减p'
+    if /[Pp](\d+(\.\d+)?)/.test goodsName
+      finalPrice = parseFloat /[Pp](\d+(\.\d+)?)/.exec(goodsName)?[1]
+    else if /[Ff](\d+(\.\d+)?)/.test goodsName
+      finalPrice = parseFloat /[Ff](\d+(\.\d+)?)/.exec(goodsName)?[1]
   else if seePrice.indexOf('减') is 0
     finalPrice = (rawPrice - parseFloat(seePrice.substr(1))).toFixed(2)
   else if seePrice is '实价'
@@ -279,11 +284,6 @@ parsePrice = (price, seePrice, goodsName) ->
     finalPrice = (rawPrice * (parseFloat(seePrice.substr(1)) / 10)).toFixed(2)
   else if seePrice.indexOf('折') is seePrice.length - 1
     finalPrice = (rawPrice * (parseFloat(seePrice) / 10)).toFixed(2)
-  else if seePrice is 'P'
-    if /[Pp](\d+(\.\d+)?)/.test goodsName
-      finalPrice = parseFloat /[Pp](\d+(\.\d+)?)/.exec(goodsName)?[1]
-    else if /[Ff](\d+(\.\d+)?)/.test goodsName
-      finalPrice = parseFloat /[Ff](\d+(\.\d+)?)/.exec(goodsName)?[1]
   if isNaN(finalPrice) isnt true
     finalPrice
   else
