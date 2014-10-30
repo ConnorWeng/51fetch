@@ -11,7 +11,7 @@ module.exports = (grunt) ->
           authKey: 'jushita'
         src: './'
         dest: '/alidata/www/test2/node/51fetch_all/'
-        exclusions: ['.DS_Store', 'node_modules', '.git', '.ftppass', 'sftpCache.json']
+        exclusions: ['.DS_Store', 'node_modules', '.git', '.ftppass', 'sftpCache.json', 'config.json']
         serverSep: '/'
         concurrency: 4
         progress: true
@@ -22,7 +22,7 @@ module.exports = (grunt) ->
           authKey: 'aliyun'
         src: './'
         dest: '/alidata/www/test2/node/51fetch_all/'
-        exclusions: ['.DS_Store', 'node_modules', '.git', '.ftppass', 'sftpCache.json']
+        exclusions: ['.DS_Store', 'node_modules', '.git', '.ftppass', 'sftpCache.json', 'config.json']
         serverSep: '/'
         concurrency: 4
         progress: true
@@ -32,7 +32,17 @@ module.exports = (grunt) ->
           authKey: 'wangzong'
         src: './'
         dest: '/alidata/www/test2/node/51fetch_all/'
-        exclusions: ['.DS_Store', 'node_modules', '.git', '.ftppass', 'sftpCache.json']
+        exclusions: ['.DS_Store', 'node_modules', '.git', '.ftppass', 'sftpCache.json', 'config.json']
+        serverSep: '/'
+        concurrency: 4
+        progress: true
+      test2:
+        auth:
+          host: '115.29.221.120'
+          authKey: 'test2'
+        src: './'
+        dest: '/alidata/www/test2/node/51fetch_all/'
+        exclusions: ['.DS_Store', 'node_modules', '.git', '.ftppass', 'sftpCache.json', 'config.json']
         serverSep: '/'
         concurrency: 4
         progress: true
