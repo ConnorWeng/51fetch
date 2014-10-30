@@ -28,6 +28,8 @@ TEMPLATES = [
 ]
 
 c = new crawler
+  'headers':
+    'Cookie': config.cookie
   'method': 'POST'
   'forceUTF8': true
   'rateLimits': 1000
