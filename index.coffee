@@ -20,4 +20,5 @@ condition = if args[1] then args[1] else ''
 getAllStores "#{condition} state = 1 order by store_id", (err, unfetchedStores) ->
   if err then throw err
   stores = unfetchedStores
+  console.log "There are total #{stores.length} stores need to be fetched."
   crawl()
