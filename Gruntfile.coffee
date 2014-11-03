@@ -34,3 +34,5 @@ module.exports = (grunt) ->
         authKey: 'test2'
 
   grunt.loadNpmTasks 'grunt-sftp-deploy'
+
+  grunt.registerTask 'dist', ['sftp-deploy:aliyun', 'sftp-deploy:jushita', 'sftp-deploy:test2', 'sftp-deploy:wangzong']
