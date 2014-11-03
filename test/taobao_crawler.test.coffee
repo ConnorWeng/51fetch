@@ -48,6 +48,7 @@ describe 'taobao_crawler', () ->
         callback null, null
       taobao_crawler.crawlStore store, ->
         assert.isTrue databaseStub.updateStoreCateContent.calledWith('store_id', 'store_name')
+        assert.isTrue databaseStub.updateImWw.calledWith('store_id', 'store_name')
         done()
     it 'should crawl items from newOn_desc when cats tree is empty', (done) ->
       stubCrawler CATS_TREE_WITHOUT_CATS_HTML
@@ -95,6 +96,13 @@ describe 'taobao_crawler', () ->
       expectUrisInclude CATS_TREE_HTML_TEMPLATE_A, 'http://shop65626141.taobao.com/category-858663529.htm?search=y&catName=30%D4%AA--45%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9#bd', 'http://shop65626141.taobao.com/category-757163049.htm?search=y&catName=%BA%AB%B0%E6%D0%DD%CF%D0%CA%B1%D7%B0#bd', done
     it 'should return uris from template B', (done) ->
       expectUrisInclude CATS_TREE_HTML_TEMPLATE_B, 'http://shop68788405.taobao.com/search.htm?orderType=newOn_desc', done
+
+  describe '#extractImWw', ->
+    it 'should return im_ww from uri', (done) ->
+      env '<span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>', (errors, window) ->
+        $ = jquery window
+        assert.equal taobao_crawler.extractImWw($), 'kasanio'
+        done()
 
   describe '#extractCatsTreeHtml', ->
     expectCatsTreeHtmlInclude = (html, expected, done) ->
@@ -280,6 +288,7 @@ describe 'taobao_crawler', () ->
       assert.equal taobao_crawler.isRealPic('', ''), 0
 
 CATS_TREE_HTML_TEMPLATE_A = '''
+<span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>
 <div>
 <ul class="J_TCatsTree cats-tree J_TWidget">
   <li class="cat fst-cat float">

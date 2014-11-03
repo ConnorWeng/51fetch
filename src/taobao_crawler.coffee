@@ -150,6 +150,8 @@ updateCateContentAndFetchAllCateUris = (store) ->
     catsTreeHtml = removeSingleQuotes extractCatsTreeHtml $, store
     if catsTreeHtml isnt ''
       db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
+      imWw = extractImWw $, store['store_id'], store['store_name']
+      if imWw then db.updateImWw store['store_id'], store['store_name'], imWw
       uris = extractUris $, store
       window.close()
       callback null, uris
@@ -168,6 +170,14 @@ extractUris = ($, store) ->
         uris.push makeUriWithStoreInfo(uri, store)
     if $(template.BY_NEW).length > 0 then break
   uris
+
+extractImWw = ($, storeId, storeName) ->
+  imWw = $('.J_WangWang').attr('data-nick')
+  if imWw
+    decodeURI imWw
+  else
+    console.error "id:#{storeId} #{storeName} cannot find im_ww."
+    ''
 
 clearCids = (store) ->
   (uris, callback) ->
@@ -405,6 +415,7 @@ if process.env.NODE_ENV is 'test'
   exports.extractItemsFromContent = extractItemsFromContent
   exports.extractCatsTreeHtml = extractCatsTreeHtml
   exports.extractUris = extractUris
+  exports.extractImWw = extractImWw
   exports.makeUriWithStoreInfo = makeUriWithStoreInfo
   exports.filterItems = filterItems
   exports.isRealPic = isRealPic
