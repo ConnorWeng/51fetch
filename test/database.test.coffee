@@ -132,3 +132,9 @@ describe 'database', () ->
         ]
       ], ->
       assert.isTrue db.pool.query.calledWith "update ecm_goods set description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '尺码', spec_qty = 2, realpic = 1 where good_http = 'good http'"
+
+  describe '#updateImWw', ->
+    it 'should run the correct update sql', ->
+      sinon.stub db.pool, 'query', ->
+      db.updateImWw '1', 'store_name', '1234567'
+      assert.isTrue db.pool.query.calledWith "update ecm_store set im_ww = '1234567' where store_id = 1"

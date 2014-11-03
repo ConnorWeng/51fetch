@@ -99,6 +99,12 @@ class db
         return console.error "error in updateStoreCateContent: #{storeId} #{storeName} " + err
       console.log "id:#{storeId} #{storeName} updated cate_content."
 
+  updateImWw: (storeId, storeName, imWw) ->
+    @query "update ecm_store set im_ww = '#{imWw}' where store_id = #{storeId}", (err, result) ->
+      if err
+        return console.error "error in updateImWw: #{storeId} #{storeName} #{imWw} " + err
+      console.log "id:#{storeId} #{storeName} #{iwWw} updated im_ww."
+
   saveItemAttr: (goodsId, attrs, callback) ->
     sql = ''
     for attr in attrs
