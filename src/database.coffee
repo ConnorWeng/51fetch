@@ -44,8 +44,10 @@ class db
   updateGoods: (desc, goodHttp, realPic, skus, callback) ->
     specName1 = skus[0]?[0]?.name || ''
     specName2 = skus[0]?[1]?.name || ''
+    specPid1 = skus[0]?[0]?.pid || 0
+    specPid2 = skus[0]?[1]?.pid || 0
     specQty = skus[0]?.length || 0
-    @query "update ecm_goods set description = '#{desc}', spec_name_1 = '#{specName1}', spec_name_2 = '#{specName2}', spec_qty = #{specQty}, realpic = #{realPic} where good_http = '#{goodHttp}'", (err, result) ->
+    @query "update ecm_goods set description = '#{desc}', spec_name_1 = '#{specName1}', spec_name_2 = '#{specName2}', spec_pid_1 = #{specPid1}, spec_pid_2 = #{specPid2}, spec_qty = #{specQty}, realpic = #{realPic} where good_http = '#{goodHttp}'", (err, result) ->
       if err
         console.error "error in update goods: #{goodHttp}"
       callback err, result
@@ -81,9 +83,11 @@ class db
     for sku in skus
       spec1 = sku[0]?.value
       spec2 = sku[1]?.value || ''
-      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{price}, 1000);"
+      specVid1 = sku[0]?.vid || 0
+      specVid2 = sku[1]?.vid || 0
+      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{specVid1}, #{specVid2}, #{price}, 1000);"
     if insertSql is ''
-      insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('#{goodsId}', '', '', #{price}, 1000);"
+      insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock) values ('#{goodsId}', '', '', 0, 0, #{price}, 1000);"
     @query insertSql, (err, result) ->
       if err
         console.error "error in updateSpecs, goodsId:#{goodsId}"

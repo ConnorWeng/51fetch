@@ -102,7 +102,7 @@ describe 'database', () ->
           value: 'XL'
         ]
       ], 1, 11, ->
-      assert.isTrue db.pool.query.calledWith "insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('1', '天蓝色', 'S', 11, 1000);insert into ecm_goods_spec(goods_id, spec_1, spec_2, price, stock) values ('1', '天蓝色', 'XL', 11, 1000);"
+      assert.isTrue db.pool.query.calledWith "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock) values ('1', '天蓝色', 'S', 3232484, 28314, 11, 1000);insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock) values ('1', '天蓝色', 'XL', 3232484, 28317, 11, 1000);"
 
   describe '#updateGoods', ->
     beforeEach ->
@@ -116,7 +116,7 @@ describe 'database', () ->
           value: '天蓝色'
         ]
       ], ->
-      assert.isTrue db.pool.query.calledWith "update ecm_goods set description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '', spec_qty = 1, realpic = 1 where good_http = 'good http'"
+      assert.isTrue db.pool.query.calledWith "update ecm_goods set description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '', spec_pid_1 = 1627207, spec_pid_2 = 0, spec_qty = 1, realpic = 1 where good_http = 'good http'"
     it 'should be 2 specs', ->
       db.updateGoods 'desc', 'good http', 1, [
         [
@@ -131,7 +131,7 @@ describe 'database', () ->
           value: 'S'
         ]
       ], ->
-      assert.isTrue db.pool.query.calledWith "update ecm_goods set description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '尺码', spec_qty = 2, realpic = 1 where good_http = 'good http'"
+      assert.isTrue db.pool.query.calledWith "update ecm_goods set description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '尺码', spec_pid_1 = 1627207, spec_pid_2 = 20509, spec_qty = 2, realpic = 1 where good_http = 'good http'"
 
   describe '#updateImWw', ->
     it 'should run the correct update sql', ->
