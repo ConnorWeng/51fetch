@@ -11,6 +11,7 @@ create procedure proc_merge_good(
     in i_store_name varchar(255),
     in i_goods_name varchar(255),
     in i_now_time varchar(255),
+    in i_cat_name varchar(255),
     out o_retcode int)
 begin
     declare v_good_id int(10) unsigned;
@@ -32,7 +33,10 @@ begin
     else
        insert into ecm_goods(store_id, goods_name, default_image, price, good_http, cids, add_time, last_update) values (i_store_id, i_goods_name, i_default_image, i_price, i_good_http, i_cid, i_now_time, i_now_time);
        set o_retcode = 2;
+       set v_good_id = LAST_INSERT_ID();
     end if;
+
+    replace into ecm_category_goods(cate_id, goods_id) values (i_cid, v_good_id);
 
     select i_store_name, i_goods_name, o_retcode;
 

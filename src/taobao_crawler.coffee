@@ -16,6 +16,7 @@ TEMPLATES = [
   ITEM: '.shop-hesper-bd dl.item'
   ITEM_NAME: 'a.item-name'
   PRICE: '.c-price'
+  CAT_SELECTED: '.hesper-cats ol li:last'
 ,
   BY_NEW: '#J_Cats a:eq(2)'
   CAT_NAME: 'NON_EXISTS_YET'
@@ -218,7 +219,7 @@ saveItemsFromPageAndQueueNext = (err, result, callback) ->
         window.close()
       else
         items = extractItemsFromContent $, store
-        db.saveItems store['store_id'], store['store_name'], items, result.uri
+        db.saveItems store['store_id'], store['store_name'], items, result.uri, $(TEMPLATES[0].CAT_SELECTED).text().trim()
         nextUri = nextPageUri $
         window.close()
         if nextUri?

@@ -121,8 +121,8 @@ class db
     @query "delete from ecm_goods_attr where goods_id = #{goodsId}", (err, result) ->
       callback err, result
 
-  saveItems: (storeId, storeName, items, url) ->
-    sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl url
+  saveItems: (storeId, storeName, items, url, catName) ->
+    sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl(url), catName
     @query sql, (err, result) =>
       if err
         console.error "error in saveItems: #{err}"
@@ -137,10 +137,11 @@ class db
     @query "delete from ecm_goods where store_id = #{storeId} and last_update < #{@todayZeroTime()}", (err, result) ->
       callback err, result
 
-  makeSaveItemSql: (storeId, storeName, items, cid) ->
+  makeSaveItemSql: (storeId, storeName, items, cid, catName) ->
     sql = ''
+    sql += "replace into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('#{cid}', '#{storeId}', '#{catName}', 1);"
     for item in items
-      sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.goodHttp}','#{cid}','#{storeName}','#{item.goodsName}','#{@getDateTime()}',@o_retcode);"
+      sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.goodHttp}','#{cid}','#{storeName}','#{item.goodsName}','#{@getDateTime()}','#{catName}',@o_retcode);"
     sql
 
   getCidFromUrl: (url) ->
