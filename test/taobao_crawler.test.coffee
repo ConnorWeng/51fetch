@@ -128,24 +128,24 @@ describe 'taobao_crawler', () ->
       expectItemsFromHtml ITEMS_HTML_TEMPLATE_A, '减10', [
         goodsName: '865# 2014秋冬 新品拼皮百搭显瘦女呢料短裤（送腰带）'
         defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i2/T1Xy3SFXliXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
-        price: '30.00'
+        price: '30'
         goodHttp: 'http://item.taobao.com/item.htm?id=40890292076'
       ,
         goodsName: '867# 2014秋冬新品韩版显瘦蕾丝花边拼接短裤百搭呢料短裤热裤'
         defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i2/TB1ap8wGXXXXXbXXVXXXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
-        price: '30.00'
+        price: '30'
         goodHttp: 'http://item.taobao.com/item.htm?id=40889940937'
       ], done
     it 'should return items array from html template B', (done) ->
       expectItemsFromHtml ITEMS_HTML_TEMPLATE_B, '减半', [
         goodsName: '#6801#现货4码3色小清新必备学院派彩色时尚拼色长袖卫衣'
         defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i4/T1HXpZFk4iXXXXXXXX_!!0-item_pic.jpg_160x160.jpg'
-        price: '18.00'
+        price: '18'
         goodHttp: 'http://item.taobao.com/item.htm?id=41324376021&'
       ,
         goodsName: '实拍#8821#棒球服女 韩版潮情侣装棒球衫开衫卫衣女学生外套班服'
         defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i2/TB1xHOkGXXXXXX0XFXXXXXXXXXX_!!0-item_pic.jpg_160x160.jpg'
-        price: '34.00'
+        price: '34'
         goodHttp: 'http://item.taobao.com/item.htm?id=41083856074&'
       ], done
 
@@ -170,6 +170,10 @@ describe 'taobao_crawler', () ->
     it 'should return price in goods name when see_price is 减P', ->
       assert.equal taobao_crawler.parsePrice('111', '减P', '我是一个任意宝贝318/F06/P175'), 175
       assert.equal taobao_crawler.parsePrice('111', '减p', '我是一个任意宝贝 F33'), 33
+
+  describe '#formatPrice', ->
+    it 'should return formatted price', ->
+      assert.equal taobao_crawler.formatPrice(12.00), '12'
 
   describe '#getNumIidFromUri', ->
     it 'should return 41033455520', ->

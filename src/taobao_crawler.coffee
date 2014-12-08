@@ -279,29 +279,36 @@ extractDefaultImage = ($item) ->
 parsePrice = (price, seePrice, goodsName) ->
   rawPrice = parseFloat price
   finalPrice = rawPrice
-  if not seePrice? then finalPrice = rawPrice.toFixed(2)
+  if not seePrice? then finalPrice = formatPrice rawPrice
   if seePrice.indexOf('减半') isnt -1
-    finalPrice = (rawPrice / 2).toFixed(2)
+    finalPrice = formatPrice(rawPrice / 2)
   else if seePrice is 'P' or seePrice is '减P' or seePrice is '减p'
     if /[Pp](\d+(\.\d+)?)/.test goodsName
       finalPrice = parseFloat /[Pp](\d+(\.\d+)?)/.exec(goodsName)?[1]
     else if /[Ff](\d+(\.\d+)?)/.test goodsName
       finalPrice = parseFloat /[Ff](\d+(\.\d+)?)/.exec(goodsName)?[1]
   else if seePrice.indexOf('减') is 0
-    finalPrice = (rawPrice - parseFloat(seePrice.substr(1))).toFixed(2)
+    finalPrice = formatPrice(rawPrice - parseFloat(seePrice.substr(1)))
   else if seePrice is '实价'
-    finalPrice = rawPrice.toFixed(2)
+    finalPrice = formatPrice rawPrice
   else if seePrice.indexOf('*') is 0
-    finalPrice = (rawPrice * parseFloat(seePrice.substr(1))).toFixed(2)
+    finalPrice = formatPrice(rawPrice * parseFloat(seePrice.substr(1)))
   else if seePrice.indexOf('打') is 0
-    finalPrice = (rawPrice * (parseFloat(seePrice.substr(1)) / 10)).toFixed(2)
+    finalPrice = formatPrice(rawPrice * (parseFloat(seePrice.substr(1)) / 10))
   else if seePrice.indexOf('折') is seePrice.length - 1
-    finalPrice = (rawPrice * (parseFloat(seePrice) / 10)).toFixed(2)
+    finalPrice = formatPrice(rawPrice * (parseFloat(seePrice) / 10))
   if isNaN(finalPrice) isnt true
     finalPrice
   else
     console.error "不支持该see_price: #{price} #{seePrice} #{goodsName}"
     rawPrice
+
+formatPrice = (price) ->
+  newPrice = parseFloat(price).toFixed 2
+  if ~newPrice.indexOf('.') and newPrice.split('.')[1] is '00'
+    newPrice.split('.')[0]
+  else
+    newPrice
 
 filterItems = (unfilteredItems) ->
   items = item for item in unfilteredItems when item.goodsName? and
@@ -405,6 +412,7 @@ if process.env.NODE_ENV is 'test'
   exports.setDeleteDelistItems = (f) -> deleteDelistItems = f
   exports.setMakeUriWithStoreInfo = (f) -> makeUriWithStoreInfo = f
   exports.parsePrice = parsePrice
+  exports.formatPrice = formatPrice
   exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
   exports.saveItemsFromPageAndQueueNext = saveItemsFromPageAndQueueNext
   exports.getNumIidFromUri = getNumIidFromUri
