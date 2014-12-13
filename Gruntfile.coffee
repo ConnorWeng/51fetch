@@ -32,7 +32,11 @@ module.exports = (grunt) ->
         host: '115.29.221.120'
         port: 22
         authKey: 'test2'
+      test1: makeServerConfig
+        host: '121.40.85.153'
+        port: 22
+        authKey: 'test1'
 
   grunt.loadNpmTasks 'grunt-sftp-deploy'
 
-  grunt.registerTask 'dist', ['sftp-deploy:aliyun', 'sftp-deploy:jushita', 'sftp-deploy:test2', 'sftp-deploy:wangzong']
+  grunt.registerTask 'dist', ['sftp-deploy:aliyun', 'sftp-deploy:jushita', 'sftp-deploy:test2', 'sftp-deploy:wangzong', 'sftp-deploy:test1']
