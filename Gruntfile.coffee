@@ -1,42 +1,34 @@
 module.exports = (grunt) ->
 
-  makeServerConfig = ({host, port, authKey}) ->
-    auth:
-      host: host
-      port: port
-      authKey: authKey
-    src: './'
-    dest: '/alidata/www/test2/node/51fetch_all/'
-    exclusions: ['.DS_Store', 'node_modules', '.git', '.ftppass', 'sftpCache.json', 'config.json']
-    serverSep: '/'
-    concurrency: 4
-    progress: true
+  serverConfig = grunt.file.readJSON '.ftppass'
+
+  makeDeployTasks = ->
+    tasks = {}
+    for key, value of serverConfig
+      tasks["deploy_#{key}"] =
+        files:
+          './': filesNeedUpload
+        options:
+          path: '/alidata/www/test2/node/51fetch_all'
+          host: value.host
+          port: value.port
+          username: value.username
+          password: value.password
+          createDirectories: true
+          showProgress: true
+    tasks
+
+  makeTasksName = ->
+    tasksName = []
+    for key, value of serverConfig
+      tasksName.push "sftp:deploy_#{key}"
+    tasksName
+
+  filesNeedUpload = ['crawlItem.coffee', 'e2e/**', 'index.coffee', 'package.json', 'script/**', 'single_store.coffee', 'src/**', 'taobao_api/**', 'test/**']
 
   grunt.initConfig
-    pkg: grunt.file.readJSON 'package.json'
+    secret: serverConfig
+    sftp: makeDeployTasks()
 
-    'sftp-deploy':
-      jushita: makeServerConfig
-        host: '121.196.142.10'
-        port: 30002
-        authKey: 'jushita'
-      aliyun: makeServerConfig
-        host: '112.124.54.224'
-        port: 5151
-        authKey: 'aliyun'
-      wangzong: makeServerConfig
-        host: '120.24.63.15'
-        port: 22
-        authKey: 'wangzong'
-      test2: makeServerConfig
-        host: '115.29.221.120'
-        port: 22
-        authKey: 'test2'
-      test1: makeServerConfig
-        host: '121.40.85.153'
-        port: 22
-        authKey: 'test1'
-
-  grunt.loadNpmTasks 'grunt-sftp-deploy'
-
-  grunt.registerTask 'dist', ['sftp-deploy:aliyun', 'sftp-deploy:jushita', 'sftp-deploy:test2', 'sftp-deploy:wangzong', 'sftp-deploy:test1']
+  grunt.loadNpmTasks 'grunt-ssh'
+  grunt.registerTask 'dist', makeTasksName()
