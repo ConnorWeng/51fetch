@@ -35,8 +35,9 @@ module.exports = (grunt) ->
         command: [
           'cd /alidata/www/test2/node/51fetch_all'
           "mv logs/forever.log logs/#{today()}.forever.log"
+          "mv logs/#{value.log} logs/#{today()}.#{value.log}"
           "forever stopall"
-          "forever start -m 1 -l /alidata/www/test2/node/51fetch_all/logs/forever.log -e ./logs/err.log -o ./logs/gz.log -c #{value.command}"
+          "forever start -m 1 -l /alidata/www/test2/node/51fetch_all/logs/forever.log -e ./logs/err.log -o ./logs/#{value.log} -c #{value.command}"
           "forever list"
         ].join ' && '
         options:
