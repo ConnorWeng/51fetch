@@ -34,7 +34,7 @@ c = new crawler
     'Cookie': config.cookie
   'method': 'POST'
   'forceUTF8': true
-  'rateLimits': 1000
+  'rateLimits': 3000
   'jQuery': false
 db = new database()
 
