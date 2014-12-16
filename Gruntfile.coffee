@@ -3,6 +3,14 @@ module.exports = (grunt) ->
   serverConfig = grunt.file.readJSON '.ftppass'
   filesNeedUpload = ['crawlItem.coffee', 'e2e/**', 'index.coffee', 'package.json', 'script/**', 'single_store.coffee', 'src/**', 'taobao_api/**', 'test/**']
 
+  # 这里可以不返回一个function, 而直接返回
+  # tasks
+  # 那么要扩展tasks的时候, 都要写成类似如下的形式:
+  # makeDeployTasks = ->
+  #   makeTasks 'deploy', -> {...}
+  # 这样做增加了用户扩展的成本, 因为他必须要实现一个function去调用makeTasks
+  # 通过返回function的方式可以让用户不用重复去定义function, 更抽象, 更接近DSL,
+  # 更有一种makeDeployTasks是makeTasks的一种特殊情况; makeTasks是模版的感觉，可读性更高
   makeTasks = (action, configFunc) ->
     ->
       tasks = {}
