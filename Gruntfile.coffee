@@ -1,5 +1,6 @@
-module.exports = (grunt) ->
+{merge} = require './src/helpers'
 
+module.exports = (grunt) ->
   serverConfig = grunt.file.readJSON '.ftppass'
   filesNeedUpload = ['crawlItem.coffee', 'e2e/**', 'index.coffee', 'package.json', 'script/**', 'single_store.coffee', 'src/**', 'taobao_api/**', 'test/**']
 
@@ -38,6 +39,14 @@ module.exports = (grunt) ->
     ].join ' && '
     options: {}
 
+  makeStatusTasks = makeTasks 'status', (key, value) ->
+    command: [
+      'cd /alidata/www/test2/node/51fetch_all'
+      'forever list'
+      "tail logs/#{value.log}"
+    ].join ' && '
+    options: {}
+
   today = ->
     d = new Date()
     "#{d.getFullYear()}#{d.getMonth() + 1}#{d.getDate()}"
@@ -57,8 +66,9 @@ module.exports = (grunt) ->
   grunt.initConfig
     secret: serverConfig
     sftp: makeDeployTasks()
-    sshexec: makeRunTasks()
+    sshexec: merge makeRunTasks(), makeStatusTasks()
 
   grunt.loadNpmTasks 'grunt-ssh'
   grunt.registerTask 'dist', makeTasksName('deploy')
   grunt.registerTask 'run', makeTasksName('run')
+  grunt.registerTask 'status', makeTasksName('status')
