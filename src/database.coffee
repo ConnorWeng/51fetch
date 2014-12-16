@@ -1,5 +1,5 @@
 mysql = require 'mysql'
-async = require 'async'
+{log, error} = require 'util'
 
 class db
   constructor: (databaseConfig) ->
@@ -38,7 +38,7 @@ class db
   getGood: (goodHttp, callback) ->
     @query "select * from ecm_goods where good_http = '#{goodHttp}'", (err, result) ->
       if err
-        console.error "error in getGood: #{goodHttp}"
+        error "error in getGood: #{goodHttp}"
       callback err, result[0]
 
   updateGoods: (desc, goodHttp, realPic, skus, callback) ->
@@ -49,7 +49,7 @@ class db
     specQty = skus[0]?.length || 0
     @query "update ecm_goods set description = '#{desc}', spec_name_1 = '#{specName1}', spec_name_2 = '#{specName2}', spec_pid_1 = #{specPid1}, spec_pid_2 = #{specPid2}, spec_qty = #{specQty}, realpic = #{realPic} where good_http = '#{goodHttp}'", (err, result) ->
       if err
-        console.error "error in update goods: #{goodHttp}"
+        error "error in update goods: #{goodHttp}"
       callback err, result
 
   updateCats: (goodsId, storeId, cats, callback) ->
@@ -75,7 +75,7 @@ class db
   updateDefaultSpec: (goodsId, specId, callback) ->
     @query "update ecm_goods set default_spec = #{specId} where goods_id = #{goodsId}", (err, result) ->
       if err
-        console.error "error in update default spec, goodsId:#{goodsId}, specId:#{specId}"
+        error "error in update default spec, goodsId:#{goodsId}, specId:#{specId}"
       callback err, result
 
   updateSpecs: (skus, goodsId, price, callback) ->
@@ -90,7 +90,7 @@ class db
       insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock) values ('#{goodsId}', '', '', 0, 0, #{price}, 1000);"
     @query insertSql, (err, result) ->
       if err
-        console.error "error in updateSpecs, goodsId:#{goodsId}"
+        error "error in updateSpecs, goodsId:#{goodsId}"
       callback err, result
 
   deleteSpecs: (goodsId, callback) ->
@@ -100,14 +100,14 @@ class db
   updateStoreCateContent: (storeId, storeName, cateContent) ->
     @query "update ecm_store set cate_content='#{cateContent}' where store_id = #{storeId}", (err, result) ->
       if err
-        return console.error "error in updateStoreCateContent: #{storeId} #{storeName} " + err
-      console.log "id:#{storeId} #{storeName} updated cate_content."
+        return error "error in updateStoreCateContent: #{storeId} #{storeName} " + err
+      log "id:#{storeId} #{storeName} updated cate_content."
 
   updateImWw: (storeId, storeName, imWw) ->
     @query "update ecm_store set im_ww = '#{imWw}' where store_id = #{storeId}", (err, result) ->
       if err
-        return console.error "error in updateImWw: #{storeId} #{storeName} #{imWw} " + err
-      console.log "id:#{storeId} #{storeName} updated im_ww #{imWw}."
+        return error "error in updateImWw: #{storeId} #{storeName} #{imWw} " + err
+      log "id:#{storeId} #{storeName} updated im_ww #{imWw}."
 
   saveItemAttr: (goodsId, attrs, callback) ->
     sql = ''
@@ -125,9 +125,9 @@ class db
     sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl(url), catName
     @query sql, (err, result) =>
       if err
-        console.error "error in saveItems: #{err}"
+        error "error in saveItems: #{err}"
       else
-        console.log "id:#{storeId} #{storeName} is fetched one page: #{@getCidFromUrl url} counts: #{items.length}."
+        log "id:#{storeId} #{storeName} is fetched one page: #{@getCidFromUrl url} counts: #{items.length}."
 
   clearCids: (storeId, callback) ->
     @query "update ecm_goods set cids = '' where store_id = #{storeId}", (err, result) ->
@@ -163,8 +163,8 @@ class db
   end: () ->
     @pool.end (err) ->
       if err
-        console.error "error in db.end: " + err
+        error "error in db.end: " + err
       else
-        console.log "database pool ended."
+        log "database pool ended."
 
 module.exports = db

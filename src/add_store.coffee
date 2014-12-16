@@ -1,5 +1,6 @@
 http = require 'http'
 querystring = require 'querystring'
+{log} = require 'util'
 
 database = require './database'
 
@@ -18,7 +19,7 @@ register = ->
     store = unaddedStores.shift()
     registerImpl store, register
   else
-    console.log 'completed.'
+    log 'completed.'
 
 registerImpl = (store, callback) ->
   data = querystring.stringify
@@ -47,12 +48,12 @@ registerImpl = (store, callback) ->
       'Content-Type': 'application/x-www-form-urlencoded'
       'Content-Length': data.length
   req = http.request options, (res) ->
-    console.log "store_name: #{store.store_name}, status: #{res.statusCode}"
+    log "store_name: #{store.store_name}, status: #{res.statusCode}"
     body = ''
     res.on 'data', (chunk) ->
       body += chunk;
     res.on 'end', () ->
-      console.log body
+      log body
       callback()
   req.write "#{data}\n"
   req.end()

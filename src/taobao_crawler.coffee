@@ -1,5 +1,6 @@
 http = require 'http'
 async = require 'async'
+{log, error} = require 'util'
 env = require('jsdom').env
 jquery = require('jquery')
 crawler = require('crawler').Crawler
@@ -50,14 +51,14 @@ exports.crawlItemViaApi = (itemUri, done) ->
   numIid = getNumIidFromUri itemUri
   getTaobaoItem numIid, 'title,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', (err, item) ->
     if err
-      console.error err
+      error err
       done()
     else
       skus = parseSkus item.skus
       attrs = parseAttrs item.props_name
       getHierarchalCats item.cid, (err, cats) ->
         if err or cats.length is 0
-          console.error "getHierarchalCats Error: cid #{item.cid} #{err}"
+          error "getHierarchalCats Error: cid #{item.cid} #{err}"
           done()
         else
           updateItemDetailInDatabase
@@ -78,7 +79,7 @@ exports.crawlStore = (store, done) ->
     crawlAllPagesOfAllCates
     deleteDelistItems(store)
   ], (err, result) ->
-    if err then console.error err
+    if err then error err
     done()
 
 updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic}, callback) ->
@@ -127,7 +128,7 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic}, callb
       http.get "#{config.remote_service_address}&goodid=#{goodsId}", (res) ->
         if res.statusCode is 200 then callback null else callback new Error('remote update default image service error')
   ], (err, result) ->
-    if err then console.error err
+    if err then error err
     callback null
 
 queueStoreUri = (store) ->
@@ -177,7 +178,7 @@ extractImWw = ($, storeId, storeName) ->
   if imWw
     decodeURI imWw
   else
-    console.error "id:#{storeId} #{storeName} cannot find im_ww."
+    error "id:#{storeId} #{storeName} cannot find im_ww."
     ''
 
 clearCids = (store) ->
@@ -208,14 +209,14 @@ deleteDelistItems = (store) ->
 saveItemsFromPageAndQueueNext = (err, result, callback) ->
   debug result.body
   if result.body is ''
-    console.error "Error: #{result.uri} return empty content"
+    error "Error: #{result.uri} return empty content"
     callback?()
   else
     env result.body, (errors, window) ->
       $ = jquery window
       store = parseStoreFromUri result.uri
       if $('.item-not-found').length > 0
-        console.log "id:#{store['store_id']} #{store['store_name']} has one empty page: #{result.uri}"
+        log "id:#{store['store_id']} #{store['store_name']} has one empty page: #{result.uri}"
         window.close()
       else
         items = extractItemsFromContent $, store
@@ -241,7 +242,7 @@ extractCatsTreeHtml = ($, store) ->
       catsTreeHtml = template.REPLACE html, store
       break
   if catsTreeHtml is ''
-    console.error "id:#{store['store_id']} #{store['store_name']}: catsTreeHtml is empty."
+    error "id:#{store['store_id']} #{store['store_name']}: catsTreeHtml is empty."
   catsTreeHtml
 
 makeUriWithStoreInfo = (uri, store) ->
@@ -300,7 +301,7 @@ parsePrice = (price, seePrice, goodsName) ->
   if isNaN(finalPrice) isnt true
     finalPrice
   else
-    console.error "不支持该see_price: #{price} #{seePrice} #{goodsName}"
+    error "不支持该see_price: #{price} #{seePrice} #{goodsName}"
     rawPrice
 
 formatPrice = (price) ->

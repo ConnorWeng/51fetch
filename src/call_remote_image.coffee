@@ -1,4 +1,5 @@
 http = require 'http'
+{log} = require 'util'
 
 database = require './database'
 config = require './config'
@@ -16,4 +17,4 @@ db.getGoodsWithRemoteImage (err, goods) ->
 
 makeLocal = (good) ->
   http.get "#{config.remote_service_address}&goodid=#{good.goods_id}", (res) ->
-    console.log "goods_id: #{good.goods_id}, status: #{res.statusCode}"
+    log "goods_id: #{good.goods_id}, status: #{res.statusCode}"
