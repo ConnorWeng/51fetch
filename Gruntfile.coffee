@@ -43,7 +43,7 @@ module.exports = (grunt) ->
     command: [
       'cd /alidata/www/test2/node/51fetch_all'
       'forever list'
-      "tail logs/#{value.log}"
+      "tail -n3 logs/#{value.log}"
     ].join ' && '
     options: {}
 
