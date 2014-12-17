@@ -57,10 +57,10 @@ module.exports = (grunt) ->
     options.username = value.username
     options.password = value.password
 
-  makeTasksName = (action) ->
+  makeTasksName = (originTask, action) ->
     tasksName = []
     for key, value of serverConfig
-      tasksName.push "sshexec:#{action}_#{key}"
+      tasksName.push "#{originTask}:#{action}_#{key}"
     tasksName
 
   grunt.initConfig
@@ -69,6 +69,6 @@ module.exports = (grunt) ->
     sshexec: merge makeRunTasks(), makeStatusTasks()
 
   grunt.loadNpmTasks 'grunt-ssh'
-  grunt.registerTask 'dist', makeTasksName('deploy')
-  grunt.registerTask 'run', makeTasksName('run')
-  grunt.registerTask 'status', makeTasksName('status')
+  grunt.registerTask 'dist', makeTasksName('sftp', 'deploy')
+  grunt.registerTask 'run', makeTasksName('sshexec', 'run')
+  grunt.registerTask 'status', makeTasksName('sshexec', 'status')
