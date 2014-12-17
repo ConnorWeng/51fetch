@@ -10,6 +10,11 @@ class db
         database: 'wangpi51'
         port: 3306
     config.multipleStatements = true
+    @updateStoreCateContentCounter = 0
+    @updateImWwCounter = 0
+    @clearCidsCounter = 0
+    @deleteDelistItemsCounter = 0
+    @saveItemsCounter = 0
     @pool = mysql.createPool config
 
   query: (sql, callback) ->
@@ -98,13 +103,17 @@ class db
       callback err, result
 
   updateStoreCateContent: (storeId, storeName, cateContent) ->
-    @query "update ecm_store set cate_content='#{cateContent}' where store_id = #{storeId}", (err, result) ->
+    @updateStoreCateContentCounter += 1
+    @query "update ecm_store set cate_content='#{cateContent}' where store_id = #{storeId}", (err, result) =>
+      @updateStoreCateContentCounter -= 1
       if err
         return error "error in updateStoreCateContent: #{storeId} #{storeName} " + err
       log "id:#{storeId} #{storeName} updated cate_content."
 
   updateImWw: (storeId, storeName, imWw) ->
-    @query "update ecm_store set im_ww = '#{imWw}' where store_id = #{storeId}", (err, result) ->
+    @updateImWwCounter += 1
+    @query "update ecm_store set im_ww = '#{imWw}' where store_id = #{storeId}", (err, result) =>
+      @updateImWwCounter -= 1
       if err
         return error "error in updateImWw: #{storeId} #{storeName} #{imWw} " + err
       log "id:#{storeId} #{storeName} updated im_ww #{imWw}."
@@ -122,19 +131,25 @@ class db
       callback err, result
 
   saveItems: (storeId, storeName, items, url, catName) ->
+    @saveItemsCounter += 1
     sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl(url), catName
     @query sql, (err, result) =>
+      @saveItemsCounter -= 1
       if err
         error "error in saveItems: #{err}"
       else
         log "id:#{storeId} #{storeName} is fetched one page: #{@getCidFromUrl url} counts: #{items.length}."
 
   clearCids: (storeId, callback) ->
-    @query "update ecm_goods set cids = '' where store_id = #{storeId}", (err, result) ->
+    @clearCidsCounter += 1
+    @query "update ecm_goods set cids = '' where store_id = #{storeId}", (err, result) =>
+      @clearCidsCounter -= 1
       callback err, result
 
   deleteDelistItems: (storeId, callback) ->
-    @query "delete from ecm_goods where store_id = #{storeId} and last_update < #{@todayZeroTime()}", (err, result) ->
+    @deleteDelistItemsCounter += 1
+    @query "delete from ecm_goods where store_id = #{storeId} and last_update < #{@todayZeroTime()}", (err, result) =>
+      @deleteDelistItemsCounter -= 1
       callback err, result
 
   makeSaveItemSql: (storeId, storeName, items, cid, catName) ->

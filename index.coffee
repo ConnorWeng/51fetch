@@ -1,7 +1,18 @@
-{getAllStores, crawlStore, setDatabase} = require './src/taobao_crawler'
+{getAllStores, crawlStore, setDatabase, getDatabase} = require './src/taobao_crawler'
 database = require './src/database'
 config = require './src/config'
 args = process.argv.slice 2
+
+process.on 'exit', (code) ->
+  console.log "updateStoreCateContentCounter: #{db.updateStoreCateContentCounter}"
+  console.log "updateImWwCounter: #{db.updateImWwCounter}"
+  console.log "clearCidsCounter: #{db.clearCidsCounter}"
+  console.log "deleteDelistItemsCounter: #{db.deleteDelistItemsCounter}"
+  console.log "saveItemsCounter: #{db.saveItemsCounter}"
+  console.log "about to exit with code: #{code}"
+
+process.on 'uncaughtException', (err) ->
+  console.log 'caught exception:' + err
 
 db = new database(config.database[args[0]])
 setDatabase db
