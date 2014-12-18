@@ -4,11 +4,13 @@ config = require './src/config'
 args = process.argv.slice 2
 
 process.on 'exit', (code) ->
-  console.log "updateStoreCateContentCounter: #{db.updateStoreCateContentCounter}"
-  console.log "updateImWwCounter: #{db.updateImWwCounter}"
-  console.log "clearCidsCounter: #{db.clearCidsCounter}"
-  console.log "deleteDelistItemsCounter: #{db.deleteDelistItemsCounter}"
-  console.log "saveItemsCounter: #{db.saveItemsCounter}"
+  console.log [
+    "updateStoreCateContentCounter: #{db.updateStoreCateContentCounter}"
+    "updateImWwCounter: #{db.updateImWwCounter}"
+    "clearCidsCounter: #{db.clearCidsCounter}"
+    "deleteDelistItemsCounter: #{db.deleteDelistItemsCounter}"
+    "saveItemsCounter: #{db.saveItemsCounter}"
+  ].join ' | '
   console.log "about to exit with code: #{code}"
 
 process.on 'uncaughtException', (err) ->
