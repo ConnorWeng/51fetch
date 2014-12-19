@@ -28,7 +28,7 @@
     "crawler": "ConnorWeng/node-crawler#dev",
     "jquery": "^2.1.1",
     "jsdom": "^0.10.5",
-    "mysql": "~2.1.1",
+    "mysql": "felixge/node-mysql",
     "phpjs": "^1.3.2"
   }
 }
