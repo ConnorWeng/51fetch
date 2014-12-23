@@ -65,7 +65,7 @@ addStore = (store, callback) ->
 
 
 address = (text) ->
-  index = text.indexOf '地址'
+  index = text.indexOf '鍦板潃'
   text.substr(index + 3).trim()
 
 extract = (regex) ->
