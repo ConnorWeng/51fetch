@@ -20,6 +20,7 @@ crawl 'http://www.591wx.com',
           'store_name': $dd.find('a.et').text()
           'im_ww': ww $dd.find('p a:eq(0)').attr('href')
           'im_qq': qq $dd.find('p a:eq(1)').attr('href')
+          'shop_http': $dd.find('a.et').attr('href')
     stores
   , (err, data) ->
     if err
@@ -42,6 +43,7 @@ addStore = (store, callback) ->
     store_name: store.store_name
     im_qq: store.im_qq
     im_ww: store.im_ww
+    shop_http: store.shop_http
   options =
     hostname: 'nt.51zwd.com'
     port: 80
