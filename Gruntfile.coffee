@@ -2,7 +2,7 @@
 
 module.exports = (grunt) ->
   serverConfig = grunt.file.readJSON '.ftppass'
-  filesNeedUpload = ['crawlItem.coffee', 'e2e/**', 'index.coffee', 'package.json', 'script/**', 'single_store.coffee', 'src/**', 'taobao_api/**', 'test/**']
+  filesNeedUpload = ['crawlItem.coffee', 'e2e/**', 'index.coffee', 'package.json', 'script/**', 'single_store.coffee', 'src/**', 'taobao_api/**', 'test/**', 'client/**']
 
   # 这里可以不返回一个function, 而直接返回
   # tasks
