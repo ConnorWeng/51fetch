@@ -12,7 +12,10 @@ crawl = (url, params, callback) ->
       if err
         callback err, null
       else
-        data = evaluate params, $
+        if params is 'raw'
+          data = result.body
+        else
+          data = evaluate params, $
         callback null, data
   ]
 
