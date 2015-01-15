@@ -3,6 +3,7 @@
 jquery = require 'jquery'
 Q = require 'q'
 Database = require '../src/database'
+args = process.argv.slice 2
 
 db = new Database
 
@@ -23,20 +24,24 @@ fetch = (url) ->
   ]
   defered.promise
 
-makeJsDom = (html) ->
-  defered = Q.defer()
-  env html, (err, window) ->
-    if err
-      defered.reject err
-    else
-      defered.resolve window
-  defered.promise
+makeJsDom = Q.nfbind env
+query = Q.nbind db.query, db
 
-fetch 'http://rate.taobao.com/user-rate-UOmNYMCIYvGcG.htm?spm=a1z10.1.0.0.FnV5d5'
+insertSql = (obj, table, key, val) ->
+  keys = []
+  vals = []
+  for own key, val of obj
+    keys.push key
+    vals.push val
+  keysStr = keys.join ','
+  valsStr = "'" + (vals.join "','") + "'"
+  sql = "delete from #{table} where #{key} = '#{val}';insert into #{table}(#{keysStr}) values (#{valsStr});"
+
+fetch args[0]
   .then (html) ->
     # 这里返回如果是一个新promise, 后续调用then就会根据该新promise状态,
     # 调用fulfilledHandler或者rejectedHandler
-    # 如果返回一个value, 就会生成一个新地fulfilled的promise, 其filled的value便是返回的value
+    # 如果返回一个value, 就会生成一个新的fulfilled的promise, 其filled的value便是返回的value
     # 所以后续调用then马上就会调用fulfilledHandler并且把value传过去
     makeJsDom html
   .then (window) ->
@@ -66,14 +71,31 @@ fetch 'http://rate.taobao.com/user-rate-UOmNYMCIYvGcG.htm?spm=a1z10.1.0.0.FnV5d5
       delivery: $('.J_RateInfoTrigger:eq(2) em.count').text()
       userid: $('#monthuserid').val()
     window.close()
-    fetch "http://rate.taobao.com/member_rate.htm?a=1&_ksTS=1420530330794_158&callback=shop_rate_list&content=1&result=&from=rate&user_id=#{rate.userid}&identity=1&rater=0&direction=0"
-  .then (str) ->
-    jsonStr = str.trim()
-    startIndex = jsonStr.indexOf('shop_rate_list(') + 15
-    endIndex = jsonStr.lastIndexOf(')')
-    jsonStr = jsonStr.substring startIndex, endIndex
-    comments = JSON.parse jsonStr
-    promiseQuery = Q.nbind db.query, db
-    promiseQuery 'select * from ecm_store limit 1'
+    # 这里spread中的query能触发外层的then吗？
+    # 经过试验发现，spread中的query是可以触发外部的then中的rejectedHandler的
+    # 而且外部的then能够保证在spread中的query的then之后触发
+    Q.all([(query insertSql rate, 'taobaorate', 'userid', rate.userid), (fetch "http://rate.taobao.com/member_rate.htm?a=1&_ksTS=1420530330794_158&callback=shop_rate_list&content=1&result=&from=rate&user_id=#{rate.userid}&identity=1&rater=0&direction=0")]).spread (res, str) ->
+      rateid = res[1].insertId
+      jsonStr = str.trim()
+      startIndex = jsonStr.indexOf('shop_rate_list(') + 15
+      endIndex = jsonStr.lastIndexOf(')')
+      jsonStr = jsonStr.substring startIndex, endIndex
+      comments = JSON.parse jsonStr
+      sql = ''
+      for detail in comments.rateListDetail
+        comment =
+          product: detail.auction.title
+          sku: detail.auction.sku
+          url: detail.auction.link
+          rate: detail.rate
+          content: detail.content
+          cdate: detail.date
+          cfrom: detail.from
+          cto: ''
+          rate_id: rateid
+          nick: detail.user.nick
+          rid: detail.rateId
+        sql += insertSql comment, 'comments', 'rid', detail.rid
+      query sql
   .then undefined, (err) ->
     console.error err
