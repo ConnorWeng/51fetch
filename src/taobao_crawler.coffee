@@ -116,7 +116,7 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic}, callb
     (result, callback) ->
       db.deleteItemAttr goodsId, callback
     (result, callback) ->
-      outerId = makeOuterId store, good.goods_name, parsePrice(price, store.see_price, good.goods_name)
+      outerId = makeOuterId store, good.goods_name, price
       outerIdAttr =
         attrId: '1'
         valueId: '1'
