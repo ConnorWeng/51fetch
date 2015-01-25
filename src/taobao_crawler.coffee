@@ -360,11 +360,18 @@ parseAttrs = (propsName) ->
   propsArray = propsName.split ';'
   for props in propsArray
     [attrId, valueId, attrName, attrValue] = props.split ':'
-    attrs.push
-      attrId: attrId
-      valueId: valueId
-      attrName: attrName
-      attrValue: attrValue
+    found = false
+    for attr in attrs
+      if attr.attrId is attrId
+        attr.valueId = attr.valueId + ',' + valueId
+        attr.attrValue = attr.attrValue + ',' + attrValue
+        found = true
+    if not found
+      attrs.push
+        attrId: attrId
+        valueId: valueId
+        attrName: attrName
+        attrValue: attrValue
   attrs
 
 getHierarchalCats = (cid, callback) ->
