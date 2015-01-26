@@ -61,6 +61,7 @@ class db
     sql = ''
     gcategorySql = ''
     goodsSql = ''
+    cateSql = ''
     cat = cats.pop()
     gcategorySql = "replace into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (#{cat.cid}, 0, '#{cat.name}', #{cat.parent_cid});"
     goodsSql = "update ecm_goods set cate_id_1 = #{cat.cid}"
@@ -72,8 +73,10 @@ class db
       parentCid = cat.parent_cid
       gcategorySql += "replace into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (#{cateId}, 0, '#{cateName}', #{parentCid});"
       goodsSql += ", cate_id_#{++i} = #{cateId}"
+      if cats.length is 0
+        cateSql = "update ecm_goods set cate_id = #{cat.cid} where goods_id = #{goodsId};"
     goodsSql += " where goods_id = #{goodsId};"
-    sql = gcategorySql + goodsSql
+    sql = gcategorySql + goodsSql + cateSql
     @query sql, (err, result) ->
       callback err, result
 
