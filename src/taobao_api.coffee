@@ -43,6 +43,7 @@ execute = (method, apiParams, callback) ->
       'Content-Type': 'application/x-www-form-urlencoded'
       'Content-Length': querystring.stringify(apiParams).length
   req = http.request options, (res) ->
+    res.setEncoding 'utf8'
     data = ''
     res.on 'data', (chunk) ->
       data += chunk;
