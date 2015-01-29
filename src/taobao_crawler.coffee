@@ -168,7 +168,7 @@ extractUris = ($, store) ->
       uris.push makeUriWithStoreInfo($(template.BY_NEW).attr('href'), store)
     $(template.CAT_NAME).each (index, element) ->
       uri = $(element).attr('href')
-      if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and ~uri.indexOf('#bd')
+      if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and (~uri.indexOf('#bd') or ~uri.indexOf('categoryp'))
         uris.push makeUriWithStoreInfo(uri, store)
     if $(template.BY_NEW).length > 0 then break
   uris
