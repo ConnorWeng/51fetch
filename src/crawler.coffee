@@ -35,6 +35,7 @@ fetch = (url) ->
   defered = Q.defer()
   c.queue [
     'uri': url
+    'method': 'POST'
     'callback': (err, result, $) ->
       if err
         defered.reject err
