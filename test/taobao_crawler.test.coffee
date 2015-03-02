@@ -65,27 +65,38 @@ describe 'taobao_crawler', () ->
 
   describe '#crawlAllPagesOfAllCates', ->
     it 'should callback when all uris are handled', (done) ->
-      taobao_crawler.setSaveItemsFromPageAndQueueNext (err, result) ->
+      sinon.stub newCrawler, 'queue', (options) ->
+        process.nextTick ->
+          options[0]['callback'](null, {uri:'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price', body:'<div>123</div>'})
+      taobao_crawler.setCrawler newCrawler
+      databaseStub.saveItems = (a, b, c, d, e, callback) ->
+        process.nextTick ->
+          callback null, null
       taobao_crawler.crawlAllPagesOfAllCates ['http://localhost:9744/', 'http://localhost:9744/'], ->
         done()
 
   describe '#saveItemsFromPageAndQueueNext', ->
-    it 'should save items to db and queue next page uri', (done) ->
+    it 'should queue next page uri', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
         assert.equal options[0]['uri'], 'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price'
-      taobao_crawler.setCrawler newCrawler
-      taobao_crawler.saveItemsFromPageAndQueueNext null,
-        uri: 'any_uri##any_store_name##any_store_id##any_see_price'
-        body: PAGINATION_HTML
-      , ->
-        assert.isTrue databaseStub.saveItems.calledWith('any_store_id', 'any_store_name')
         done()
-    it 'should do not call db function when item not found', ->
-      taobao_crawler.saveItemsFromPageAndQueueNext null,
+      taobao_crawler.setCrawler newCrawler
+      taobao_crawler.saveItemsFromPageAndQueueNext(->
+      )(null,
         uri: 'any_uri##any_store_name##any_store_id##any_see_price'
-        body: '<p class="item-not-found"></p>'
-      , ->
+        body: PAGINATION_HTML)
+    it 'should do not call db function when item not found', (done) ->
+      oldChangeRemains = taobao_crawler.changeRemains
+      changeRemains = (action, callback) ->
+        callback()
+      taobao_crawler.setChangeRemains changeRemains
+      taobao_crawler.saveItemsFromPageAndQueueNext(->
         assert.isTrue databaseStub.saveItems.neverCalledWith()
+        taobao_crawler.setChangeRemains oldChangeRemains
+        done()
+      )(null,
+        uri: 'any_uri##any_store_name##any_store_id##any_see_price'
+        body: '<p class="item-not-found"></p>')
 
   describe '#extractUris', ->
     beforeEach ->

@@ -133,7 +133,7 @@ class db
     @query "delete from ecm_goods_attr where goods_id = #{goodsId}", (err, result) ->
       callback err, result
 
-  saveItems: (storeId, storeName, items, url, catName) ->
+  saveItems: (storeId, storeName, items, url, catName, callback) ->
     @saveItemsCounter += 1
     sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl(url), catName
     @query sql, (err, result) =>
@@ -142,6 +142,7 @@ class db
         error "error in saveItems: #{err}"
       else
         log "id:#{storeId} #{storeName} is fetched one page: #{@getCidFromUrl url} counts: #{items.length}."
+      callback err, result
 
   clearCids: (storeId, callback) ->
     @clearCidsCounter += 1

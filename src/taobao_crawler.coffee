@@ -189,47 +189,54 @@ clearCids = (store) ->
       else
         callback null, uris
 
+remains = 0
+changeRemains = (action, callback) ->
+  if action is '+'
+    remains++
+  else if action is '-'
+    remains--
+    if remains is 0 then callback null, null
+
 crawlAllPagesOfAllCates = (uris, callback) ->
-  quitCrawlingPages = ->
-    c.options.onDrain = false
-    callback null, null
-  c.options.onDrain = quitCrawlingPages
   for uri in uris
     store = parseStoreFromUri uri
+    changeRemains '+', callback
     c.queue [
       'uri': makeUriWithStoreInfo uri, store
       'forceUTF8': true
-      'callback': saveItemsFromPageAndQueueNext
+      'callback': saveItemsFromPageAndQueueNext callback
     ]
 
 deleteDelistItems = (store) ->
   (result, callback) ->
     db.deleteDelistItems store['store_id'], callback
 
-saveItemsFromPageAndQueueNext = (err, result, callback) ->
-  debug result.body
-  if result.body is ''
-    error "Error: #{result.uri} return empty content"
-    callback?()
-  else
-    env result.body, (errors, window) ->
-      $ = jquery window
-      store = parseStoreFromUri result.uri
-      if $('.item-not-found').length > 0
-        log "id:#{store['store_id']} #{store['store_name']} has one empty page: #{result.uri}"
+saveItemsFromPageAndQueueNext = (callback) ->
+  (err, result) ->
+    debug result.body
+    if result.body is ''
+      changeRemains '-', callback
+      error "Error: #{result.uri} return empty content"
+    else
+      env result.body, (errors, window) ->
+        $ = jquery window
+        store = parseStoreFromUri result.uri
+        if $('.item-not-found').length > 0
+          changeRemains '-', callback
+          log "id:#{store['store_id']} #{store['store_name']} has one empty page: #{result.uri}"
+        else
+          nextUri = nextPageUri $
+          if nextUri?
+            changeRemains '+', callback
+            c.queue [
+              'uri': makeUriWithStoreInfo nextUri, store
+              'forceUTF8': true
+              'callback': saveItemsFromPageAndQueueNext callback
+            ]
+          items = extractItemsFromContent $, store
+          db.saveItems store['store_id'], store['store_name'], items, result.uri, $(TEMPLATES[0].CAT_SELECTED).text().trim(), ->
+            changeRemains '-', callback
         window.close()
-      else
-        items = extractItemsFromContent $, store
-        db.saveItems store['store_id'], store['store_name'], items, result.uri, $(TEMPLATES[0].CAT_SELECTED).text().trim()
-        nextUri = nextPageUri $
-        window.close()
-        if nextUri?
-          c.queue [
-            'uri': makeUriWithStoreInfo nextUri, store
-            'forceUTF8': true
-            'callback': saveItemsFromPageAndQueueNext
-          ]
-      callback?()
 
 nextPageUri = ($) ->
   $('div.pagination a.next').attr('href')
@@ -419,6 +426,7 @@ if process.env.NODE_ENV is 'test'
   exports.setClearCids = (f) -> clearCids = f
   exports.setDeleteDelistItems = (f) -> deleteDelistItems = f
   exports.setMakeUriWithStoreInfo = (f) -> makeUriWithStoreInfo = f
+  exports.setChangeRemains = (f) -> changeRemains = f
   exports.parsePrice = parsePrice
   exports.formatPrice = formatPrice
   exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
@@ -436,6 +444,7 @@ if process.env.NODE_ENV is 'test'
   exports.makeUriWithStoreInfo = makeUriWithStoreInfo
   exports.filterItems = filterItems
   exports.isRealPic = isRealPic
+  exports.changeRemains = changeRemains
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats
