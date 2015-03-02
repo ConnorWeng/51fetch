@@ -59,7 +59,7 @@ describe 'database', () ->
         "name": "女装/女士精品"
         "parent_cid": 0
       }], ->
-      assert.isTrue db.pool.query.calledWith "replace into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (16, 0, '女装/女士精品', 0);replace into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (162103, 0, '毛衣', 16);update ecm_goods set cate_id_1 = 16, cate_id_2 = 162103 where goods_id = 1;"
+      assert.isTrue db.pool.query.calledWith "replace into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (16, 0, '女装/女士精品', 0);replace into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (162103, 0, '毛衣', 16);update ecm_goods set cate_id_1 = 16, cate_id_2 = 162103 where goods_id = 1;update ecm_goods set cate_id = 162103 where goods_id = 1;"
 
   describe '#query', ->
     it 'should retry to query when connection is lost', (done) ->

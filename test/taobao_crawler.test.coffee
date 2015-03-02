@@ -1,3 +1,4 @@
+http = require 'http'
 assert = require('chai').assert
 sinon = require 'sinon'
 crawler = require('crawler').Crawler
@@ -13,6 +14,10 @@ originMakeUriWithStoreInfo = taobao_crawler.makeUriWithStoreInfo
 
 memwatch.on 'leak', (info) ->
   console.log info
+
+http.createServer((req, res) ->
+  res.end 'ok'
+).listen 9744
 
 describe 'taobao_crawler', () ->
   beforeEach () ->
@@ -61,7 +66,7 @@ describe 'taobao_crawler', () ->
   describe '#crawlAllPagesOfAllCates', ->
     it 'should callback when all uris are handled', (done) ->
       taobao_crawler.setSaveItemsFromPageAndQueueNext (err, result) ->
-      taobao_crawler.crawlAllPagesOfAllCates ['http://localhost/', 'http://localhost/'], ->
+      taobao_crawler.crawlAllPagesOfAllCates ['http://localhost:9744/', 'http://localhost:9744/'], ->
         done()
 
   describe '#saveItemsFromPageAndQueueNext', ->
