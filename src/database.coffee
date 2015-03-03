@@ -154,6 +154,7 @@ class db
     @deleteDelistItemsCounter += 1
     @query "delete from ecm_goods where store_id = #{storeId} and last_update < #{@todayZeroTime()}", (err, result) =>
       @deleteDelistItemsCounter -= 1
+      log "id:#{storeId} delist #{result.affectedRows|0} items."
       callback err, result
 
   makeSaveItemSql: (storeId, storeName, items, cid, catName) ->

@@ -77,7 +77,7 @@ exports.crawlStore = (store, done) ->
     updateCateContentAndFetchAllCateUris(store)
     clearCids(store)
     crawlAllPagesOfAllCates
-    # deleteDelistItems(store)
+    deleteDelistItems(store)
   ], (err, result) ->
     if err then error err
     done()
