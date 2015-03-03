@@ -150,12 +150,19 @@ class db
       @clearCidsCounter -= 1
       callback err, result
 
-  deleteDelistItems: (storeId, callback) ->
+  deleteDelistItems: (storeId, totalItemsCount, callback) ->
     @deleteDelistItemsCounter += 1
-    @query "delete from ecm_goods where store_id = #{storeId} and last_update < #{@oneHourAgo()}", (err, result) =>
-      @deleteDelistItemsCounter -= 1
-      log "id:#{storeId} delist #{result.affectedRows|0} items."
-      callback err, result
+    @query "select count(1) totalCount from ecm_goods where store_id = #{storeId};select count(1) delistCount from ecm_goods where store_id = #{storeId} and last_update < #{@oneHourAgo()}", (err, results) =>
+      totalCount = parseInt(results[0][0]['totalCount'])
+      delistCount = parseInt(results[1][0]['delistCount'])
+      if totalCount - delistCount is totalItemsCount and delistCount > 0
+        @query "delete from ecm_goods where store_id = #{storeId} and last_update < #{@oneHourAgo()}", (err, result) =>
+          @deleteDelistItemsCounter -= 1
+          log "id:#{storeId} delist #{result.affectedRows|0} items."
+          callback err, result
+      else
+        log "id:#{storeId} totalCount:#{totalCount} delistCount:#{delistCount} totalItemsCount:#{totalItemsCount}"
+        callback null, null
 
   makeSaveItemSql: (storeId, storeName, items, cid, catName) ->
     sql = ''
