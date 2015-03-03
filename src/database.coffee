@@ -152,7 +152,7 @@ class db
 
   deleteDelistItems: (storeId, callback) ->
     @deleteDelistItemsCounter += 1
-    @query "delete from ecm_goods where store_id = #{storeId} and last_update < #{@todayZeroTime()}", (err, result) =>
+    @query "delete from ecm_goods where store_id = #{storeId} and last_update < #{@oneHourAgo()}", (err, result) =>
       @deleteDelistItemsCounter -= 1
       log "id:#{storeId} delist #{result.affectedRows|0} items."
       callback err, result
@@ -177,6 +177,13 @@ class db
     date = new Date
     date.setHours 0
     date.setMinutes 0
+    dateTime = parseInt(date.getTime() / 1000)
+    dateTime
+
+  oneHourAgo: ->
+    date = new Date
+    hour = date.getHours()
+    date.setHours (hour - 1)
     dateTime = parseInt(date.getTime() / 1000)
     dateTime
 
