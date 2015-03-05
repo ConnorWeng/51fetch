@@ -193,12 +193,12 @@ clearCids = (store) ->
         callback null, uris
 
 remains = 0
-changeRemains = (action, callback) ->
+changeRemains = (action, callback, err = null) ->
   if action is '+'
     remains++
   else if action is '-'
     remains--
-    if remains is 0 then callback null, null
+    if remains is 0 then callback err, null
 
 crawlAllPagesOfAllCates = (uris, callback) ->
   for uri in uris
@@ -237,8 +237,9 @@ saveItemsFromPageAndQueueNext = (callback) ->
               'callback': saveItemsFromPageAndQueueNext callback
             ]
           items = extractItemsFromContent $, store
+          bannedError = new Error('been banned by taobao') if isBanned $
           db.saveItems store['store_id'], store['store_name'], items, result.uri, $(TEMPLATES[0].CAT_SELECTED).text().trim(), ->
-            changeRemains '-', callback
+            changeRemains '-', callback, bannedError
         window.close()
 
 nextPageUri = ($) ->
@@ -278,6 +279,9 @@ extractItemsFromContent = ($, store) ->
           goodHttp: $item.find(template.ITEM_NAME).attr('href')
       break
   filterItems items
+
+isBanned = ($) ->
+  $('.search-result').length is 0
 
 extractDefaultImage = ($item) ->
   defaultImage = $item.find('img').attr('src')
