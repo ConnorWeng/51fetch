@@ -19,13 +19,12 @@ begin
   store_loop: loop
     fetch store_cursor into v_store_id, v_store_id_wangpi51;
     if store_done then
-      select max(last_update), count(1) into v_max_last_update, v_count from ecm_goods where store_id = v_store_id and not exists (select 1 from sync_log where sync_log.store_id = v_store_id and sync_log.goods_id = ecm_goods.goods_id);
-      delete from ecm_goods where store_id = v_store_id and not exists (select 1 from sync_log where sync_log.store_id = v_store_id and sync_log.goods_id = ecm_goods.goods_id);
-      delete from ecm_goods_spec where exists (select 1 from ecm_goods where store_id = v_store_id and ecm_goods_spec.goods_id = ecm_goods.goods_id) and not exists (select 1 from sync_log where sync_log.goods_id = ecm_goods_spec.goods_id);
-      delete from ecm_goods_attr where exists (select 1 from ecm_goods where store_id = v_store_id and ecm_goods_attr.goods_id = ecm_goods.goods_id) and not exists (select 1 from sync_log where sync_log.goods_id = ecm_goods_attr.goods_id);
-      delete from ecm_goods_image where exists (select 1 from sync_log where sync_log.store_id = v_store_id and sync_log.goods_id = ecm_goods_image.goods_id);
-      call log_sync('delete', v_store_id, null, v_max_last_update, v_count);
-      select concat('store_id:', v_store_id, ' done') info;
+      /*select max(last_update), count(1) into v_max_last_update, v_count from ecm_goods where store_id = v_store_id and not exists (select 1 from sync_log where sync_log.store_id = v_store_id and sync_log.goods_id = ecm_goods.goods_id);*/
+      /*delete from ecm_goods where store_id = v_store_id and not exists (select 1 from sync_log where sync_log.store_id = v_store_id and sync_log.goods_id = ecm_goods.goods_id);*/
+      /*delete from ecm_goods_spec where exists (select 1 from ecm_goods where store_id = v_store_id and ecm_goods_spec.goods_id = ecm_goods.goods_id) and not exists (select 1 from sync_log where sync_log.goods_id = ecm_goods_spec.goods_id);*/
+      /*delete from ecm_goods_attr where exists (select 1 from ecm_goods where store_id = v_store_id and ecm_goods_attr.goods_id = ecm_goods.goods_id) and not exists (select 1 from sync_log where sync_log.goods_id = ecm_goods_attr.goods_id);*/
+      /*delete from ecm_goods_image where exists (select 1 from sync_log where sync_log.store_id = v_store_id and sync_log.goods_id = ecm_goods_image.goods_id);*/
+      /*call log_sync('delete', v_store_id, null, v_max_last_update, v_count);*/
       leave store_loop;
     end if;
 
@@ -41,6 +40,7 @@ begin
       goods_loop: loop
         fetch goods_cursor into v_goods_name, v_default_image, v_price, v_good_http, v_cids, v_add_time, v_last_update;
         if goods_done then
+          SET goods_done = false;
           leave goods_loop;
         end if;
         call merge_good_data(v_store_id, v_goods_name, v_default_image, v_price, v_good_http, v_cids, v_add_time, v_last_update);
@@ -48,6 +48,8 @@ begin
 
       close goods_cursor;
     end block2;
+
+    select concat('store_id:', v_store_id, ' done') info;
 
   end loop;
 
@@ -69,17 +71,24 @@ create procedure merge_good_data(
 )
 begin
   declare v_goods_id int(10) unsigned;
+  declare v_image varchar(255);
+  declare v_image_240 varchar(255);
+  declare v_image_300 varchar(255);
 
   select goods_id into v_goods_id from ecm_goods where store_id = i_store_id and good_http = i_good_http limit 1;
+  select replace(replace(replace(replace(replace(i_default_image, '_160x160.jpg', ''), '_180x180.jpg', ''), '_240x240.jpg', ''), '_250x250.jpg', ''), '_b.jpg', '') into v_image;
+  select concat(v_image, '_240x240.jpg') into v_image_240;
+  select concat(v_image, '_300x300.jpg') into v_image_300;
 
   if v_goods_id is not null then
-    update ecm_goods set goods_name = i_goods_name, default_image = i_default_image, price = i_price, cids = i_cids, add_time = i_add_time, last_update = i_last_update where goods_id = v_goods_id;
-    update ecm_goods_image set image_url = i_default_image, thumbnail = i_default_image, file_id = 0 where goods_id = v_goods_id;
+    update ecm_goods set goods_name = i_goods_name, default_image = v_image_240, price = i_price, cids = i_cids, add_time = i_add_time, last_update = i_last_update where goods_id = v_goods_id;
+    /*update ecm_goods_image set image_url = i_default_image, thumbnail = i_default_image, file_id = 0 where goods_id = v_goods_id;*/
+    insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values (v_goods_id, v_image, v_image_300, 0, 0);
     call log_sync('update', i_store_id, v_goods_id, i_last_update, 1);
   else
-    insert into ecm_goods(store_id, goods_name, default_image, price, good_http, cids, add_time, last_update) values (i_store_id, i_goods_name, i_default_image, i_price, i_good_http, i_cids, i_add_time, i_last_update);
+    insert into ecm_goods(store_id, goods_name, default_image, price, good_http, cids, add_time, last_update) values (i_store_id, i_goods_name, v_image_240, i_price, i_good_http, i_cids, i_add_time, i_last_update);
     call log_sync('insert', i_store_id, last_insert_id(), i_last_update, 1);
-    insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values (last_insert_id(), i_default_image, i_default_image, 255, 0);
+    insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values (last_insert_id(), v_image, v_image_300, 0, 0);
   end if;
 end$$
 
