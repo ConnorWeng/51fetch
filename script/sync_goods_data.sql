@@ -82,8 +82,8 @@ begin
 
   if v_goods_id is not null then
     update ecm_goods set goods_name = i_goods_name, default_image = v_image_240, price = i_price, cids = i_cids, add_time = i_add_time, last_update = i_last_update where goods_id = v_goods_id;
-    /*update ecm_goods_image set image_url = i_default_image, thumbnail = i_default_image, file_id = 0 where goods_id = v_goods_id;*/
-    insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values (v_goods_id, v_image, v_image_460, 0, 0);
+    update ecm_goods_image set image_url = v_image, thumbnail = v_image_460, file_id = 0 where goods_id = v_goods_id and sort_order = 0;
+    /*insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values (v_goods_id, v_image, v_image_460, 0, 0);*/
     call log_sync('update', i_store_id, v_goods_id, i_last_update, 1);
   else
     insert into ecm_goods(store_id, goods_name, default_image, price, good_http, cids, add_time, last_update) values (i_store_id, i_goods_name, v_image_240, i_price, i_good_http, i_cids, i_add_time, i_last_update);
