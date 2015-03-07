@@ -121,6 +121,16 @@ class db
         return error "error in updateImWw: #{storeId} #{storeName} #{imWw} " + err
       log "id:#{storeId} #{storeName} updated im_ww #{imWw}."
 
+  updateItemImgs: (goodsId, itemImgs, callback) ->
+    sql = ''
+    for img, i in itemImgs
+      sql += "insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values (#{goodsId}, '#{img.url}', '#{img.url}_460x460.jpg', (select ifnull(so,0) from (select max(sort_order) + 1 so from ecm_goods_image where goods_id = #{goodsId}) t), 0);"
+    if sql
+      @query sql, (err, result) ->
+        callback err, result
+    else
+      callback null, null
+
   saveItemAttr: (goodsId, attrs, callback) ->
     sql = ''
     for attr in attrs

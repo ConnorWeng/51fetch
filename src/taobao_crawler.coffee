@@ -68,6 +68,7 @@ exports.crawlItemViaApi = (itemUri, done) ->
             attrs: attrs
             cats: cats
             realPic: isRealPic item.title, item.props_name
+            itemImgs: item.item_imgs.item_img
           , done
 
 exports.crawlStore = (store, done) ->
@@ -82,7 +83,7 @@ exports.crawlStore = (store, done) ->
     if err then error err
     done()
 
-updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic}, callback) ->
+updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic, itemImgs}, callback) ->
   goodsId = ''
   price = ''
   storeId = ''
@@ -97,6 +98,8 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic}, callb
       price = good.price
       storeId = good.store_id
       db.updateGoods desc, itemUri, realPic, skus, callback
+    (result, callback) ->
+      db.updateItemImgs goodsId, itemImgs, callback
     (result, callback) ->
       db.getStores "store_id = #{storeId}", (err, stores) ->
         store = stores[0]
@@ -116,7 +119,7 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic}, callb
     (result, callback) ->
       db.deleteItemAttr goodsId, callback
     (result, callback) ->
-      outerId = makeOuterId store, good.goods_name, price
+      outerId = makeOuterId store, good.goods_name, price, attrs
       outerIdAttr =
         attrId: '1'
         valueId: '1'
@@ -124,9 +127,6 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic}, callb
         attrValue: outerId
       attrs.push outerIdAttr
       db.saveItemAttr goodsId, attrs, callback
-    (result, callback) ->
-      http.get "#{config.remote_service_address}&goodid=#{goodsId}", (res) ->
-        if res.statusCode is 200 then callback null else callback new Error('remote update default image service error')
   ], (err, result) ->
     if err then error err
     callback null
@@ -404,9 +404,9 @@ getHierarchalCats = (cid, callback) ->
 removeSingleQuotes = (content) ->
   content.replace /'/g, ''
 
-makeOuterId = (store, title, price) ->
+makeOuterId = (store, title, price, attrs) ->
   seller = store.shop_mall + store.address
-  huohao = getHuoHao title
+  huohao = (getHuoHao title) || (getHuoHaoFromAttrs attrs)
   "#{seller}_P#{price}_#{huohao}#"
 
 getHuoHao = (title) ->
@@ -415,6 +415,12 @@ getHuoHao = (title) ->
   while matches? and matches[0].length is 4 and matches[0].substr(0, 3) is '201'
     matches = regex.exec title
   matches?[0] || ''
+
+getHuoHaoFromAttrs = (attrs) ->
+  for attr in attrs
+    if attr.attrName is '货号'
+      return attr.attrValue
+  return ''
 
 isRealPic = (title, propsName) ->
   if ~title.indexOf('实拍') or ~propsName.indexOf('157305307')
