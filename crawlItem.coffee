@@ -1,3 +1,4 @@
+{log, error} = require 'util'
 {setDatabase, crawlItemViaApi} = require './src/taobao_crawler'
 database = require './src/database'
 config = require './src/config'
@@ -12,10 +13,10 @@ crawl = ->
   if unfetchedGoods.length > 0
     good = unfetchedGoods.shift()
     crawlItemViaApi good.good_http, ->
-      console.log "#{good.goods_id}: #{good.goods_name} updated"
+      log "#{good.goods_id}: #{good.goods_name} updated"
       crawl()
   else
-    console.log 'complete'
+    log 'complete'
     db.end()
 
 db.getUnfetchedGoods (err, result) ->
