@@ -50,8 +50,8 @@ execute = (method, apiParams, callback) ->
     res.on 'end', ->
       res = JSON.parse data
       callback null, res
-    res.on 'error', (err) ->
-      callback err, null
+  req.on 'error', (err) ->
+    callback err, null
   req.write "#{querystring.stringify apiParams}\n"
   req.end()
 
