@@ -44,6 +44,9 @@ exports.setDatabase = (newDb) ->
 exports.setCrawler = (newCrawler) ->
   c = newCrawler
 
+exports.getCrawler = ->
+  c
+
 exports.getAllStores = (condition, callback) ->
   db.getStores condition, callback
 
@@ -266,7 +269,7 @@ parseStoreFromUri = (uri) ->
     'store_id': uriParts[2]
     'see_price': uriParts[3]
 
-extractItemsFromContent = ($, store) ->
+exports.extractItemsFromContent = extractItemsFromContent = ($, store) ->
   items = []
   for template in TEMPLATES
     if $(template.ITEM).length > 0
@@ -450,7 +453,6 @@ if process.env.NODE_ENV is 'test'
   exports.removeSingleQuotes = removeSingleQuotes
   exports.getHuoHao = getHuoHao
   exports.makeOuterId = makeOuterId
-  exports.extractItemsFromContent = extractItemsFromContent
   exports.extractCatsTreeHtml = extractCatsTreeHtml
   exports.extractUris = extractUris
   exports.extractImWw = extractImWw
