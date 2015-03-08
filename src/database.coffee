@@ -33,7 +33,7 @@ class db
       callback err, result
 
   getUnfetchedGoods: (callback) ->
-    @query "select * from ecm_goods g where g.good_http is not null and g.goods_id not in (select goods_id from ecm_goods_spec)", (err, result) ->
+    @query "select * from ecm_goods g where g.good_http is not null and not exists (select 1 from ecm_goods_spec s where s.goods_id = g.goods_id)", (err, result) ->
       callback err, result
 
   getGoodsWithRemoteImage: (callback) ->
