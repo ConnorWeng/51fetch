@@ -179,7 +179,7 @@ extractUris = ($, store) ->
     if $(template.BY_NEW).length > 0 then break
   uris
 
-extractImWw = ($, storeId, storeName) ->
+exports.extractImWw = extractImWw = ($, storeId, storeName) ->
   imWw = $('.J_WangWang').attr('data-nick')
   if imWw
     decodeURI imWw

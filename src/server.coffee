@@ -4,7 +4,7 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
-{crawlStore, setDatabase, getCrawler, extractItemsFromContent} = require './taobao_crawler'
+{crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
 database = require './database'
 
 args = process.argv.slice 2
@@ -45,6 +45,8 @@ crawlStoreIfNeed = (store) ->
       else
         env result.body, (err, window) ->
           $ = jquery window
+          imWw = extractImWw $, store['store_id'], store['store_name']
+          if imWw then db.updateImWw store['store_id'], store['store_name'], imWw
           items = extractItemsFromContent $, store
           db.saveItems store['store_id'], store['store_name'], items, url, '所有宝贝', ->
           window.close()
