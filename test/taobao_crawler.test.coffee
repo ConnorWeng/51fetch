@@ -237,6 +237,24 @@ describe 'taobao_crawler', () ->
           value: 'L'
         ]
       ]
+    it 'should return skus array with alias', ->
+      assert.deepEqual taobao_crawler.parseSkus(
+        sku: [
+          {properties_name: '1627207:3232484:颜色分类:天蓝色;20509:28314:尺码:S'},
+        ]
+      , '20509:28314:S(XS)'), [
+        [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+        ,
+          pid: '20509'
+          vid: '28314'
+          name: '尺码'
+          value: 'S(XS)'
+        ]
+      ]
 
   describe '#parseAttrs', ->
     it 'should return attributes array', ->
@@ -255,6 +273,23 @@ describe 'taobao_crawler', () ->
         valueId: '6384766'
         attrName: '风格'
         attrValue: '通勤'
+      }]
+    it 'should return attributes array with alias', ->
+      assert.deepEqual taobao_crawler.parseAttrs('20418023:157305307:主图来源:自主实拍图;13021751:3381429:货号:858#;20608:6384766:风格:通勤', '20608:6384766:不是通勤'), [{
+        attrId: '20418023'
+        valueId: '157305307'
+        attrName: '主图来源'
+        attrValue: '自主实拍图'
+      },{
+        attrId: '13021751'
+        valueId: '3381429'
+        attrName: '货号'
+        attrValue: '858#'
+      }, {
+        attrId: '20608'
+        valueId: '6384766'
+        attrName: '风格'
+        attrValue: '不是通勤'
       }]
 
   describe '#removeSingleQuotes', ->
@@ -306,6 +341,13 @@ describe 'taobao_crawler', () ->
       assert.equal taobao_crawler.isRealPic('', '1:2:3;1:157305307:3'), 1
     it 'should return 0 if cannot find "实拍" in title or "157305307" in props name', ->
       assert.equal taobao_crawler.isRealPic('', ''), 0
+
+  describe '#getPropertyAlias', ->
+    it 'should return alias', ->
+      assert.equal taobao_crawler.getPropertyAlias('1627207:3232483:粉色;1627207:3232484:绿色', '3232483', '白色'), '粉色'
+      assert.equal taobao_crawler.getPropertyAlias('1627207:3232483:粉色;1627207:3232484:绿色', '3232484', '白色'), '绿色'
+    it 'should return origin value', ->
+      assert.equal taobao_crawler.getPropertyAlias('1627207:3232483:粉色;1627207:3232484:绿色', '3232485', '白色'), '白色'
 
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>

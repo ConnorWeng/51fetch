@@ -57,8 +57,8 @@ exports.crawlItemViaApi = (itemUri, done) ->
       error err
       done()
     else
-      skus = parseSkus item.skus
-      attrs = parseAttrs item.props_name
+      skus = parseSkus item.skus, item.property_alias
+      attrs = parseAttrs item.props_name, item.property_alias
       getHierarchalCats item.cid, (err, cats) ->
         if err or cats.length is 0
           error "getHierarchalCats Error: cid #{item.cid} #{err}"
@@ -356,7 +356,7 @@ getNumIidFromUri = (uri) ->
   else
     throw new Error('there is no numIid in uri')
 
-parseSkus = (itemSkus) ->
+parseSkus = (itemSkus, propertyAlias = null) ->
   skuArray = itemSkus?.sku || []
   skus = []
   for sku in skuArray
@@ -364,6 +364,7 @@ parseSkus = (itemSkus) ->
     properties = []
     for propertiesName in propertiesNameArray
       [pid, vid, name, value] = propertiesName.split ':'
+      if propertyAlias? then value = getPropertyAlias propertyAlias, vid, value
       properties.push
         pid: pid
         vid: vid
@@ -372,11 +373,12 @@ parseSkus = (itemSkus) ->
     skus.push properties
   skus
 
-parseAttrs = (propsName) ->
+parseAttrs = (propsName, propertyAlias = null) ->
   attrs = []
   propsArray = propsName.split ';'
   for props in propsArray
     [attrId, valueId, attrName, attrValue] = props.split ':'
+    if propertyAlias? then attrValue = getPropertyAlias propertyAlias, valueId, attrValue
     found = false
     for attr in attrs
       if attr.attrId is attrId
@@ -390,6 +392,16 @@ parseAttrs = (propsName) ->
         attrName: attrName
         attrValue: attrValue
   attrs
+
+getPropertyAlias = (propertyAlias, valueId, value) ->
+  retVal = value
+  position = propertyAlias.indexOf valueId
+  if position isnt -1
+    nextPosition = propertyAlias.indexOf ';', position
+    if nextPosition is -1 then nextPosition = propertyAlias.length
+    propertyString = propertyAlias.substring position, nextPosition
+    retVal = propertyString.split(':')[1]
+  retVal
 
 getHierarchalCats = (cid, callback) ->
   cats = []
@@ -460,6 +472,7 @@ if process.env.NODE_ENV is 'test'
   exports.filterItems = filterItems
   exports.isRealPic = isRealPic
   exports.changeRemains = changeRemains
+  exports.getPropertyAlias = getPropertyAlias
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats
