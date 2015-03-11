@@ -349,7 +349,7 @@ filterItems = (unfilteredItems) ->
     not ~item.defaultImage.indexOf('http://img01.taobaocdn.com/bao/uploaded/_160x160.jpg') and
     not (item.price <= 0)
 
-getNumIidFromUri = (uri) ->
+exports.getNumIidFromUri = getNumIidFromUri = (uri) ->
   matches = /item\.htm\?.*id=(\d+)/.exec uri
   if matches?
     matches[1]
@@ -437,7 +437,7 @@ getHuoHaoFromAttrs = (attrs) ->
       return attr.attrValue
   return ''
 
-isRealPic = (title, propsName) ->
+exports.isRealPic = isRealPic = (title, propsName) ->
   if ~title.indexOf('实拍') or ~propsName.indexOf('157305307')
     1
   else
