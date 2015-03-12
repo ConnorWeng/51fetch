@@ -19,16 +19,10 @@ begin
   store_loop: loop
     fetch store_cursor into v_store_id, v_store_id_wangpi51;
     if store_done then
-      /*select max(last_update), count(1) into v_max_last_update, v_count from ecm_goods where store_id = v_store_id and not exists (select 1 from sync_log where sync_log.store_id = v_store_id and sync_log.goods_id = ecm_goods.goods_id);*/
-      /*delete from ecm_goods where store_id = v_store_id and not exists (select 1 from sync_log where sync_log.store_id = v_store_id and sync_log.goods_id = ecm_goods.goods_id);*/
-      /*delete from ecm_goods_spec where exists (select 1 from ecm_goods where store_id = v_store_id and ecm_goods_spec.goods_id = ecm_goods.goods_id) and not exists (select 1 from sync_log where sync_log.goods_id = ecm_goods_spec.goods_id);*/
-      /*delete from ecm_goods_attr where exists (select 1 from ecm_goods where store_id = v_store_id and ecm_goods_attr.goods_id = ecm_goods.goods_id) and not exists (select 1 from sync_log where sync_log.goods_id = ecm_goods_attr.goods_id);*/
-      /*delete from ecm_goods_image where exists (select 1 from sync_log where sync_log.store_id = v_store_id and sync_log.goods_id = ecm_goods_image.goods_id);*/
-      /*call log_sync('delete', v_store_id, null, v_max_last_update, v_count);*/
       leave store_loop;
     end if;
 
-    update ecm_store set cate_content = (select cate_content from wangpi51.ecm_store where store_id = v_store_id_wangpi51) where store_id = v_store_id;
+    update ecm_store s inner join wangpi51.ecm_store ws on s.store_id = v_store_id and ws.store_id = v_store_id_wangpi51 set s.tel = ws.tel, s.cate_content = ws.cate_content;
     call log_sync('store', v_store_id, null, null, 1);
 
     block2: begin
@@ -86,7 +80,6 @@ begin
   if v_goods_id is not null then
     update ecm_goods set goods_name = i_goods_name, default_image = v_image_240, price = i_price, cids = i_cids, add_time = i_add_time, last_update = i_last_update where goods_id = v_goods_id;
     update ecm_goods_image set image_url = v_image, thumbnail = v_image_460, file_id = 0 where goods_id = v_goods_id and sort_order = 0;
-    /*insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values (v_goods_id, v_image, v_image_460, 0, 0);*/
     call log_sync('update', i_store_id, v_goods_id, i_last_update, 1);
   else
     insert into ecm_goods(store_id, goods_name, default_image, price, good_http, cids, add_time, last_update) values (i_store_id, i_goods_name, v_image_240, i_price, i_good_http, i_cids, i_add_time, i_last_update);
