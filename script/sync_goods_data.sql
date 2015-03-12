@@ -28,6 +28,9 @@ begin
       leave store_loop;
     end if;
 
+    update ecm_store set cate_content = (select cate_content from wangpi51.ecm_store where store_id = v_store_id_wangpi51) where store_id = v_store_id;
+    call log_sync('store', v_store_id, null, null, 1);
+
     block2: begin
       declare v_goods_name, v_default_image, v_good_http, v_cids varchar(255);
       declare v_price decimal(10,2);
