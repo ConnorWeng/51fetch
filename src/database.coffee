@@ -63,7 +63,7 @@ class db
     goodsSql = ''
     cateSql = ''
     cat = cats.pop()
-    gcategorySql = "replace into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (#{cat.cid}, 0, '#{cat.name}', #{cat.parent_cid});"
+    gcategorySql = "insert into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (#{cat.cid}, 0, '#{cat.name}', #{cat.parent_cid}) on duplicate key update store_id = 0, cate_name = '#{cat.name}', parent_id = #{cat.parent_cid};"
     goodsSql = "update ecm_goods set cate_id_1 = #{cat.cid}"
     i = 1
     while cats.length > 0
@@ -71,7 +71,7 @@ class db
       cateId = cat.cid
       cateName = cat.name
       parentCid = cat.parent_cid
-      gcategorySql += "replace into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (#{cateId}, 0, '#{cateName}', #{parentCid});"
+      gcategorySql += "insert into ecm_gcategory(cate_id, store_id, cate_name, parent_id) values (#{cateId}, 0, '#{cateName}', #{parentCid}) on duplicate key update store_id = 0, cate_name = '#{cateName}', parent_id = #{parentCid};"
       goodsSql += ", cate_id_#{++i} = #{cateId}"
       if cats.length is 0
         cateSql = "update ecm_goods set cate_id = #{cat.cid} where goods_id = #{goodsId};"
@@ -179,7 +179,7 @@ class db
   makeSaveItemSql: (storeId, storeName, items, cid, catName) ->
     sql = ''
     if catName isnt '所有宝贝'
-      sql += "replace into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('#{cid}', '#{storeId}', '#{catName}', 1);"
+      sql += "insert into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('#{cid}', '#{storeId}', '#{catName}', 1) on duplicate key update store_id = '#{storeId}', cate_name = '#{catName}', if_show = 1;"
     for item in items
       sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.goodHttp}','#{cid}','#{storeName}','#{item.goodsName}','#{@getDateTime()}','#{catName}',@o_retcode);"
     sql
