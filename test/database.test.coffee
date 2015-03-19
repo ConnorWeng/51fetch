@@ -22,7 +22,7 @@ describe 'database', () ->
             price: '299.00'
             goodHttp: 'http://item.taobao.com/item.htm?id=37178066336'
           }], 1234567, '服装'
-      assert.equal sql, "replace into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('1234567', 'anyStoreId', '服装', 1);call proc_merge_good('anyStoreId','http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg','65.00','http://item.taobao.com/item.htm?id=37498952035','1234567','anyStoreName','apple 最新OS系统 U盘安装','','服装',@o_retcode);call proc_merge_good('anyStoreId','http://img01.taobaocdn.com/bao/uploaded/i1/T1.cFWFuRaXXb0JV6a_240x240.jpg','299.00','http://item.taobao.com/item.htm?id=37178066336','1234567','anyStoreName','zara 男士休闲皮衣 专柜正品','','服装',@o_retcode);"
+      assert.equal sql, "insert into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('1234567', 'anyStoreId', '服装', 1) on duplicate key update store_id = 'anyStoreId', cate_name = '服装', if_show = 1;call proc_merge_good('anyStoreId','http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg','65.00','http://item.taobao.com/item.htm?id=37498952035','1234567','anyStoreName','apple 最新OS系统 U盘安装','','服装',@o_retcode);call proc_merge_good('anyStoreId','http://img01.taobaocdn.com/bao/uploaded/i1/T1.cFWFuRaXXb0JV6a_240x240.jpg','299.00','http://item.taobao.com/item.htm?id=37178066336','1234567','anyStoreName','zara 男士休闲皮衣 专柜正品','','服装',@o_retcode);"
 
   describe '#getCidFromUrl()', () ->
     it 'should return cid', () ->
