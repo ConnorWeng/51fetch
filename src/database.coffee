@@ -178,10 +178,11 @@ class db
 
   makeSaveItemSql: (storeId, storeName, items, cid, catName) ->
     sql = ''
+    time = @getDateTime()
     if catName isnt '所有宝贝'
       sql += "insert into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('#{cid}', '#{storeId}', '#{catName}', 1) on duplicate key update store_id = '#{storeId}', cate_name = '#{catName}', if_show = 1;"
-    for item in items
-      sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.goodHttp}','#{cid}','#{storeName}','#{item.goodsName}','#{@getDateTime()}','#{catName}',@o_retcode);"
+    for item, i in items
+      sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.goodHttp}','#{cid}','#{storeName}','#{item.goodsName}','#{time-i}','#{catName}',@o_retcode);"
     sql
 
   getCidFromUrl: (url) ->
