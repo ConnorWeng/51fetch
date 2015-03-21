@@ -124,8 +124,7 @@ class db
   updateItemImgs: (goodsId, itemImgs, callback) ->
     sql = ''
     for img, i in itemImgs
-      if i isnt 0
-        sql += "insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values (#{goodsId}, '#{img.url}', '#{img.url}_460x460.jpg', (select ifnull(so,0) from (select max(sort_order) + 1 so from ecm_goods_image where goods_id = #{goodsId}) t), 0);"
+      sql += "insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) select #{goodsId}, '#{img.url}', '#{img.url}_460x460.jpg', (select ifnull(so,0) from (select max(sort_order) + 1 so from ecm_goods_image where goods_id = #{goodsId}) t), 0 from dual where not exists (select 1 from ecm_goods_image where goods_id = #{goodsId} and image_url = '#{img.url}');"
     if sql
       @query sql, (err, result) ->
         callback err, result
