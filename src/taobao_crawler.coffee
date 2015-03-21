@@ -15,8 +15,8 @@ TEMPLATES = [
   REPLACE: (html, store) ->
     html.replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
   ITEM: '.shop-hesper-bd dl.item'
-  ITEM_NAME: 'a.item-name'
-  PRICE: '.c-price'
+  ITEM_NAME: ['a.item-name', 'p.title a']
+  PRICE: ['.c-price', 'p.price .value']
   CAT_SELECTED: '.hesper-cats ol li:last'
 ,
   BY_NEW: '#J_Cats a:eq(2)'
@@ -137,7 +137,7 @@ updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic, itemIm
 queueStoreUri = (store) ->
   (callback) ->
     c.queue [
-      'uri': makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc", store
+      'uri': makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc&viewType=grid", store
       'forceUTF8': true
       'callback': callback
     ]
@@ -171,11 +171,11 @@ extractUris = ($, store) ->
   uris = []
   for template in TEMPLATES
     if $(template.BY_NEW).length > 0
-      uris.push makeUriWithStoreInfo($(template.BY_NEW).attr('href'), store)
+      uris.push makeUriWithStoreInfo($(template.BY_NEW).attr('href') + '&viewType=grid', store)
     $(template.CAT_NAME).each (index, element) ->
       uri = $(element).attr('href')
       if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and (~uri.indexOf('#bd') or ~uri.indexOf('categoryp'))
-        uris.push makeUriWithStoreInfo(uri, store)
+        uris.push makeUriWithStoreInfo(uri.replace('#bd', '') + '&viewType=grid', store)
     if $(template.BY_NEW).length > 0 then break
   uris
 
@@ -275,13 +275,22 @@ exports.extractItemsFromContent = extractItemsFromContent = ($, store) ->
     if $(template.ITEM).length > 0
       $(template.ITEM).each (index, element) ->
         $item = $(element)
+        ITEM_NAME = selectRightTemplate $item, template.ITEM_NAME
+        PRICE = selectRightTemplate $item, template.PRICE
         items.push
-          goodsName: $item.find(template.ITEM_NAME).text().trim()
+          goodsName: $item.find(ITEM_NAME).text().trim()
           defaultImage: extractDefaultImage $item
-          price: parsePrice $item.find(template.PRICE).text().trim(), store['see_price'], $item.find(template.ITEM_NAME).text().trim()
-          goodHttp: $item.find(template.ITEM_NAME).attr('href')
+          price: parsePrice $item.find(PRICE).text().trim(), store['see_price'], $item.find(ITEM_NAME).text().trim()
+          goodHttp: $item.find(ITEM_NAME).attr('href')
       break
   filterItems items
+
+selectRightTemplate = ($item, template) ->
+  if Array.isArray template
+    for t in template
+      if $item.find(t).length > 0
+        return t
+  return template
 
 isBanned = ($) ->
   $('.search-result').length is 0
