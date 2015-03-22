@@ -384,22 +384,23 @@ parseSkus = (itemSkus, propertyAlias = null) ->
 
 parseAttrs = (propsName, propertyAlias = null) ->
   attrs = []
-  propsArray = propsName.split ';'
-  for props in propsArray
-    [attrId, valueId, attrName, attrValue] = props.split ':'
-    if propertyAlias? then attrValue = getPropertyAlias propertyAlias, valueId, attrValue
-    found = false
-    for attr in attrs
-      if attr.attrId is attrId
-        attr.valueId = attr.valueId + ',' + valueId
-        attr.attrValue = attr.attrValue + ',' + attrValue
-        found = true
-    if not found
-      attrs.push
-        attrId: attrId
-        valueId: valueId
-        attrName: attrName
-        attrValue: attrValue
+  if propsName
+    propsArray = propsName.split ';'
+    for props in propsArray
+      [attrId, valueId, attrName, attrValue] = props.split ':'
+      if propertyAlias? then attrValue = getPropertyAlias propertyAlias, valueId, attrValue
+      found = false
+      for attr in attrs
+        if attr.attrId is attrId
+          attr.valueId = attr.valueId + ',' + valueId
+          attr.attrValue = attr.attrValue + ',' + attrValue
+          found = true
+      if not found
+        attrs.push
+          attrId: attrId
+          valueId: valueId
+          attrName: attrName
+          attrValue: attrValue
   attrs
 
 getPropertyAlias = (propertyAlias, valueId, value) ->
