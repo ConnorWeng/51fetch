@@ -35,7 +35,7 @@ http.createServer((req, res) ->
 crawlStoreIfNeed = (store) ->
   storeId = store['store_id']
   shopHttp = store['shop_http']
-  url = "#{shopHttp}/search.htm?search=y&orderType=newOn_desc"
+  url = "#{shopHttp}/search.htm?search=y&orderType=newOn_desc&viewType=grid"
   c.queue [
     'uri': url
     'forceUTF8': true
