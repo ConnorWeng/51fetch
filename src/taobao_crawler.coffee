@@ -302,7 +302,7 @@ isBanned = ($) ->
 
 extractDefaultImage = ($item) ->
   defaultImage = $item.find('img').attr('src')
-  if ~defaultImage.indexOf('http://a.tbcdn.cn/s.gif') then defaultImage = $item.find('img').attr('data-ks-lazyload')
+  if ~defaultImage.indexOf('a.tbcdn.cn/s.gif') or ~defaultImage.indexOf('assets.alicdn.com/s.gif') then defaultImage = $item.find('img').attr('data-ks-lazyload')
   if ~defaultImage.indexOf('40x40')
     console.log $item.html()
     process.exit();
