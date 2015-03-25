@@ -260,7 +260,12 @@ extractCatsTreeHtml = ($, store) ->
   catsTreeHtml
 
 makeUriWithStoreInfo = (uri, store) ->
-  uri + "###{store['store_name']}###{store['store_id']}###{store['see_price']}"
+  makeSureProtocol(uri) + "###{store['store_name']}###{store['store_id']}###{store['see_price']}"
+
+makeSureProtocol = (uri) ->
+  protocol = ''
+  protocol = 'http:' if uri.indexOf('http') isnt 0 and uri.indexOf('//') is 0
+  protocol + uri
 
 parseStoreFromUri = (uri) ->
   uriParts = uri.split '##'
@@ -279,9 +284,9 @@ exports.extractItemsFromContent = extractItemsFromContent = ($, store) ->
         PRICE = selectRightTemplate $item, template.PRICE
         items.push
           goodsName: $item.find(ITEM_NAME).text().trim()
-          defaultImage: extractDefaultImage $item
+          defaultImage: makeSureProtocol extractDefaultImage $item
           price: parsePrice $item.find(PRICE).text().trim(), store['see_price'], $item.find(ITEM_NAME).text().trim()
-          goodHttp: $item.find(ITEM_NAME).attr('href')
+          goodHttp: makeSureProtocol $item.find(ITEM_NAME).attr('href')
       break
   filterItems items
 
@@ -297,7 +302,7 @@ isBanned = ($) ->
 
 extractDefaultImage = ($item) ->
   defaultImage = $item.find('img').attr('src')
-  if defaultImage is 'http://a.tbcdn.cn/s.gif' then defaultImage = $item.find('img').attr('data-ks-lazyload')
+  if ~defaultImage.indexOf('http://a.tbcdn.cn/s.gif') then defaultImage = $item.find('img').attr('data-ks-lazyload')
   if ~defaultImage.indexOf('40x40')
     console.log $item.html()
     process.exit();
