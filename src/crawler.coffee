@@ -31,7 +31,7 @@ evaluate = (params, $) ->
 exports.crawl = crawl
 exports.evaluate = evaluate
 
-fetch = (url) ->
+exports.fetch = fetch = (url) ->
   defered = Q.defer()
   c.queue [
     'uri': url
