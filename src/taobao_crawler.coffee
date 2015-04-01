@@ -241,6 +241,7 @@ saveItemsFromPageAndQueueNext = (callback) ->
             ]
           items = extractItemsFromContent $, store
           bannedError = new Error('been banned by taobao') if isBanned $
+          if bannedError then process.exit -1
           db.saveItems store['store_id'], store['store_name'], items, result.uri, $(TEMPLATES[0].CAT_SELECTED).text().trim(), ->
             changeRemains '-', callback, bannedError
         window.close()
