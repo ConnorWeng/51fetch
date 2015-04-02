@@ -299,7 +299,7 @@ selectRightTemplate = ($item, template) ->
   return template
 
 isBanned = ($) ->
-  $('.search-result').length is 0
+  $('.search-result').length is 0 and $('dl.item').length is 0
 
 extractDefaultImage = ($item) ->
   defaultImage = $item.find('img').attr('src')
