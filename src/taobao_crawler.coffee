@@ -16,7 +16,7 @@ TEMPLATES = [
     html.replace(/\"http.+category-(\d+).+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
   ITEM: '.shop-hesper-bd dl.item'
   ITEM_NAME: ['a.item-name', 'p.title a']
-  PRICE: ['.c-price', 'p.price .value']
+  PRICE: ['.s-price', '.c-price', 'p.price .value']
   CAT_SELECTED: '.hesper-cats ol li:last'
 ,
   BY_NEW: '#J_Cats a:eq(2)'
