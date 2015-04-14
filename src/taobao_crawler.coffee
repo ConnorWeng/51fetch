@@ -50,7 +50,8 @@ exports.getCrawler = ->
 exports.getAllStores = (condition, callback) ->
   db.getStores condition, callback
 
-exports.crawlItemViaApi = (itemUri, done) ->
+exports.crawlItemViaApi = (good, done) ->
+  itemUri = good.good_http
   numIid = getNumIidFromUri itemUri
   getTaobaoItem numIid, 'title,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', (err, item) ->
     if err
@@ -65,7 +66,7 @@ exports.crawlItemViaApi = (itemUri, done) ->
           done()
         else
           updateItemDetailInDatabase
-            itemUri: itemUri
+            good: good
             desc: removeSingleQuotes item.desc
             skus: skus
             attrs: attrs
@@ -86,20 +87,14 @@ exports.crawlStore = (store, done) ->
     if err then error err
     done()
 
-updateItemDetailInDatabase = ({desc, skus, itemUri, attrs, cats, realPic, itemImgs}, callback) ->
-  goodsId = ''
-  price = ''
-  storeId = ''
+updateItemDetailInDatabase = ({desc, skus, good, attrs, cats, realPic, itemImgs}, callback) ->
+  goodsId = good.goods_id
+  itemUri = good.good_http
+  price = good.price
+  storeId = good.store_id
   store = {}
-  good = {}
   async.waterfall [
     (callback) ->
-      db.getGood itemUri, callback
-    (result, callback) ->
-      good = result
-      goodsId = good.goods_id
-      price = good.price
-      storeId = good.store_id
       db.updateGoods desc, itemUri, realPic, skus, callback
     (result, callback) ->
       db.updateItemImgs goodsId, itemImgs, callback
