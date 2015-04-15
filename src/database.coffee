@@ -32,6 +32,10 @@ class db
     @query "select * from ecm_store where #{condition}", (err, result) ->
       callback err, result
 
+  getUnfetchedStores: (callback) ->
+    @query "select * from ecm_store s where not exists (select 1 from ecmall51_2.ecm_store s2 where s2.shop_mall = s.shop_mall and s2.address = s.address and s2.floor = s.floor) and not exists (select 1 from ecmall51_2.ecm_store s2 where s2.im_qq = s.im_qq) order by s.store_id", (err, result) ->
+      callback err, result
+
   getUnfetchedGoods: (callback) ->
     @query "select * from ecm_goods g where g.good_http is not null and not exists (select 1 from ecm_goods_spec s where s.goods_id = g.goods_id)", (err, result) ->
       callback err, result

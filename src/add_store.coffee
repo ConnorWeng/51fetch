@@ -8,7 +8,7 @@ db = new database
 
 unaddedStores = []
 
-db.getStores '1 order by store_id', (err, stores) ->
+db.getUnfetchedStores (err, stores) ->
   db.end()
   if err then throw err
   unaddedStores = stores
