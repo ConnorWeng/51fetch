@@ -92,6 +92,7 @@ updateItemDetailInDatabase = ({desc, skus, good, attrs, cats, realPic, itemImgs}
   itemUri = good.good_http
   price = good.price
   storeId = good.store_id
+  huohao = (getHuoHao good.goods_name) || (getHuoHaoFromAttrs attrs)
   store = {}
   async.waterfall [
     (callback) ->
@@ -107,7 +108,7 @@ updateItemDetailInDatabase = ({desc, skus, good, attrs, cats, realPic, itemImgs}
     (result, callback) ->
       db.deleteSpecs goodsId, callback
     (result, callback) ->
-      db.updateSpecs skus, goodsId, price, callback
+      db.updateSpecs skus, goodsId, price, huohao, callback
     (result, callback) ->
       if result?
         insertId = if result.length > 0 then result[0].insertId else result.insertId
@@ -117,7 +118,7 @@ updateItemDetailInDatabase = ({desc, skus, good, attrs, cats, realPic, itemImgs}
     (result, callback) ->
       db.deleteItemAttr goodsId, callback
     (result, callback) ->
-      outerId = makeOuterId store, good.goods_name, price, attrs
+      outerId = makeOuterId store, huohao, price
       outerIdAttr =
         attrId: '1'
         valueId: '1'
@@ -430,9 +431,8 @@ getHierarchalCats = (cid, callback) ->
 removeSingleQuotes = (content) ->
   content.replace /'/g, ''
 
-makeOuterId = (store, title, price, attrs) ->
+makeOuterId = (store, huohao, price) ->
   seller = store.shop_mall + store.address
-  huohao = (getHuoHao title) || (getHuoHaoFromAttrs attrs)
   "#{seller}_P#{price}_#{huohao}#"
 
 getHuoHao = (title) ->

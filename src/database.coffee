@@ -90,16 +90,16 @@ class db
         error "error in update default spec, goodsId:#{goodsId}, specId:#{specId}"
       callback err, result
 
-  updateSpecs: (skus, goodsId, price, callback) ->
+  updateSpecs: (skus, goodsId, price, huohao, callback) ->
     insertSql = ''
     for sku in skus
       spec1 = sku[0]?.value
       spec2 = sku[1]?.value || ''
       specVid1 = sku[0]?.vid || 0
       specVid2 = sku[1]?.vid || 0
-      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{specVid1}, #{specVid2}, #{price}, 1000);"
+      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{specVid1}, #{specVid2}, #{price}, 1000, '#{huohao}');"
     if insertSql is ''
-      insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock) values ('#{goodsId}', '', '', 0, 0, #{price}, 1000);"
+      insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku) values ('#{goodsId}', '', '', 0, 0, #{price}, 1000, '#{huohao}');"
     @query insertSql, (err, result) ->
       if err
         error "error in updateSpecs, goodsId:#{goodsId}"
