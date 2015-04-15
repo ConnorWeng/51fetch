@@ -109,9 +109,9 @@ describe 'taobao_crawler', () ->
         assert.include uris, expected for expected in expectedArray
         done()
     it 'should return uris from template A', (done) ->
-      expectUrisInclude CATS_TREE_HTML_TEMPLATE_A, 'http://shop65626141.taobao.com/category-858663529.htm?search=y&catName=30%D4%AA--45%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9&viewType=grid', 'http://shop65626141.taobao.com/category-757163049.htm?search=y&catName=%BA%AB%B0%E6%D0%DD%CF%D0%CA%B1%D7%B0&viewType=grid', done
+      expectUrisInclude CATS_TREE_HTML_TEMPLATE_A, '//shop65626141.taobao.com/category-858663529.htm?search=y&catName=30%D4%AA--45%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9&viewType=grid', '//shop65626141.taobao.com/category-757163049.htm?search=y&catName=%BA%AB%B0%E6%D0%DD%CF%D0%CA%B1%D7%B0&viewType=grid', done
     it 'should return uris from template B', (done) ->
-      expectUrisInclude CATS_TREE_HTML_TEMPLATE_B, 'http://shop68788405.taobao.com/search.htm?orderType=newOn_desc&viewType=grid', done
+      expectUrisInclude CATS_TREE_HTML_TEMPLATE_B, '//shop68788405.taobao.com/search.htm?orderType=newOn_desc&viewType=grid', done
 
   describe '#extractImWw', ->
     it 'should return im_ww from uri', (done) ->
@@ -356,13 +356,13 @@ CATS_TREE_HTML_TEMPLATE_A = '''
   <li class="cat fst-cat float">
     <h4 class="cat-hd fst-cat-hd">
       <i class="cat-icon fst-cat-icon acrd-trigger active-trigger"></i>
-      <a href="http://shop65626141.taobao.com/category.htm?search=y" class="cat-name fst-cat-name" title="查看所有宝贝">查看所有宝贝</a>
+      <a href="//shop65626141.taobao.com/category.htm?search=y" class="cat-name fst-cat-name" title="查看所有宝贝">查看所有宝贝</a>
     </h4>
     <ul class="fst-cat-bd">
-      <a href="http://shop65626141.taobao.com/search.htm?search=y&orderType=hotsell_desc" class="cat-name" title="按销量">按销量</a>
-      <a href="http://shop65626141.taobao.com/search.htm?search=y&orderType=newOn_desc" class="cat-name" title="按新品">按新品</a>
-      <a href="http://shop65626141.taobao.com/search.htm?search=y&orderType=price_asc" class="cat-name" title="按价格">按价格</a>
-      <a href="http://shop65626141.taobao.com/search.htm?search=y&orderType=hotkeep_desc" class="cat-name" title="按收藏">按收藏</a>
+      <a href="//shop65626141.taobao.com/search.htm?search=y&orderType=hotsell_desc" class="cat-name" title="按销量">按销量</a>
+      <a href="//shop65626141.taobao.com/search.htm?search=y&orderType=newOn_desc" class="cat-name" title="按新品">按新品</a>
+      <a href="//shop65626141.taobao.com/search.htm?search=y&orderType=price_asc" class="cat-name" title="按价格">按价格</a>
+      <a href="//shop65626141.taobao.com/search.htm?search=y&orderType=hotkeep_desc" class="cat-name" title="按收藏">按收藏</a>
     </ul>
   </li>
 
@@ -371,7 +371,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-858663529.htm?search=y&catName=30%D4%AA--45%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9#bd"
+         href="//shop65626141.taobao.com/category-858663529.htm?search=y&catName=30%D4%AA--45%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9#bd"
          >30元--45元特价区（马年春夏款）</a>
     </h4>
   </li>
@@ -380,7 +380,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-858663530.htm?search=y&catName=5%D4%AA--25%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9#bd"
+         href="//shop65626141.taobao.com/category-858663530.htm?search=y&catName=5%D4%AA--25%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9#bd"
          >5元--25元特价区（马年春夏款）</a>
     </h4>
   </li>
@@ -389,7 +389,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757163049.htm?search=y&catName=%BA%AB%B0%E6%D0%DD%CF%D0%CA%B1%D7%B0#bd"
+         href="//shop65626141.taobao.com/category-757163049.htm?search=y&catName=%BA%AB%B0%E6%D0%DD%CF%D0%CA%B1%D7%B0#bd"
          >韩版休闲时装</a>
     </h4>
   </li>
@@ -398,7 +398,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159783.htm?search=y&catName=%C3%F1%D7%E5%B7%E7#bd"
+         href="//shop65626141.taobao.com/category-757159783.htm?search=y&catName=%C3%F1%D7%E5%B7%E7#bd"
          >民族风</a>
     </h4>
   </li>
@@ -407,7 +407,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159784.htm?search=y&categoryp=50000671&scid=757159784#bd"
+         href="//shop65626141.taobao.com/category-757159784.htm?search=y&categoryp=50000671&scid=757159784#bd"
          >T恤</a>
     </h4>
   </li>
@@ -416,7 +416,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159785.htm?search=y&categoryp=50010850&scid=757159785#bd"
+         href="//shop65626141.taobao.com/category-757159785.htm?search=y&categoryp=50010850&scid=757159785#bd"
          >连衣裙</a>
     </h4>
   </li>
@@ -425,7 +425,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 有子类目的一级类目 ,且展开 class="cat-icon acrd-trigger"， 其中acrd-trigger 是手风琴效果的triggerCls-->
       <i class="cat-icon fst-cat-icon acrd-trigger "></i><a
                                                             class="cat-name fst-cat-name"
-                                                            href="http://shop65626141.taobao.com/category-757159786.htm?search=y&categoryp=1622&scid=757159786#bd"
+                                                            href="//shop65626141.taobao.com/category-757159786.htm?search=y&categoryp=1622&scid=757159786#bd"
                                                             >裤子</a>
 
     </h4>
@@ -433,14 +433,14 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <li class="cat snd-cat  ">
         <h4 class="cat-hd snd-cat-hd" data-cat-id="757159787">
           <i class="cat-icon snd-cat-icon"></i><a class="cat-name snd-cat-name"
-                                                  href="http://shop65626141.taobao.com/category-757159787.htm?search=y&categoryp=162201&scid=757159787#bd"
+                                                  href="//shop65626141.taobao.com/category-757159787.htm?search=y&categoryp=162201&scid=757159787#bd"
                                                   >休闲裤</a>
         </h4>
       </li>
       <li class="cat snd-cat  ">
         <h4 class="cat-hd snd-cat-hd" data-cat-id="757159788">
           <i class="cat-icon snd-cat-icon"></i><a class="cat-name snd-cat-name"
-                                                  href="http://shop65626141.taobao.com/category-757159788.htm?search=y&categoryp=50007068&scid=757159788#bd"
+                                                  href="//shop65626141.taobao.com/category-757159788.htm?search=y&categoryp=50007068&scid=757159788#bd"
                                                   >打底裤</a>
         </h4>
       </li>
@@ -451,7 +451,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159789.htm?search=y&categoryp=162116&scid=757159789#bd"
+         href="//shop65626141.taobao.com/category-757159789.htm?search=y&categoryp=162116&scid=757159789#bd"
          >蕾丝衫/雪纺衫</a>
     </h4>
   </li>
@@ -460,7 +460,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159790.htm?search=y&categoryp=1623&scid=757159790#bd"
+         href="//shop65626141.taobao.com/category-757159790.htm?search=y&categoryp=1623&scid=757159790#bd"
          >半身裙</a>
     </h4>
   </li>
@@ -469,7 +469,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791#bd"
+         href="//shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791#bd"
          >牛仔裤</a>
     </h4>
   </li>
@@ -478,7 +478,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159792.htm?search=y&categoryp=50008898&scid=757159792#bd"
+         href="//shop65626141.taobao.com/category-757159792.htm?search=y&categoryp=50008898&scid=757159792#bd"
          >卫衣/绒衫</a>
     </h4>
   </li>
@@ -487,7 +487,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159793.htm?search=y&categoryp=162104&scid=757159793#bd"
+         href="//shop65626141.taobao.com/category-757159793.htm?search=y&categoryp=162104&scid=757159793#bd"
          >衬衫</a>
     </h4>
   </li>
@@ -496,7 +496,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159794.htm?search=y&categoryp=162103&scid=757159794#bd"
+         href="//shop65626141.taobao.com/category-757159794.htm?search=y&categoryp=162103&scid=757159794#bd"
          >毛衣</a>
     </h4>
   </li>
@@ -505,7 +505,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159795.htm?search=y&categoryp=121412004&scid=757159795#bd"
+         href="//shop65626141.taobao.com/category-757159795.htm?search=y&categoryp=121412004&scid=757159795#bd"
          >小背心/小吊带</a>
     </h4>
   </li>
@@ -514,7 +514,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159796.htm?search=y&categoryp=50013194&scid=757159796#bd"
+         href="//shop65626141.taobao.com/category-757159796.htm?search=y&categoryp=50013194&scid=757159796#bd"
          >毛呢外套</a>
     </h4>
   </li>
@@ -523,7 +523,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159797.htm?search=y&categoryp=50000697&scid=757159797#bd"
+         href="//shop65626141.taobao.com/category-757159797.htm?search=y&categoryp=50000697&scid=757159797#bd"
          >毛针织衫</a>
     </h4>
   </li>
@@ -532,7 +532,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159798.htm?search=y&categoryp=50008899&scid=757159798#bd"
+         href="//shop65626141.taobao.com/category-757159798.htm?search=y&categoryp=50008899&scid=757159798#bd"
          >羽绒服</a>
     </h4>
   </li>
@@ -541,7 +541,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 有子类目的一级类目 ,且展开 class="cat-icon acrd-trigger"， 其中acrd-trigger 是手风琴效果的triggerCls-->
       <i class="cat-icon fst-cat-icon acrd-trigger "></i><a
                                                             class="cat-name fst-cat-name"
-                                                            href="http://shop65626141.taobao.com/category-757159799.htm?search=y&categoryp=1624&scid=757159799#bd"
+                                                            href="//shop65626141.taobao.com/category-757159799.htm?search=y&categoryp=1624&scid=757159799#bd"
                                                             >职业套装/学生校服/工作制服</a>
 
     </h4>
@@ -549,7 +549,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <li class="cat snd-cat  ">
         <h4 class="cat-hd snd-cat-hd" data-cat-id="757159800">
           <i class="cat-icon snd-cat-icon"></i><a class="cat-name snd-cat-name"
-                                                  href="http://shop65626141.taobao.com/category-757159800.htm?search=y&categoryp=162404&scid=757159800#bd"
+                                                  href="//shop65626141.taobao.com/category-757159800.htm?search=y&categoryp=162404&scid=757159800#bd"
                                                   >休闲套装</a>
         </h4>
       </li>
@@ -560,7 +560,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159901.htm?search=y&categoryp=50011277&scid=757159901#bd"
+         href="//shop65626141.taobao.com/category-757159901.htm?search=y&categoryp=50011277&scid=757159901#bd"
          >短外套</a>
     </h4>
   </li>
@@ -569,7 +569,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159902.htm?search=y&categoryp=50008901&scid=757159902#bd"
+         href="//shop65626141.taobao.com/category-757159902.htm?search=y&categoryp=50008901&scid=757159902#bd"
          >风衣</a>
     </h4>
   </li>
@@ -578,7 +578,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159903.htm?search=y&categoryp=50009032&scid=757159903#bd"
+         href="//shop65626141.taobao.com/category-757159903.htm?search=y&categoryp=50009032&scid=757159903#bd"
          >腰带/皮带/腰链</a>
     </h4>
   </li>
@@ -587,7 +587,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159904.htm?search=y&categoryp=50008904&scid=757159904#bd"
+         href="//shop65626141.taobao.com/category-757159904.htm?search=y&categoryp=50008904&scid=757159904#bd"
          >皮衣</a>
     </h4>
   </li>
@@ -596,7 +596,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159905.htm?search=y&categoryp=50008900&scid=757159905#bd"
+         href="//shop65626141.taobao.com/category-757159905.htm?search=y&categoryp=50008900&scid=757159905#bd"
          >棉衣/棉服</a>
     </h4>
   </li>
@@ -605,7 +605,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159906.htm?search=y&categoryp=50010410&scid=757159906#bd"
+         href="//shop65626141.taobao.com/category-757159906.htm?search=y&categoryp=50010410&scid=757159906#bd"
          >手套</a>
     </h4>
   </li>
@@ -614,7 +614,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159907.htm?search=y&categoryp=50007003&scid=757159907#bd"
+         href="//shop65626141.taobao.com/category-757159907.htm?search=y&categoryp=50007003&scid=757159907#bd"
          >围巾/丝巾/披肩</a>
     </h4>
   </li>
@@ -623,7 +623,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
       <!-- 一级叶子类目 ,class="cat-icon"-->
       <i class="cat-icon fst-cat-icon"></i>
       <a class="cat-name fst-cat-name"
-         href="http://shop65626141.taobao.com/category-757159908.htm?search=y&categoryp=50009037&scid=757159908#bd"
+         href="//shop65626141.taobao.com/category-757159908.htm?search=y&categoryp=50009037&scid=757159908#bd"
          >耳套</a>
     </h4>
   </li>
@@ -631,12 +631,12 @@ CATS_TREE_HTML_TEMPLATE_A = '''
 
 <dl class="item " data-id="22714980919">
   <dt class="photo">
-    <a href="http://item.taobao.com/item.htm?id=22714980919" target="_blank">
-      <img alt="厂家直销 绣花撞色大码打底衫插肩袖修身百搭短袖T恤 6352# 实拍"  data-ks-lazyload="http://img01.taobaocdn.com/bao/uploaded/i4/10627019728583498/T14U72XjhjXXXXXXXX_!!0-item_pic.jpg_240x240.jpg" src="http://a.tbcdn.cn/s.gif"  >
+    <a href="//item.taobao.com/item.htm?id=22714980919" target="_blank">
+      <img alt="厂家直销 绣花撞色大码打底衫插肩袖修身百搭短袖T恤 6352# 实拍"  data-ks-lazyload="//img01.taobaocdn.com/bao/uploaded/i4/10627019728583498/T14U72XjhjXXXXXXXX_!!0-item_pic.jpg_240x240.jpg" src="//a.tbcdn.cn/s.gif"  >
     </a>
   </dt>
   <dd class="detail">
-    <a class="item-name" href="http://item.taobao.com/item.htm?id=22714980919" target="_blank">厂家直销 绣花撞色大码打底衫插肩袖修身百搭短袖T恤 6352# 实拍</a>
+    <a class="item-name" href="//item.taobao.com/item.htm?id=22714980919" target="_blank">厂家直销 绣花撞色大码打底衫插肩袖修身百搭短袖T恤 6352# 实拍</a>
     <div class="attribute">
       <div class="cprice-area"><span class="symbol">&yen;</span><span class="c-price">60.00 </span></div>
       <div class="sale-area">已售：<span class="sale-num">7</span>件</div>
@@ -645,7 +645,7 @@ CATS_TREE_HTML_TEMPLATE_A = '''
   <dd class="rates">
     <div class="title">
       <h4>
-        评论(<a href="http://item.taobao.com/item.htm?id=22714980919&on_comment=1" target="_blank"><span>0</span></a>)
+        评论(<a href="//item.taobao.com/item.htm?id=22714980919&on_comment=1" target="_blank"><span>0</span></a>)
       </h4>
     </div>
     <p class="rate J_TRate"></p>
@@ -658,11 +658,11 @@ CATS_TREE_HTML_TEMPLATE_B = '''
 <div class="bd">
   <ul id="J_Cats" class="cats J_TWidget" data-widget-type="Accordion" data-widget-config="{'triggerCls': 'cat-hd', 'panelCls': 'cat-bd','multiple': 'true', 'activeTriggerCls': 'collapse'}">
     <li class="cat J_CatHeader">
-    <h4><i></i><a rel="shopCategoryList" href='http://shop68788405.taobao.com/search.htm'>查看所有宝贝>></a></h4>
-    <a rel="shopCategoryList" href="http://shop68788405.taobao.com/search.htm?orderType=hotsell_desc" rel="nofollow" >按销量</a>
-    <a rel="shopCategoryList" href="http://shop68788405.taobao.com/search.htm?orderType=newOn_desc" rel="nofollow" >按新品</a>
-    <a rel="shopCategoryList" href="http://shop68788405.taobao.com/search.htm?orderType=price" rel="nofollow" >按价格</a>
-    <a rel="shopCategoryList" href="http://shop68788405.taobao.com/search.htm?orderType=hotkeep_desc" rel="nofollow" >按收藏</a>
+    <h4><i></i><a rel="shopCategoryList" href='//shop68788405.taobao.com/search.htm'>查看所有宝贝>></a></h4>
+    <a rel="shopCategoryList" href="//shop68788405.taobao.com/search.htm?orderType=hotsell_desc" rel="nofollow" >按销量</a>
+    <a rel="shopCategoryList" href="//shop68788405.taobao.com/search.htm?orderType=newOn_desc" rel="nofollow" >按新品</a>
+    <a rel="shopCategoryList" href="//shop68788405.taobao.com/search.htm?orderType=price" rel="nofollow" >按价格</a>
+    <a rel="shopCategoryList" href="//shop68788405.taobao.com/search.htm?orderType=hotkeep_desc" rel="nofollow" >按收藏</a>
   </li>
   </ul>
 </div>
@@ -676,9 +676,9 @@ PAGINATION_HTML = '''
 <div class="pagination">
   <a class="disable">上一页</a>
   <a class="page-cur">1</a>
-  <a class="J_SearchAsync" href="http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&amp;search=y&amp;spm=a1z10.1.0.0.PLAAVw&amp;orderType=hotsell_desc&amp;pageNo=2#anchor">2</a>
-  <a class="J_SearchAsync next" href="http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&amp;search=y&amp;spm=a1z10.1.0.0.PLAAVw&amp;orderType=hotsell_desc&amp;pageNo=2#anchor">下一页</a>
-  <form action="http://shop109065161.taobao.com/search.htm" method="get">
+  <a class="J_SearchAsync" href="//shop109065161.taobao.com/search.htm?mid=w-6309713619-0&amp;search=y&amp;spm=a1z10.1.0.0.PLAAVw&amp;orderType=hotsell_desc&amp;pageNo=2#anchor">2</a>
+  <a class="J_SearchAsync next" href="//shop109065161.taobao.com/search.htm?mid=w-6309713619-0&amp;search=y&amp;spm=a1z10.1.0.0.PLAAVw&amp;orderType=hotsell_desc&amp;pageNo=2#anchor">下一页</a>
+  <form action="//shop109065161.taobao.com/search.htm" method="get">
     <input type="hidden" name="mid" value="w-6309713619-0">
     <input type="hidden" name="search" value="y">
     <input type="hidden" name="spm" value="a1z10.1.0.0.PLAAVw">
@@ -695,7 +695,7 @@ CATS_TREE_WITHOUT_CATS_HTML = '''
   <li class="cat fst-cat">
     <h4 class="cat-hd fst-cat-hd has-children">
       <i class="cat-icon fst-cat-icon"></i>
-      <a href="http://384007168.taobao.com/search.htm?search=y" class="cat-name fst-cat-name">所有宝贝</a>
+      <a href="//384007168.taobao.com/search.htm?search=y" class="cat-name fst-cat-name">所有宝贝</a>
     </h4>
 
     <div class="snd-pop">
@@ -704,17 +704,17 @@ CATS_TREE_WITHOUT_CATS_HTML = '''
           <li class="cat snd-cat">
             <h4 class="cat-hd snd-cat-hd">
               <i class="cat-icon snd-cat-icon"></i>
-              <a href="http://384007168.taobao.com/search.htm?search=y&orderType=hotsell_desc"
+              <a href="//384007168.taobao.com/search.htm?search=y&orderType=hotsell_desc"
                  class="by-label by-sale snd-cat-name" rel="nofollow" >按销量</a>
             </h4>
             <h4 class="cat-hd snd-cat-hd">
               <i class="cat-icon snd-cat-icon"></i>
-              <a href="http://384007168.taobao.com/search.htm?search=y&orderType=newOn_desc"
+              <a href="//384007168.taobao.com/search.htm?search=y&orderType=newOn_desc"
                  class="by-label by-new snd-cat-name" rel="nofollow" >按新品</a>
             </h4>
             <h4 class="cat-hd snd-cat-hd">
               <i class="cat-icon snd-cat-icon"></i>
-              <a href="http://384007168.taobao.com/search.htm?search=y&orderType=price_asc"
+              <a href="//384007168.taobao.com/search.htm?search=y&orderType=price_asc"
                  class="by-label by-price snd-cat-name" rel="nofollow" >按价格</a>
             </h4>
           </li>
@@ -729,12 +729,12 @@ ITEMS_HTML_TEMPLATE_A = '''
 <div class="shop-hesper-bd grid">
 <dl class="item " data-id="40890292076">
   <dt class="photo">
-    <a href="http://item.taobao.com/item.htm?id=40890292076" target="_blank">
-      <img alt="865# 2014秋冬 新品拼皮百搭显瘦女呢料短裤（送腰带）"  src="http://img01.taobaocdn.com/bao/uploaded/i2/T1Xy3SFXliXXXXXXXX_!!0-item_pic.jpg_240x240.jpg"  >
+    <a href="//item.taobao.com/item.htm?id=40890292076" target="_blank">
+      <img alt="865# 2014秋冬 新品拼皮百搭显瘦女呢料短裤（送腰带）"  src="//img01.taobaocdn.com/bao/uploaded/i2/T1Xy3SFXliXXXXXXXX_!!0-item_pic.jpg_240x240.jpg"  >
     </a>
   </dt>
   <dd class="detail">
-    <a class="item-name" href="http://item.taobao.com/item.htm?id=40890292076" target="_blank">865# 2014秋冬 新品拼皮百搭显瘦女呢料短裤（送腰带）</a>
+    <a class="item-name" href="//item.taobao.com/item.htm?id=40890292076" target="_blank">865# 2014秋冬 新品拼皮百搭显瘦女呢料短裤（送腰带）</a>
     <div class="attribute">
       <div class="cprice-area"><span class="symbol">&yen;</span><span class="c-price">40.00 </span></div>
       <div class="sale-area">已售：<span class="sale-num">0</span>件</div>
@@ -743,7 +743,7 @@ ITEMS_HTML_TEMPLATE_A = '''
   <dd class="rates">
     <div class="title">
       <h4>
-        评论(<a href="http://item.taobao.com/item.htm?id=40890292076&on_comment=1" target="_blank"><span>0</span></a>)
+        评论(<a href="//item.taobao.com/item.htm?id=40890292076&on_comment=1" target="_blank"><span>0</span></a>)
       </h4>
     </div>
     <p class="rate J_TRate"></p>
@@ -752,12 +752,12 @@ ITEMS_HTML_TEMPLATE_A = '''
 
 <dl class="item " data-id="40889940937">
   <dt class="photo">
-    <a href="http://item.taobao.com/item.htm?id=40889940937" target="_blank">
-      <img alt="867# 2014秋冬新品韩版显瘦蕾丝花边拼接短裤百搭呢料短裤热裤"  src="http://img01.taobaocdn.com/bao/uploaded/i2/TB1ap8wGXXXXXbXXVXXXXXXXXXX_!!0-item_pic.jpg_240x240.jpg"  >
+    <a href="//item.taobao.com/item.htm?id=40889940937" target="_blank">
+      <img alt="867# 2014秋冬新品韩版显瘦蕾丝花边拼接短裤百搭呢料短裤热裤"  src="//img01.taobaocdn.com/bao/uploaded/i2/TB1ap8wGXXXXXbXXVXXXXXXXXXX_!!0-item_pic.jpg_240x240.jpg"  >
     </a>
   </dt>
   <dd class="detail">
-    <a class="item-name" href="http://item.taobao.com/item.htm?id=40889940937" target="_blank">867# 2014秋冬新品韩版显瘦蕾丝花边拼接短裤百搭呢料短裤热裤</a>
+    <a class="item-name" href="//item.taobao.com/item.htm?id=40889940937" target="_blank">867# 2014秋冬新品韩版显瘦蕾丝花边拼接短裤百搭呢料短裤热裤</a>
     <div class="attribute">
       <div class="cprice-area"><span class="symbol">&yen;</span><span class="c-price">40.00 </span></div>
       <div class="sale-area">已售：<span class="sale-num">0</span>件</div>
@@ -766,7 +766,7 @@ ITEMS_HTML_TEMPLATE_A = '''
   <dd class="rates">
     <div class="title">
       <h4>
-        评论(<a href="http://item.taobao.com/item.htm?id=40889940937&on_comment=1" target="_blank"><span>0</span></a>)
+        评论(<a href="//item.taobao.com/item.htm?id=40889940937&on_comment=1" target="_blank"><span>0</span></a>)
       </h4>
     </div>
     <p class="rate J_TRate"></p>
@@ -779,12 +779,12 @@ ITEMS_HTML_TEMPLATE_B = '''
 <div class="shop-hesper-bd grid">
 <div class="item">
   <div class="pic">
-    <a href="http://item.taobao.com/item.htm?id=41324376021&" target="_blank">
-      <img src="http://a.tbcdn.cn/s.gif" data-ks-lazyload="http://img01.taobaocdn.com/bao/uploaded/i4/T1HXpZFk4iXXXXXXXX_!!0-item_pic.jpg_160x160.jpg" />
+    <a href="//item.taobao.com/item.htm?id=41324376021&" target="_blank">
+      <img src="//a.tbcdn.cn/s.gif" data-ks-lazyload="//img01.taobaocdn.com/bao/uploaded/i4/T1HXpZFk4iXXXXXXXX_!!0-item_pic.jpg_160x160.jpg" />
     </a>
   </div>
   <div class="desc">
-    <a target="_blank" href="http://item.taobao.com/item.htm?id=41324376021&" class="permalink" style="">
+    <a target="_blank" href="//item.taobao.com/item.htm?id=41324376021&" class="permalink" style="">
       #6801#现货4码3色小清新必备学院派彩色时尚拼色长袖卫衣
     </a>
   </div>
@@ -799,12 +799,12 @@ ITEMS_HTML_TEMPLATE_B = '''
 </div>
 <div class="item">
   <div class="pic">
-    <a href="http://item.taobao.com/item.htm?id=41083856074&" target="_blank">
-      <img src="http://a.tbcdn.cn/s.gif" data-ks-lazyload="http://img01.taobaocdn.com/bao/uploaded/i2/TB1xHOkGXXXXXX0XFXXXXXXXXXX_!!0-item_pic.jpg_160x160.jpg" />
+    <a href="//item.taobao.com/item.htm?id=41083856074&" target="_blank">
+      <img src="//a.tbcdn.cn/s.gif" data-ks-lazyload="//img01.taobaocdn.com/bao/uploaded/i2/TB1xHOkGXXXXXX0XFXXXXXXXXXX_!!0-item_pic.jpg_160x160.jpg" />
     </a>
   </div>
   <div class="desc">
-    <a target="_blank" href="http://item.taobao.com/item.htm?id=41083856074&" class="permalink" style="">
+    <a target="_blank" href="//item.taobao.com/item.htm?id=41083856074&" class="permalink" style="">
       实拍#8821#棒球服女 韩版潮情侣装棒球衫开衫卫衣女学生外套班服
     </a>
   </div>
