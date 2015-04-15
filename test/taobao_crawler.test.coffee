@@ -132,6 +132,10 @@ describe 'taobao_crawler', () ->
       expectCatsTreeHtmlInclude CATS_TREE_HTML_TEMPLATE_A, '蕾丝衫/雪纺衫', done
     it 'should return cats tree html from template B', (done) ->
       expectCatsTreeHtmlInclude CATS_TREE_HTML_TEMPLATE_B, '按新品', done
+    it 'should replace cat urls with local urls 1', (done) ->
+      expectCatsTreeHtmlInclude CATS_TREE_HTML_TEMPLATE_A, 'showCat.php?cid=858663529', done
+    it 'should replace cat urls with local urls 2', (done) ->
+      expectCatsTreeHtmlInclude CATS_TREE_HTML_TEMPLATE_A, 'showCat.php?cid=757163049', done
 
   describe '#extractItemsFromContent', ->
     expectItemsFromHtml = (html, seePrice, expected, done) ->
