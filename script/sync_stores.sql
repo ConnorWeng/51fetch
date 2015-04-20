@@ -74,6 +74,8 @@ begin
     set v_serv_golden = null;
   end loop;
 
+  close store_cursor;
+
 end$$
 
 delimiter ;
