@@ -72,7 +72,7 @@ exports.crawlItemViaApi = (good, done) ->
             attrs: attrs
             cats: cats
             realPic: isRealPic item.title, item.props_name
-            itemImgs: item.item_imgs.item_img
+            itemImgs: item.item_imgs?.item_img || []
           , done
 
 exports.crawlStore = (store, done) ->
