@@ -75,11 +75,11 @@ exports.crawlItemViaApi = (good, done) ->
             itemImgs: item.item_imgs?.item_img || []
           , done
 
-exports.crawlStore = (store, done) ->
+exports.crawlStore = (store, fullCrawl, done) ->
   async.waterfall [
     queueStoreUri(store)
     makeJsDom
-    updateCateContentAndFetchAllCateUris(store)
+    updateCateContentAndFetchAllUris(store, fullCrawl)
     clearCids(store)
     crawlAllPagesOfAllCates
     deleteDelistItems(store)
@@ -146,7 +146,7 @@ makeJsDom = (result, callback) ->
     env result.body, callback
 
 totalItemsCount = 0
-updateCateContentAndFetchAllCateUris = (store) ->
+updateCateContentAndFetchAllUris = (store, fullCrawl) ->
   (window, callback) ->
     $ = jquery window
     catsTreeHtml = removeSingleQuotes extractCatsTreeHtml $, store
@@ -155,7 +155,7 @@ updateCateContentAndFetchAllCateUris = (store) ->
       db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
       imWw = extractImWw $, store['store_id'], store['store_name']
       if imWw then db.updateImWw store['store_id'], store['store_name'], imWw
-      uris = extractUris $, store
+      uris = extractUris $, store, fullCrawl
       window.close()
       callback null, uris
     else
@@ -163,15 +163,16 @@ updateCateContentAndFetchAllCateUris = (store) ->
       window.close()
       callback new Error("NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"), null
 
-extractUris = ($, store) ->
+extractUris = ($, store, fullCrawl) ->
   uris = []
   for template in TEMPLATES
     if $(template.BY_NEW).length > 0
       uris.push makeUriWithStoreInfo($(template.BY_NEW).attr('href') + '&viewType=grid', store)
-    $(template.CAT_NAME).each (index, element) ->
-      uri = $(element).attr('href')
-      if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and (~uri.indexOf('#bd') or ~uri.indexOf('categoryp'))
-        uris.push makeUriWithStoreInfo(uri.replace('#bd', '') + '&viewType=grid', store)
+    if fullCrawl
+      $(template.CAT_NAME).each (index, element) ->
+        uri = $(element).attr('href')
+        if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and (~uri.indexOf('#bd') or ~uri.indexOf('categoryp'))
+          uris.push makeUriWithStoreInfo(uri.replace('#bd', '') + '&viewType=grid', store)
     if $(template.BY_NEW).length > 0 then break
   uris
 

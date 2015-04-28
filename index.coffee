@@ -24,7 +24,7 @@ stores = []
 crawl = ->
   if stores.length > 0
     store = stores.shift()
-    crawlStore store, crawl
+    crawlStore store, true, crawl
   else
     console.log 'completed.'
 

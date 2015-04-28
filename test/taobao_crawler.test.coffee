@@ -51,7 +51,7 @@ describe 'taobao_crawler', () ->
       taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
         assert.include uris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791&viewType=grid##store_name##store_id##see_price'
         callback null, null
-      taobao_crawler.crawlStore store, ->
+      taobao_crawler.crawlStore store, true, ->
         assert.isTrue databaseStub.updateStoreCateContent.calledWith('store_id', 'store_name')
         assert.isTrue databaseStub.updateImWw.calledWith('store_id', 'store_name')
         done()
@@ -60,7 +60,7 @@ describe 'taobao_crawler', () ->
       taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
         assert.deepEqual uris, ['http://384007168.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid##store_name##store_id##see_price']
         callback null, null
-      taobao_crawler.crawlStore store, ->
+      taobao_crawler.crawlStore store, true, ->
         done()
 
   describe '#crawlAllPagesOfAllCates', ->
@@ -105,7 +105,7 @@ describe 'taobao_crawler', () ->
     expectUrisInclude = (html, expectedArray..., done) ->
       env html, (errors, window) ->
         $ = jquery window
-        uris = taobao_crawler.extractUris $, null
+        uris = taobao_crawler.extractUris $, null, true
         assert.include uris, expected for expected in expectedArray
         done()
     it 'should return uris from template A', (done) ->
