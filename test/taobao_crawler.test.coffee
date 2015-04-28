@@ -48,18 +48,22 @@ describe 'taobao_crawler', () ->
     taobao_crawler.setDeleteDelistItems mockDbOperationWithStoreArgs
     it 'should crawl category content and all category uris', (done) ->
       stubCrawler CATS_TREE_HTML_TEMPLATE_A
+      taobao_crawler.setCrawlAllPagesOfByNew (uris, callback) ->
+        callback null, uris
       taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
-        assert.include uris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791&viewType=grid##store_name##store_id##see_price'
-        callback null, null
+        assert.include uris.catesUris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791&viewType=grid##store_name##store_id##see_price'
+        callback null, uris
       taobao_crawler.crawlStore store, true, ->
         assert.isTrue databaseStub.updateStoreCateContent.calledWith('store_id', 'store_name')
         assert.isTrue databaseStub.updateImWw.calledWith('store_id', 'store_name')
         done()
     it 'should crawl items from newOn_desc when cats tree is empty', (done) ->
       stubCrawler CATS_TREE_WITHOUT_CATS_HTML
+      taobao_crawler.setCrawlAllPagesOfByNew (uris, callback) ->
+        assert.deepEqual uris.byNewUris, ['http://384007168.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid##store_name##store_id##see_price']
+        callback null, uris
       taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
-        assert.deepEqual uris, ['http://384007168.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid##store_name##store_id##see_price']
-        callback null, null
+        callback null, uris
       taobao_crawler.crawlStore store, true, ->
         done()
 
@@ -106,7 +110,8 @@ describe 'taobao_crawler', () ->
       env html, (errors, window) ->
         $ = jquery window
         uris = taobao_crawler.extractUris $, null, true
-        assert.include uris, expected for expected in expectedArray
+        uris.catesUris.push uris.byNewUris[0]
+        assert.include uris.catesUris, expected for expected in expectedArray
         done()
     it 'should return uris from template A', (done) ->
       expectUrisInclude CATS_TREE_HTML_TEMPLATE_A, '//shop65626141.taobao.com/category-858663529.htm?search=y&catName=30%D4%AA--45%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9&viewType=grid', '//shop65626141.taobao.com/category-757163049.htm?search=y&catName=%BA%AB%B0%E6%D0%DD%CF%D0%CA%B1%D7%B0&viewType=grid', done

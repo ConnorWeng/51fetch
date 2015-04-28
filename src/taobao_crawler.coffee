@@ -76,14 +76,25 @@ exports.crawlItemViaApi = (good, done) ->
           , done
 
 exports.crawlStore = (store, fullCrawl, done) ->
-  async.waterfall [
-    queueStoreUri(store)
-    makeJsDom
-    updateCateContentAndFetchAllUris(store, fullCrawl)
-    clearCids(store)
-    crawlAllPagesOfAllCates
-    deleteDelistItems(store)
-  ], (err, result) ->
+  if fullCrawl
+    steps = [
+      queueStoreUri(store)
+      makeJsDom
+      updateCateContentAndFetchAllUris(store)
+      clearCids(store)
+      crawlAllPagesOfByNew
+      crawlAllPagesOfAllCates
+      deleteDelistItems(store)
+    ]
+  else
+    steps = [
+      queueStoreUri(store)
+      makeJsDom
+      updateCateContentAndFetchAllUris(store)
+      crawlAllPagesOfByNew
+      deleteDelistItems(store)
+    ]
+  async.waterfall steps, (err, result) ->
     if err then error err
     done()
 
@@ -146,7 +157,7 @@ makeJsDom = (result, callback) ->
     env result.body, callback
 
 totalItemsCount = 0
-updateCateContentAndFetchAllUris = (store, fullCrawl) ->
+updateCateContentAndFetchAllUris = (store) ->
   (window, callback) ->
     $ = jquery window
     catsTreeHtml = removeSingleQuotes extractCatsTreeHtml $, store
@@ -155,7 +166,7 @@ updateCateContentAndFetchAllUris = (store, fullCrawl) ->
       db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
       imWw = extractImWw $, store['store_id'], store['store_name']
       if imWw then db.updateImWw store['store_id'], store['store_name'], imWw
-      uris = extractUris $, store, fullCrawl
+      uris = extractUris $, store
       window.close()
       callback null, uris
     else
@@ -163,16 +174,17 @@ updateCateContentAndFetchAllUris = (store, fullCrawl) ->
       window.close()
       callback new Error("NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"), null
 
-extractUris = ($, store, fullCrawl) ->
-  uris = []
+extractUris = ($, store) ->
+  uris =
+    byNewUris: []
+    catesUris: []
   for template in TEMPLATES
     if $(template.BY_NEW).length > 0
-      uris.push makeUriWithStoreInfo($(template.BY_NEW).attr('href') + '&viewType=grid', store)
-    if fullCrawl
-      $(template.CAT_NAME).each (index, element) ->
-        uri = $(element).attr('href')
-        if uris.indexOf(uri) is -1 and ~uri.indexOf('category-') and (~uri.indexOf('#bd') or ~uri.indexOf('categoryp'))
-          uris.push makeUriWithStoreInfo(uri.replace('#bd', '') + '&viewType=grid', store)
+      uris.byNewUris.push makeUriWithStoreInfo($(template.BY_NEW).attr('href') + '&viewType=grid', store)
+    $(template.CAT_NAME).each (index, element) ->
+      uri = $(element).attr('href')
+      if uris.catesUris.indexOf(uri) is -1 and ~uri.indexOf('category-') and (~uri.indexOf('#bd') or ~uri.indexOf('categoryp'))
+        uris.catesUris.push makeUriWithStoreInfo(uri.replace('#bd', '') + '&viewType=grid', store)
     if $(template.BY_NEW).length > 0 then break
   uris
 
@@ -198,16 +210,30 @@ changeRemains = (action, callback, err = null) ->
     remains++
   else if action is '-'
     remains--
-    if remains is 0 then callback err, null
+    if remains is 0 then callback err
 
-crawlAllPagesOfAllCates = (uris, callback) ->
-  for uri in uris
+crawlAllPagesOfByNew = (uris, callback) ->
+  callbackWithUris = (err) ->
+    callback err, uris
+  for uri in uris.byNewUris
     store = parseStoreFromUri uri
     changeRemains '+', callback
     c.queue [
       'uri': makeUriWithStoreInfo uri, store
       'forceUTF8': true
-      'callback': saveItemsFromPageAndQueueNext callback
+      'callback': saveItemsFromPageAndQueueNext callbackWithUris
+    ]
+
+crawlAllPagesOfAllCates = (uris, callback) ->
+  callbackWithUris = (err) ->
+    callback err, uris
+  for uri in uris.catesUris
+    store = parseStoreFromUri uri
+    changeRemains '+', callback
+    c.queue [
+      'uri': makeUriWithStoreInfo uri, store
+      'forceUTF8': true
+      'callback': saveItemsFromPageAndQueueNext callbackWithUris
     ]
 
 deleteDelistItems = (store) ->
@@ -462,6 +488,7 @@ debug = (content) ->
 
 if process.env.NODE_ENV is 'test'
   exports.setSaveItemsFromPageAndQueueNext = (f) -> saveItemsFromPageAndQueueNext = f
+  exports.setCrawlAllPagesOfByNew = (f) -> crawlAllPagesOfByNew = f
   exports.setCrawlAllPagesOfAllCates = (f) -> crawlAllPagesOfAllCates = f
   exports.setClearCids = (f) -> clearCids = f
   exports.setDeleteDelistItems = (f) -> deleteDelistItems = f
@@ -469,6 +496,7 @@ if process.env.NODE_ENV is 'test'
   exports.setChangeRemains = (f) -> changeRemains = f
   exports.parsePrice = parsePrice
   exports.formatPrice = formatPrice
+  exports.crawlAllPagesOfByNew = crawlAllPagesOfByNew
   exports.crawlAllPagesOfAllCates = crawlAllPagesOfAllCates
   exports.saveItemsFromPageAndQueueNext = saveItemsFromPageAndQueueNext
   exports.getNumIidFromUri = getNumIidFromUri
