@@ -215,26 +215,32 @@ changeRemains = (action, callback, err = null) ->
 crawlAllPagesOfByNew = (uris, callback) ->
   callbackWithUris = (err) ->
     callback err, uris
-  for uri in uris.byNewUris
-    store = parseStoreFromUri uri
-    changeRemains '+', callback
-    c.queue [
-      'uri': makeUriWithStoreInfo uri, store
-      'forceUTF8': true
-      'callback': saveItemsFromPageAndQueueNext callbackWithUris
-    ]
+  if uris.byNewUris.length > 0
+    for uri in uris.byNewUris
+      store = parseStoreFromUri uri
+      changeRemains '+', callback
+      c.queue [
+        'uri': makeUriWithStoreInfo uri, store
+        'forceUTF8': true
+        'callback': saveItemsFromPageAndQueueNext callbackWithUris
+      ]
+  else
+    callback null, uris
 
 crawlAllPagesOfAllCates = (uris, callback) ->
   callbackWithUris = (err) ->
     callback err, uris
-  for uri in uris.catesUris
-    store = parseStoreFromUri uri
-    changeRemains '+', callback
-    c.queue [
-      'uri': makeUriWithStoreInfo uri, store
-      'forceUTF8': true
-      'callback': saveItemsFromPageAndQueueNext callbackWithUris
-    ]
+  if uris.catesUris.length > 0
+    for uri in uris.catesUris
+      store = parseStoreFromUri uri
+      changeRemains '+', callback
+      c.queue [
+        'uri': makeUriWithStoreInfo uri, store
+        'forceUTF8': true
+        'callback': saveItemsFromPageAndQueueNext callbackWithUris
+      ]
+  else
+    callback null, uris
 
 deleteDelistItems = (store) ->
   (result, callback) ->
