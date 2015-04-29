@@ -19,12 +19,14 @@ process.on 'uncaughtException', (err) ->
 db = new database(config.database[args[0]])
 setDatabase db
 
+fullCrawl = if args.length is 3 and args[2] is 'fullCrawl' then true else false
+
 stores = []
 
 crawl = ->
   if stores.length > 0
     store = stores.shift()
-    crawlStore store, true, crawl
+    crawlStore store, fullCrawl, crawl
   else
     console.log 'completed.'
 
