@@ -44,6 +44,9 @@ exports.setDatabase = (newDb) ->
 exports.setCrawler = (newCrawler) ->
   c = newCrawler
 
+exports.setRateLimits = (rateLimits) ->
+  c.options.rateLimits = rateLimits
+
 exports.getCrawler = ->
   c
 
