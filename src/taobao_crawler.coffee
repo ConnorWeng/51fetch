@@ -175,7 +175,9 @@ updateCateContentAndFetchAllUris = (store) ->
     else
       totalItemsCount = 0
       window.close()
-      callback new Error("NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"), null
+      log "NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"
+      process.exit -1
+      # callback new Error("NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"), null
 
 extractUris = ($, store) ->
   uris =
@@ -342,7 +344,7 @@ extractDefaultImage = ($item) ->
   if ~defaultImage.indexOf('a.tbcdn.cn/s.gif') or ~defaultImage.indexOf('assets.alicdn.com/s.gif') then defaultImage = $item.find('img').attr('data-ks-lazyload')
   if ~defaultImage.indexOf('40x40')
     console.log $item.html()
-    process.exit();
+    process.exit -1
   defaultImage
 
 parsePrice = (price, seePrice, goodsName) ->
