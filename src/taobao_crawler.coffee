@@ -271,12 +271,16 @@ saveItemsFromPageAndQueueNext = (callback) ->
           items = extractItemsFromContent $, store
           bannedError = new Error('been banned by taobao') if isBanned $
           if bannedError then process.exit -1
-          db.saveItems store['store_id'], store['store_name'], items, result.uri, $(TEMPLATES[0].CAT_SELECTED).text().trim(), ->
+          pageNumber = currentPageNumber $
+          db.saveItems store['store_id'], store['store_name'], items, result.uri, $(TEMPLATES[0].CAT_SELECTED).text().trim(), pageNumber, ->
             changeRemains '-', callback, bannedError
         window.close()
 
 nextPageUri = ($) ->
   $('div.pagination a.next').attr('href')
+
+currentPageNumber = ($) ->
+  (parseInt $('div.pagination a.page-cur').text()) || 1
 
 extractCatsTreeHtml = ($, store) ->
   catsTreeHtml = ''

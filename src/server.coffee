@@ -61,7 +61,7 @@ crawlStoreIfNeed = (store, callback) ->
           imWw = extractImWw $, store['store_id'], store['store_name']
           if imWw then db.updateImWw store['store_id'], store['store_name'], imWw
           items = extractItemsFromContent $, store
-          db.saveItems store['store_id'], store['store_name'], items, url, '所有宝贝', callback
+          db.saveItems store['store_id'], store['store_name'], items, url, '所有宝贝', 1, callback
           window.close()
   ]
 

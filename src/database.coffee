@@ -150,9 +150,9 @@ class db
     @query "delete from ecm_goods_attr where goods_id = #{goodsId}", (err, result) ->
       callback err, result
 
-  saveItems: (storeId, storeName, items, url, catName, callback) ->
+  saveItems: (storeId, storeName, items, url, catName, pageNumber, callback) ->
     @saveItemsCounter += 1
-    sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl(url), catName
+    sql = @makeSaveItemSql storeId, storeName, items, @getCidFromUrl(url), catName, pageNumber
     @query sql, (err, result) =>
       @saveItemsCounter -= 1
       if err
@@ -182,9 +182,9 @@ class db
         log "id:#{storeId} totalCount:#{totalCount} delistCount:#{delistCount} totalItemsCount:#{totalItemsCount}"
         callback null, null
 
-  makeSaveItemSql: (storeId, storeName, items, cid, catName) ->
+  makeSaveItemSql: (storeId, storeName, items, cid, catName, pageNumber) ->
     sql = ''
-    time = @getDateTime()
+    time = @getDateTime() - pageNumber * 60 # 每一页宝贝的time都倒退1分钟，保证最终add_time是按照新款排序的
     if catName isnt '所有宝贝'
       sql += "insert into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('#{cid}', '#{storeId}', '#{catName}', 1) on duplicate key update store_id = '#{storeId}', cate_name = '#{catName}', if_show = 1;"
     for item, i in items
