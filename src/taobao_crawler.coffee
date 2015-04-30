@@ -175,9 +175,9 @@ updateCateContentAndFetchAllUris = (store) ->
     else
       totalItemsCount = 0
       window.close()
-      log "NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"
-      process.exit -1
-      # callback new Error("NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"), null
+      # log "NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"
+      # process.exit -1
+      callback new Error("NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"), null
 
 extractUris = ($, store) ->
   uris =
