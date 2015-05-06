@@ -22,17 +22,17 @@ begin
     if v_mall_id is not null then
       select mk_id into v_floor_id from ecm_market where mk_name = concat(v_floor, 'F') and parent_id = v_mall_id;
       if v_floor_id is not null then
-        update ecm_store set mk_id = v_floor_id, mk_name = v_shop_mall where store_id = v_store_id;
+        update ecm_store set mk_id = v_floor_id, mk_name = concat(v_shop_mall, '-', v_floor, 'F') where store_id = v_store_id;
         select concat('store_id:', v_store_id, ' just update') info;
       else
         insert into ecm_market(mk_name, parent_id) values (concat(v_floor, 'F'), v_mall_id);
-        update ecm_store set mk_id = last_insert_id(), mk_name = v_shop_mall where store_id = v_store_id;
+        update ecm_store set mk_id = last_insert_id(), mk_name = concat(v_shop_mall, '-', v_floor, 'F') where store_id = v_store_id;
         select concat('store_id:', v_store_id, ' insert floor and update') info;
       end if;
     else
       insert into ecm_market(mk_name, parent_id) values (v_shop_mall, 1);
       insert into ecm_market(mk_name, parent_id) values (concat(v_floor, 'F'), last_insert_id());
-      update ecm_store set mk_id = last_insert_id(), mk_name = v_shop_mall where store_id = v_store_id;
+      update ecm_store set mk_id = last_insert_id(), mk_name = concat(v_shop_mall, '-', v_floor, 'F') where store_id = v_store_id;
       select concat('store_id:', v_store_id, ' insert mall and floor') info;
     end if;
 
