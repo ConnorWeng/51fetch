@@ -42,7 +42,7 @@ begin
       insert into ecm_shipping set store_id=last_insert_id(), shipping_name='网站默认快递', shipping_desc='网站默认快递', first_price=10, step_price=0, enabled=1, sort_order=255;
       select concat('new user and store registered, username is: ', v_new_username) info;
     else
-      update ecm_store set tel=v_tel, shop_mall=v_shop_mall, floor=v_floor, address=v_address, store_name=v_store_name, see_price=v_see_price, im_ww=v_im_ww, shop_http=v_shop_http, has_link=v_has_link, serv_refund=v_serv_refund, serv_exchgoods=v_serv_exchgoods, serv_sendgoods=v_serv_sendgoods, serv_probexch=v_serv_probexch, serv_deltpic=v_serv_deltpic, serv_modpic=v_serv_modpic, serv_golden=v_serv_golden, last_update=v_time where store_id = v_new_store_id;
+      update ecm_store set tel=v_tel, shop_mall=v_shop_mall, floor=v_floor, address=v_address, dangkou_address=v_address, store_name=v_store_name, see_price=v_see_price, im_ww=v_im_ww, shop_http=v_shop_http, has_link=v_has_link, serv_refund=v_serv_refund, serv_exchgoods=v_serv_exchgoods, serv_sendgoods=v_serv_sendgoods, serv_probexch=v_serv_probexch, serv_deltpic=v_serv_deltpic, serv_modpic=v_serv_modpic, serv_golden=v_serv_golden, last_update=v_time where store_id = v_new_store_id;
       select concat('store is updated, store_id is: ', v_new_store_id) info;
     end if;
 
