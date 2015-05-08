@@ -83,8 +83,9 @@ begin
     call log_sync('update', i_store_id, v_goods_id, i_last_update, 1);
   else
     insert into ecm_goods(store_id, goods_name, default_image, price, good_http, cids, add_time, last_update) values (i_store_id, i_goods_name, v_image_240, i_price, i_good_http, i_cids, i_add_time, i_last_update);
-    call log_sync('insert', i_store_id, last_insert_id(), i_last_update, 1);
-    insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values (last_insert_id(), v_image, v_image_460, 0, 0);
+    set v_goods_id = last_insert_id();
+    insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values (v_goods_id, v_image, v_image_460, 0, 0);
+    call log_sync('insert', i_store_id, v_goods_id, i_last_update, 1);
   end if;
 end$$
 
