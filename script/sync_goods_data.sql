@@ -79,6 +79,7 @@ begin
 
   if v_goods_id is not null then
     update ecm_goods set goods_name = i_goods_name, default_image = v_image_240, price = i_price, cids = i_cids, add_time = i_add_time, last_update = i_last_update where goods_id = v_goods_id;
+    update ecm_goods_spec set price = i_price where goods_id = v_goods_id;
     update ecm_goods_image set image_url = v_image, thumbnail = v_image_460, file_id = 0 where goods_id = v_goods_id and sort_order = 0;
     call log_sync('update', i_store_id, v_goods_id, i_last_update, 1);
   else
