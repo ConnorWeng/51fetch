@@ -177,9 +177,10 @@ class db
       totalCount = parseInt(results[0][0]['totalCount'])
       delistCount = parseInt(results[1][0]['delistCount'])
       if delistCount > 0
-        @query "delete from ecm_goods where store_id = #{storeId} and last_update < #{@oneHourAgo()}", (err, result) =>
+        @query "call delete_goods(#{@oneHourAgo()}, #{storeId}, #{storeId+1}, @o_count)", (err, result) =>
+          if err then error "call delete_goods(#{@oneHourAgo()}, #{storeId}, #{storeId+1}, @o_count)"
           @deleteDelistItemsCounter -= 1
-          log "id:#{storeId} totalCount:#{totalCount} delistedCount: #{result.affectedRows|0} totalItemsCount:#{totalItemsCount}"
+          log "id:#{storeId} totalCount:#{totalCount} delistedCount: #{result[0][0].o_count} totalItemsCount:#{totalItemsCount}"
           callback err, result
       else
         @deleteDelistItemsCounter -= 1

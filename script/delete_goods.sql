@@ -29,7 +29,6 @@ begin
     delete from ecm_goods_attr where goods_id = v_goods_id;
     delete from ecm_goods_image where goods_id = v_goods_id;
     delete from ecm_category_goods where goods_id = v_goods_id;
-    select concat('goods_id:', v_goods_id, ' deleted') info;
   end loop;
 
   close goods_cursor;
