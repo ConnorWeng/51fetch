@@ -358,6 +358,35 @@ describe 'taobao_crawler', () ->
     it 'should return origin value', ->
       assert.equal taobao_crawler.getPropertyAlias('1627207:3232483:粉色;1627207:3232484:绿色', '3232485', '白色'), '白色'
 
+  describe '#crawlItemsInStore', ->
+    it 'should call crawlItemViaApi with goods one by one', (done) ->
+      databaseStub.getUnfetchedGoodsInStore = (storeId, callback) ->
+        callback null, [{
+          goods_id: '1'
+          goods_name: 'goods1'
+        }, {
+          goods_id: '2'
+          goods_name: 'goods2'
+        }, {
+          goods_id: '3'
+          goods_name: 'goods3'
+        }]
+      crawlItemViaApiStub = sinon.stub taobao_crawler, 'crawlItemViaApi', (good, callback) ->
+        callback()
+      taobao_crawler.crawlItemsInStore 0, ->
+        assert.equal crawlItemViaApiStub.callCount, 3
+        assert.isTrue crawlItemViaApiStub.calledWith
+          goods_id: '1'
+          goods_name: 'goods1'
+        assert.isTrue crawlItemViaApiStub.calledWith
+          goods_id: '2'
+          goods_name: 'goods2'
+        assert.isTrue crawlItemViaApiStub.calledWith
+          goods_id: '3'
+          goods_name: 'goods3'
+        done()
+
+
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>
 <div>

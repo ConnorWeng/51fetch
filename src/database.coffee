@@ -40,6 +40,10 @@ class db
     @query "select * from ecm_goods g where g.good_http is not null and not exists (select 1 from ecm_goods_spec s where s.goods_id = g.goods_id)", (err, result) ->
       callback err, result
 
+  getUnfetchedGoodsInStore: (storeId, callback) ->
+    @query "select * from ecm_goods g where g.store_id = #{storeId} and g.good_http is not null and not exists (select 1 from ecm_goods_spec s where s.goods_id = g.goods_id)", (err, result) ->
+      callback err, result
+
   getGoodsWithRemoteImage: (callback) ->
     @query "select * from ecm_goods g where g.default_image like '%taobaocdn.com%'", (err, result) ->
       callback err, result

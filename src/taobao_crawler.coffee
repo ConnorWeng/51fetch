@@ -53,6 +53,22 @@ exports.getCrawler = ->
 exports.getAllStores = (condition, callback) ->
   db.getStores condition, callback
 
+exports.crawlItemsInStore = (storeId, done) ->
+  db.getUnfetchedGoodsInStore storeId, (err, goods) ->
+    if err
+      done new Error('error when call getUnfetchedGoodsInStore on db')
+    else
+      remainGoods = goods;
+      next = ->
+        if remainGoods.length > 0
+          good = remainGoods.shift()
+          exports.crawlItemViaApi good, ->
+            log "#{good.goods_id}: #{good.goods_name} updated"
+            next()
+        else
+          done()
+      next()
+
 exports.crawlItemViaApi = (good, done) ->
   itemUri = good.good_http
   numIid = getNumIidFromUri itemUri
@@ -509,6 +525,7 @@ if process.env.NODE_ENV is 'test'
   exports.setDeleteDelistItems = (f) -> deleteDelistItems = f
   exports.setMakeUriWithStoreInfo = (f) -> makeUriWithStoreInfo = f
   exports.setChangeRemains = (f) -> changeRemains = f
+  exports.setCrawlItemViaApi = (f) -> crawlItemViaApi = f
   exports.parsePrice = parsePrice
   exports.formatPrice = formatPrice
   exports.crawlAllPagesOfByNew = crawlAllPagesOfByNew
