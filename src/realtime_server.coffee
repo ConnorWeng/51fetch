@@ -5,7 +5,7 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
-{setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
+{crawlItemsInStore, setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
 database = require './database'
 
 args = process.argv.slice 2
@@ -15,6 +15,8 @@ db = new database config.database[args[0]]
 setDatabase db
 setRateLimits 100
 query = Q.nbind db.query, db
+
+needCrawlItemsViaApi = true if args.length is 2 and args[1] is 'api'
 
 tasks = []
 
@@ -44,7 +46,11 @@ http.createServer((req, res) ->
         if result[0][0].cnt is 0
           log "store #{storeId}: ready crawl if need"
           crawlStore store, false, ->
-            response res, urlObj.query.jsonp_callback, "{'status': 'ok'}"
+            if needCrawlItemsViaApi
+              crawlItemsInStore storeId, ->
+                response res, urlObj.query.jsonp_callback, "{'status': 'ok'}"
+            else
+              response res, urlObj.query.jsonp_callback, "{'status': 'ok'}"
         else
           log "store #{storeId}: has updated in half hour, so no need crawl for now"
           response res, urlObj.query.jsonp_callback, "{'status': 'ok'}"
