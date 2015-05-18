@@ -1,4 +1,4 @@
-{getAllStores, crawlStore, setDatabase, getDatabase} = require './src/taobao_crawler'
+{crawlItemsInStore, getAllStores, crawlStore, setDatabase, getDatabase} = require './src/taobao_crawler'
 database = require './src/database'
 config = require './src/config'
 args = process.argv.slice 2
@@ -20,13 +20,19 @@ db = new database(config.database[args[0]])
 setDatabase db
 
 fullCrawl = if args.length is 3 and args[2] is 'fullCrawl' then true else false
+needCrawlItemsViaApi = if args.length is 4 and args[3] is 'api' then true else false
 
 stores = []
 
 crawl = ->
   if stores.length > 0
     store = stores.shift()
-    crawlStore store, fullCrawl, crawl
+    crawlStore store, fullCrawl, ->
+      if needCrawlItemsViaApi
+        crawlItemsInStore store['store_id'], ->
+          crawl()
+      else
+        crawl()
   else
     console.log 'completed.'
 
