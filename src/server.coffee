@@ -4,7 +4,7 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
-{crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
+{crawlItemsInStore, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
 database = require './database'
 
 args = process.argv.slice 2
@@ -14,6 +14,8 @@ db = new database config.database[args[0]]
 setDatabase db
 c = getCrawler()
 query = Q.nbind db.query, db
+
+needCrawlItemsViaApi = true if args.length is 2 and args[1] is 'api'
 
 tasks = []
 
@@ -31,8 +33,12 @@ http.createServer((req, res) ->
           log "store #{storeId}: in hour count #{res[0][0].cnt}, total #{res[1][0].total}, url #{store.shop_http}, hourAgo #{hourAgo}"
           if res[0][0].cnt is 0
             log "store #{storeId}: ready crawl if need"
-            crawlStoreIfNeed store, ->
-              tasks.splice tasks.indexOf(storeId), 1
+            crawlStore store, false, ->
+              if needCrawlItemsViaApi
+                crawlItemsInStore storeId, ->
+                  tasks.splice tasks.indexOf(storeId), 1
+              else
+                tasks.splice tasks.indexOf(storeId), 1
           else
             log "store #{storeId}: has updated in an hour, so no need crawl for now"
             tasks.splice tasks.indexOf(storeId), 1
@@ -43,26 +49,5 @@ http.createServer((req, res) ->
       log "store #{storeId}: has been in the tasks queue"
   res.end 'ok'
 ).listen port
-
-crawlStoreIfNeed = (store, callback) ->
-  storeId = store['store_id']
-  shopHttp = store['shop_http']
-  url = "#{shopHttp}/search.htm?search=y&orderType=newOn_desc&viewType=grid"
-  c.queue [
-    'uri': url
-    'forceUTF8': true
-    'callback': (err, result) ->
-      if result.body is ''
-        error "id:#{storeId} doesn't exist"
-        callback()
-      else
-        env result.body, (err, window) ->
-          $ = jquery window
-          imWw = extractImWw $, store['store_id'], store['store_name']
-          if imWw then db.updateImWw store['store_id'], store['store_name'], imWw
-          items = extractItemsFromContent $, store
-          db.saveItems store['store_id'], store['store_name'], items, url, '所有宝贝', 1, callback
-          window.close()
-  ]
 
 log "server is listening: #{port}"
