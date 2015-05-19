@@ -39,9 +39,13 @@ http.createServer((req, res) ->
   if urlParts.length is 3 and urlParts[1] is 'store'
     storeId = urlParts[2]
     halfHourAgo = db.getDateTime() - 1 * 30 * 60
-    query "select count(1) cnt from ecm_goods where store_id = #{storeId} and last_update > #{halfHourAgo}; select count(1) total from ecm_goods where store_id = #{storeId}; select * from ecm_store where store_id = #{storeId};"
+    query "select count(1) cnt from ecm_goods where store_id = #{storeId} and last_update > #{halfHourAgo}; select count(1) total from ecm_goods where store_id = #{storeId}; select * from ecm_store where store_id = #{storeId} and state = 1;"
       .then (result) ->
         store = result[2][0]
+        if not store
+          error "id:#{storeId} not passed or not exists"
+          response res, urlObj.query.jsonp_callback, "{'error': true, 'message': 'id:#{storeId} not passed or not exists'}"
+          return
         log "store #{storeId}: in half hour count #{result[0][0].cnt}, total #{result[1][0].total}, url #{store.shop_http}, halfHourAgo #{halfHourAgo}"
         if result[0][0].cnt is 0
           log "store #{storeId}: ready crawl if need"
