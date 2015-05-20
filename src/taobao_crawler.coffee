@@ -1,6 +1,7 @@
 http = require 'http'
 async = require 'async'
 {log, error} = require 'util'
+Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 crawler = require('crawler').Crawler
@@ -37,6 +38,8 @@ c = new crawler
   'rateLimits': 2000
   'jQuery': false
 db = new database()
+
+makeJsDomPromise = Q.nfbind env
 
 exports.setDatabase = (newDb) ->
   db = newDb
@@ -511,6 +514,29 @@ exports.isRealPic = isRealPic = (title, propsName) ->
     1
   else
     0
+
+exports.fetch = fetch = (url) ->
+  defered = Q.defer()
+  c.queue [
+    'uri': url
+    'forceUTF8': true
+    'callback': (err, result) ->
+      if err
+        defered.reject err
+      else
+        defered.resolve result.body
+  ]
+  defered.promise
+
+exports.$fetch = $fetch = (url, callback) ->
+  fetch url
+    .then (body) ->
+      makeJsDomPromise body
+    .then (window) ->
+      $ = jquery window
+      callback $
+      window.close()
+    .then undefined, (reason) -> throw new Error(reason)
 
 debug = (content) ->
   if process.env.NODE_ENV is 'debug'
