@@ -5,7 +5,8 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
-{crawlItemsInStore, setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
+{$fetch, crawlItemsInStore, setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
+{getTaobaoItem} = require './taobao_api'
 database = require './database'
 
 args = process.argv.slice 2
@@ -58,12 +59,39 @@ handleStore = (req, res, storeId, jsonp_callback) ->
         error "id:#{storeId} query returns err: #{err}"
         response res, jsonp_callback, "{'error': true, 'message': 'id:#{storeId} query returns err: #{err}'}"
 
+handleNewItem = (req, res, itemUri, jsonp_callback) ->
+  matches = itemUri.match /id=(\d+)/
+  goodsId = matches?[1]
+  getTaobaoItem goodsId, 'title,nick,pic_url,price,', (err, good) ->
+    if err
+      response res, jsonp_callback, "{'error': true, 'message': 'failed to call taobao api'}"
+      return;
+    goodHttp = "http://item.taobao.com/item.htm?id=#{goodsId}"
+    items = [
+      goodsName: good.title
+      defaultImage: good.pic_url
+      price: good.price
+      goodHttp: goodHttp
+    ]
+    db.getStores "im_ww = '#{good.nick}'", (err, stores) ->
+      if err or not stores?
+        response res, jsonp_callback, "{'error': true, 'message': 'cannot find store which url is #{shopHttp}'}"
+      else
+        store = stores[0]
+        storeId = store['store_id']
+        storeName = store['store_name']
+        db.saveItems storeId, storeName, items, goodHttp, '所有宝贝', 1, ->
+          crawlItemsInStore storeId, ->
+            response res, jsonp_callback, "{'status': 'ok'}"
+
 http.createServer((req, res) ->
   urlObj = parse req.url, true
   urlParts = urlObj.pathname.split '/'
   if urlParts.length is 3 and urlParts[1] is 'store'
     storeId = urlParts[2]
     handleStore req, res, storeId, urlObj.query.jsonp_callback
+  else if urlParts.length is 2 and urlParts[1] is 'item'
+    handleNewItem req, res, urlObj.query.itemUri, urlObj.query.jsonp_callback
 ).listen port
 
 log "server is listening: #{port}"
