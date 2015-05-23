@@ -5,7 +5,7 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
-{$fetch, crawlItemsInStore, setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
+{crawlItemViaApi, $fetch, crawlItemsInStore, setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
 {getTaobaoItem} = require './taobao_api'
 database = require './database'
 
@@ -84,6 +84,13 @@ handleNewItem = (req, res, itemUri, jsonp_callback) ->
           crawlItemsInStore storeId, ->
             response res, jsonp_callback, "{'status': 'ok'}"
 
+handleUpdateItem = (req, res, goodsId, jsonp_callback) ->
+  db.query "select * from ecm_goods where goods_id = #{goodsId}", (err, goods) ->
+    good = goods[0]
+    crawlItemViaApi good, () ->
+      log "#{good['goods_id']}:#{good['goods_name']} updated manually"
+      response res, jsonp_callback, "{'status': 'ok'}"
+
 http.createServer((req, res) ->
   urlObj = parse req.url, true
   urlParts = urlObj.pathname.split '/'
@@ -92,6 +99,8 @@ http.createServer((req, res) ->
     handleStore req, res, storeId, urlObj.query.jsonp_callback
   else if urlParts.length is 2 and urlParts[1] is 'item'
     handleNewItem req, res, urlObj.query.itemUri, urlObj.query.jsonp_callback
+  else if urlParts.length is 2 and urlParts[1] is 'update'
+    handleUpdateItem req, res, urlObj.query.goodsId, urlObj.query.jsonp_callback
 ).listen port
 
 log "server is listening: #{port}"
