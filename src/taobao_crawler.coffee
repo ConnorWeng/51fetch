@@ -88,6 +88,7 @@ exports.crawlItemViaApi = (good, done) ->
           done()
         else
           updateItemDetailInDatabase
+            item: item
             good: good
             desc: removeSingleQuotes item.desc
             skus: skus
@@ -120,7 +121,7 @@ exports.crawlStore = (store, fullCrawl, done) ->
     if err then error err
     done()
 
-updateItemDetailInDatabase = ({desc, skus, good, attrs, cats, realPic, itemImgs}, callback) ->
+updateItemDetailInDatabase = ({item, desc, skus, good, attrs, cats, realPic, itemImgs}, callback) ->
   goodsId = good.goods_id
   itemUri = good.good_http
   price = good.price
@@ -129,13 +130,14 @@ updateItemDetailInDatabase = ({desc, skus, good, attrs, cats, realPic, itemImgs}
   store = {}
   async.waterfall [
     (callback) ->
-      db.updateGoods desc, itemUri, realPic, skus, callback
-    (result, callback) ->
-      db.updateItemImgs goodsId, itemImgs, callback
-    (result, callback) ->
       db.getStores "store_id = #{storeId}", (err, stores) ->
         store = stores[0]
         callback err, stores
+    (result, callback) ->
+      price = parsePrice item.price, store['see_price'], item.title
+      db.updateGoods price, desc, itemUri, realPic, skus, callback
+    (result, callback) ->
+      db.updateItemImgs goodsId, itemImgs, callback
     (result, callback) ->
       db.updateCats goodsId, storeId, cats, callback
     (result, callback) ->
