@@ -29,6 +29,7 @@ begin
        else
           update ecm_goods set goods_name=i_goods_name, default_image=i_default_image, price=i_price, good_http=i_good_http, last_update=i_now_time, cids=concat(cids,',',i_cid) where goods_id=v_good_id;
        end if;
+       update ecm_goods_spec set price=i_price where goods_id=v_good_id;
        set o_retcode = 1;
     else
        insert into ecm_goods(store_id, goods_name, default_image, price, good_http, cids, add_time, last_update) values (i_store_id, i_goods_name, i_default_image, i_price, i_good_http, i_cid, i_now_time, i_now_time);
