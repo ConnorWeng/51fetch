@@ -19,7 +19,7 @@ process.on 'uncaughtException', (err) ->
 db = new database(config.database[args[0]])
 setDatabase db
 
-fullCrawl = if args.length is 3 and args[2] is 'fullCrawl' then true else false
+fullCrawl = if args.length >= 3 and args[2] is 'fullCrawl' then true else false
 needCrawlItemsViaApi = if args.length is 4 and args[3] is 'api' then true else false
 
 stores = []
