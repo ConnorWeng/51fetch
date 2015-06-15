@@ -19,8 +19,6 @@ query = Q.nbind db.query, db
 
 needCrawlItemsViaApi = true if args.length is 2 and args[1] is 'api'
 
-tasks = []
-
 response = (res, jsonp, body) ->
   if jsonp
     type = 'text/javascript'
