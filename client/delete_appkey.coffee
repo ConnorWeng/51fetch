@@ -20,7 +20,7 @@ handle = () ->
   if unhandledAppkeys.length > 0
     appkey = unhandledAppkeys.shift()['appkey']
     log appkey
-    fetch "https://oauth.taobao.com/authorize?response_type=code&client_id=#{appkey}&redirect_uri=http://121.196.142.10%2Ftaobao-upload-multi-store%2Findex.php%3Fg%3DTaobao%26m%3DIndex%26a%3DtestAuthBack&state=&view=web"
+    fetch "https://oauth.taobao.com/authorize?response_type=code&client_id=#{appkey}&redirect_uri=http://yjsc.51zwd.com%2Ftaobao-upload-multi-store%2Findex.php%3Fg%3DTaobao%26m%3DIndex%26a%3DtestAuthBack&state=&view=web"
       .then (result) ->
         if ~result.indexOf "Can not find the client_id:#{appkey}"
           log "#{appkey} is expired"
