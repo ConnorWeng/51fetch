@@ -89,6 +89,14 @@ handleUpdateItem = (req, res, goodsId, jsonp_callback) ->
       log "#{good['goods_id']}:#{good['goods_name']} updated manually"
       response res, jsonp_callback, "{'status': 'ok'}"
 
+handleDeleteItem = (req, res, numIid, jsonp_callback) ->
+  likeGoodHttp = "http://item.taobao.com/item.htm?id=#{numIid}%"
+  db.query "call delete_good('#{likeGoodHttp}')", (err, result) ->
+    if err
+      response res, jsonp_callback, "{'error': true, 'message': 'handle delete item failed'}"
+    else
+      response res, jsonp_callback, "{'status': 'ok'}"
+
 matchUrlPattern = (urlParts, pattern) ->
   match = true;
   patternParts = pattern.split '/'
@@ -107,6 +115,8 @@ http.createServer((req, res) ->
     handleNewItem req, res, urlObj.query.itemUri, urlObj.query.jsonp_callback
   else if matchUrlPattern urlParts, '/update'
     handleUpdateItem req, res, urlObj.query.goodsId, urlObj.query.jsonp_callback
+  else if matchUrlPattern urlParts, '/delete'
+    handleDeleteItem req, res, urlObj.query.numIid, null
 ).listen port
 
 log "server is listening: #{port}"
