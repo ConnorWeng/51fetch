@@ -89,16 +89,27 @@ handleUpdateItem = (req, res, goodsId, jsonp_callback) ->
       log "#{good['goods_id']}:#{good['goods_name']} updated manually"
       response res, jsonp_callback, "{'status': 'ok'}"
 
+matchUrlPattern = (urlParts, pattern) ->
+  match = true;
+  patternParts = pattern.split '/'
+  for p, i in patternParts
+    if (p.indexOf('{') isnt 0) and (urlParts[i] isnt p)
+      match = false
+  match
+
 http.createServer((req, res) ->
   urlObj = parse req.url, true
   urlParts = urlObj.pathname.split '/'
-  if urlParts.length is 3 and urlParts[1] is 'store'
+  if matchUrlPattern urlParts, '/store/{storeId}'
     storeId = urlParts[2]
     handleStore req, res, storeId, urlObj.query.jsonp_callback
-  else if urlParts.length is 2 and urlParts[1] is 'item'
+  else if matchUrlPattern urlParts, '/item'
     handleNewItem req, res, urlObj.query.itemUri, urlObj.query.jsonp_callback
-  else if urlParts.length is 2 and urlParts[1] is 'update'
+  else if matchUrlPattern urlParts, '/update'
     handleUpdateItem req, res, urlObj.query.goodsId, urlObj.query.jsonp_callback
 ).listen port
 
 log "server is listening: #{port}"
+
+if process.env.NODE_ENV is 'test'
+  exports.matchUrlPattern = matchUrlPattern
