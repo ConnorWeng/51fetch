@@ -97,6 +97,18 @@ handleDeleteItem = (req, res, numIid, jsonp_callback) ->
     else
       response res, jsonp_callback, "{'status': 'ok'}"
 
+handleChangeItem  = (req, res, numIid, jsonp_callback) ->
+  likeGoodHttp = "http://item.taobao.com/item.htm?id=#{numIid}%"
+  query "select goods_id from ecm_goods where good_http like '#{likeGoodHttp}'"
+    .then (result) ->
+      if result?[0]?
+        goodsId = result[0]['goods_id']
+        handleUpdateItem req, res, goodsId, jsonp_callback
+      else
+        throw new Error('good not found')
+    .then undefined, (reason) ->
+      response res, jsonp_callback, "{'error': true, 'message': 'handle change item failed: #{reason}'}"
+
 matchUrlPattern = (urlParts, pattern) ->
   match = true;
   patternParts = pattern.split '/'
@@ -120,6 +132,8 @@ http.createServer((req, res) ->
   else if matchUrlPattern urlParts, '/add'
     goodHttp = "http://item.taobao.com/item.htm?id=#{urlObj.query.numIid}"
     handleNewItem req, res, goodHttp, null
+  else if matchUrlPattern urlParts, '/change'
+    handleChangeItem req, res, urlObj.query.numIid, null
 ).listen port
 
 log "server is listening: #{port}"
