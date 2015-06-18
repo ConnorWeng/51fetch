@@ -117,6 +117,9 @@ http.createServer((req, res) ->
     handleUpdateItem req, res, urlObj.query.goodsId, urlObj.query.jsonp_callback
   else if matchUrlPattern urlParts, '/delete'
     handleDeleteItem req, res, urlObj.query.numIid, null
+  else if matchUrlPattern urlParts, '/add'
+    goodHttp = "http://item.taobao.com/item.htm?id=#{urlObj.query.numIid}"
+    handleNewItem req, res, goodHttp, null
 ).listen port
 
 log "server is listening: #{port}"
