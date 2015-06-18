@@ -124,6 +124,7 @@ exports.crawlStore = (store, fullCrawl, done) ->
 updateItemDetailInDatabase = ({item, desc, skus, good, attrs, cats, realPic, itemImgs}, callback) ->
   goodsId = good.goods_id
   itemUri = good.good_http
+  title = item.title
   price = good.price
   storeId = good.store_id
   huohao = (getHuoHao good.goods_name) || (getHuoHaoFromAttrs attrs)
@@ -134,8 +135,8 @@ updateItemDetailInDatabase = ({item, desc, skus, good, attrs, cats, realPic, ite
         store = stores[0]
         callback err, stores
     (result, callback) ->
-      price = parsePrice item.price, store['see_price'], item.title
-      db.updateGoods price, desc, itemUri, realPic, skus, callback
+      price = parsePrice item.price, store['see_price'], title
+      db.updateGoods title, price, desc, itemUri, realPic, skus, callback
     (result, callback) ->
       db.updateItemImgs goodsId, itemImgs, callback
     (result, callback) ->
