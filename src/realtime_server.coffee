@@ -72,8 +72,8 @@ handleNewItem = (req, res, itemUri, jsonp_callback) ->
       goodHttp: goodHttp
     ]
     db.getStores "im_ww = '#{good.nick}'", (err, stores) ->
-      if err or not stores?
-        response res, jsonp_callback, "{'error': true, 'message': 'cannot find store which url is #{shopHttp}'}"
+      if err or not stores[0]?
+        response res, jsonp_callback, "{'error': true, 'message': 'cannot find store which url is #{goodHttp}'}"
       else
         store = stores[0]
         storeId = store['store_id']
