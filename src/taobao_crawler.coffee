@@ -53,6 +53,9 @@ exports.setRateLimits = (rateLimits) ->
 exports.getCrawler = ->
   c
 
+exports.buildOuterIid = (storeId, callback) ->
+  db.buildOuterIid storeId, callback
+
 exports.getAllStores = (condition, callback) ->
   db.getStores condition, callback
 

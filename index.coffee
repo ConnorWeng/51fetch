@@ -1,4 +1,4 @@
-{crawlItemsInStore, getAllStores, crawlStore, setDatabase, getDatabase} = require './src/taobao_crawler'
+{buildOuterIid, crawlItemsInStore, getAllStores, crawlStore, setDatabase, getDatabase} = require './src/taobao_crawler'
 database = require './src/database'
 config = require './src/config'
 args = process.argv.slice 2
@@ -30,7 +30,8 @@ crawl = ->
     crawlStore store, fullCrawl, ->
       if needCrawlItemsViaApi
         crawlItemsInStore store['store_id'], ->
-          crawl()
+          buildOuterIid store['store_id'], ->
+            crawl()
       else
         crawl()
   else

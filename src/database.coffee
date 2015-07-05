@@ -187,6 +187,10 @@ class db
         log "id:#{storeId} totalCount:#{totalCount} delistCount:#{delistCount} totalItemsCount:#{totalItemsCount}"
         callback null, null
 
+  buildOuterIid: (storeId, callback) ->
+    @query "call build_outer_iid(#{storeId}, #{(parseInt storeId) + 1})", (err, result) ->
+      callback err, result
+
   makeSaveItemSql: (storeId, storeName, items, cid, catName, pageNumber) ->
     sql = ''
     time = @getDateTime() - pageNumber * 60 # 每一页宝贝的time都倒退1分钟，保证最终add_time是按照新款排序的
