@@ -318,6 +318,7 @@ describe 'taobao_crawler', () ->
       assert.equal taobao_crawler.getHuoHao('title705'), 705
       assert.equal taobao_crawler.getHuoHao('2014title705'), 705
       assert.equal taobao_crawler.getHuoHao('title'), ''
+      assert.equal taobao_crawler.getHuoHao('title9title705'), 705
 
   describe '#filterItems', ->
     it 'should return filtered items', ->

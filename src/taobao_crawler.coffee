@@ -505,7 +505,7 @@ makeOuterId = (store, huohao, price) ->
 getHuoHao = (title) ->
   regex = /[A-Z]?\d+/g
   matches = regex.exec title
-  while matches? and matches[0].length is 4 and matches[0].substr(0, 3) is '201'
+  while matches? and ((matches[0].length is 4 and matches[0].substr(0, 3) is '201') or matches[0].length is 1)
     matches = regex.exec title
   matches?[0] || ''
 
