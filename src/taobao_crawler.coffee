@@ -130,7 +130,7 @@ updateItemDetailInDatabase = ({item, desc, skus, good, attrs, cats, realPic, ite
   title = item.title
   price = good.price
   storeId = good.store_id
-  huohao = (getHuoHao good.goods_name) || (getHuoHaoFromAttrs attrs)
+  huohao = (getHuoHaoFromAttrs attrs) || (getHuoHao good.goods_name)
   store = {}
   async.waterfall [
     (callback) ->
