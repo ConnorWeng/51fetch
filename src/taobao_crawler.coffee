@@ -136,7 +136,10 @@ updateItemDetailInDatabase = ({item, desc, skus, good, attrs, cats, realPic, ite
     (callback) ->
       db.getStores "store_id = #{storeId}", (err, stores) ->
         store = stores[0]
-        callback err, stores
+        if not store
+          callback new Error("goods:#{goodsId} store is undefined")
+        else
+          callback err, stores
     (result, callback) ->
       price = parsePrice item.price, store['see_price'], title
       db.updateGoods title, price, desc, itemUri, realPic, skus, callback
