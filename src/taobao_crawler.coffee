@@ -142,7 +142,7 @@ updateItemDetailInDatabase = ({item, desc, skus, good, attrs, cats, realPic, ite
           callback err, stores
     (result, callback) ->
       price = parsePrice item.price, store['see_price'], title
-      db.updateGoods title, price, desc, itemUri, realPic, skus, callback
+      db.updateGoods title, price, desc, itemUri, realPic, skus, item.pic_url, callback
     (result, callback) ->
       db.updateItemImgs goodsId, itemImgs, callback
     (result, callback) ->
@@ -363,7 +363,7 @@ selectRightTemplate = ($item, template) ->
     for t in template
       if $item.find(t).length > 0
         return t
-  return template
+  if Array.isArray template then return template[0] else return template
 
 isBanned = ($) ->
   $('.search-result').length is 0 and $('dl.item').length is 0

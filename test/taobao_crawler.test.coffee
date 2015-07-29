@@ -815,6 +815,7 @@ ITEMS_HTML_TEMPLATE_A = '''
 '''
 
 ITEMS_HTML_TEMPLATE_B = '''
+<body>
 <div class="shop-hesper-bd grid">
 <div class="item">
   <div class="pic">
@@ -857,4 +858,5 @@ ITEMS_HTML_TEMPLATE_B = '''
   </div>
 </div>
 </div>
+</body>
 '''
