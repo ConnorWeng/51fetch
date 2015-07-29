@@ -15,7 +15,7 @@ TEMPLATES = [
   CATS_TREE: 'ul.cats-tree'
   REPLACE: (html, store) ->
     html.replace(/\"\/\/.+category-(\d+)[\w=&\?\.;-].+\"/g, '"showCat.php?cid=$1&shop_id=' + store['store_id'] + '"').replace(/\r\n/g, '')
-  ITEM: '.shop-hesper-bd dl.item'
+  ITEM: ['.shop-hesper-bd dl.item', '.tshop-pbsm-shop-item-recommend:eq(0) dl.item']
   ITEM_NAME: ['a.item-name', 'p.title a']
   PRICE: ['.s-price', '.c-price', 'p.price .value']
   CAT_SELECTED: '.hesper-cats ol li:last'
@@ -344,8 +344,9 @@ parseStoreFromUri = (uri) ->
 exports.extractItemsFromContent = extractItemsFromContent = ($, store) ->
   items = []
   for template in TEMPLATES
-    if $(template.ITEM).length > 0
-      $(template.ITEM).each (index, element) ->
+    ITEM = selectRightTemplate $('body'), template.ITEM
+    if $(ITEM).length > 0
+      $(ITEM).each (index, element) ->
         $item = $(element)
         ITEM_NAME = selectRightTemplate $item, template.ITEM_NAME
         PRICE = selectRightTemplate $item, template.PRICE
