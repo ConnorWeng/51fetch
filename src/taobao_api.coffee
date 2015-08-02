@@ -28,8 +28,11 @@ exports.getSellercatsList = (nick, callback) ->
   apiParams =
     'nick': nick
   execute 'taobao.sellercats.list.get', apiParams, (err, result) ->
-    if result.sellercats_list_get_response?.seller_cats?.seller_cat?
-      callback null, result.sellercats_list_get_response.seller_cats.seller_cat
+    if result.sellercats_list_get_response?
+      if result.sellercats_list_get_response?.seller_cats?.seller_cat?
+        callback null, result.sellercats_list_get_response.seller_cats.seller_cat
+      else
+        callback null, []
     else
       handleError err, result, callback
 

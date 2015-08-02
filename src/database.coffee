@@ -201,9 +201,12 @@ class db
     sql
 
   updateCategories: (storeId, cats, callback) ->
-    sql = ''
+    if cats and storeId > 5000
+      sql = "delete from ecm_gcategory where store_id = #{storeId} and cate_mname is null;"
+    else
+      sql = ''
     for cat in cats
-      sql += "insert into ecm_gcategory(cate_id, parent_id, store_id, cate_name, if_show) values ('#{cat.cid}', '#{cat.parent_cid}', '#{storeId}', '#{cat.name}', 1) on duplicate key update parent_id = '#{cat.parent_cid}', store_id = '#{storeId}', cate_name = '#{cat.name}', if_show = 1;"
+      sql += "insert into ecm_gcategory(cate_id, parent_id, store_id, sort_order, cate_name, if_show) values ('#{cat.cid}', '#{cat.parent_cid}', '#{storeId}', '#{cat.sort_order}', '#{cat.name}', 1) on duplicate key update parent_id = '#{cat.parent_cid}', store_id = '#{storeId}', sort_order = '#{cat.sort_order}', cate_name = '#{cat.name}', if_show = 1;"
     @query sql, (err, result) ->
       callback err, result
 
