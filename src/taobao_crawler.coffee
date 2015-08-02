@@ -108,7 +108,6 @@ exports.crawlStore = (store, fullCrawl, done) ->
       makeJsDom
       updateCateContentAndFetchAllUris(store)
       clearCids(store)
-      updateCategories(store)
       crawlAllPagesOfByNew
       crawlAllPagesOfAllCates
       deleteDelistItems(store)
@@ -118,7 +117,6 @@ exports.crawlStore = (store, fullCrawl, done) ->
       queueStoreUri(store)
       makeJsDom
       updateCateContentAndFetchAllUris(store)
-      updateCategories(store)
       crawlAllPagesOfByNew
       deleteDelistItems(store)
     ]
