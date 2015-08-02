@@ -6,3 +6,5 @@ npm-debug.log
 sftpCache.json
 add_store_csv.*
 *.csv
+pass.*
+*.txt
