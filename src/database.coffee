@@ -200,6 +200,13 @@ class db
       sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.goodHttp}','#{cid}','#{storeName}',#{@pool.escape(item.goodsName)},'#{time-i}','#{catName}',@o_retcode);"
     sql
 
+  updateCategories: (storeId, cats, callback) ->
+    sql = ''
+    for cat in cats
+      sql += "insert into ecm_gcategory(cate_id, parent_id, store_id, cate_name, if_show) values ('#{cat.cid}', '#{cat.parent_cid}', '#{storeId}', '#{cat.name}', 1) on duplicate key update parent_id = '#{cat.parent_cid}', store_id = '#{storeId}', cate_name = '#{cat.name}', if_show = 1;"
+    @query sql, (err, result) ->
+      callback err, result
+
   getCidFromUrl: (url) ->
     url.match(/category-(\w+)(-\w+)?.htm/)?[1] || ''
 

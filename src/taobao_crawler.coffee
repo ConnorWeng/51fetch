@@ -7,7 +7,7 @@ jquery = require('jquery')
 crawler = require('crawler').Crawler
 database = require './database'
 config = require './config'
-{getTaobaoItem, getItemCats} = require './taobao_api'
+{getTaobaoItem, getItemCats, getSellercatsList} = require './taobao_api'
 
 TEMPLATES = [
   BY_NEW: 'a.by-new'
@@ -108,6 +108,7 @@ exports.crawlStore = (store, fullCrawl, done) ->
       makeJsDom
       updateCateContentAndFetchAllUris(store)
       clearCids(store)
+      updateCategories(store)
       crawlAllPagesOfByNew
       crawlAllPagesOfAllCates
       deleteDelistItems(store)
@@ -117,6 +118,7 @@ exports.crawlStore = (store, fullCrawl, done) ->
       queueStoreUri(store)
       makeJsDom
       updateCateContentAndFetchAllUris(store)
+      updateCategories(store)
       crawlAllPagesOfByNew
       deleteDelistItems(store)
     ]
@@ -278,6 +280,15 @@ crawlAllPagesOfAllCates = (uris, callback) ->
 deleteDelistItems = (store) ->
   (result, callback) ->
     db.deleteDelistItems store['store_id'], totalItemsCount, callback
+
+updateCategories = (store) ->
+  (uris, callback) ->
+    getSellercatsList store['im_ww'], (err, cats) ->
+      if cats
+        db.updateCategories store['store_id'], cats, (err, result) ->
+          callback err, uris
+      else
+        callback err, uris
 
 saveItemsFromPageAndQueueNext = (callback) ->
   (err, result) ->
