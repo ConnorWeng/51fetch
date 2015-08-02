@@ -54,13 +54,19 @@ class db
         error "error in getGood: #{goodHttp}"
       callback err, result[0]
 
-  updateGoods: (title, price, desc, goodHttp, realPic, skus, defaultImage, callback) ->
+  updateGoods: (goodsId, title, price, desc, goodHttp, realPic, skus, defaultImage, sellerCids, callback) ->
+    sql = ''
+    if sellerCids
+      cids = sellerCids.split ','
+      for cid in cids
+        if cid then sql += "replace into ecm_category_goods(cate_id, goods_id) values (#{cid}, #{goodsId});"
     specName1 = skus[0]?[0]?.name || ''
     specName2 = skus[0]?[1]?.name || ''
     specPid1 = skus[0]?[0]?.pid || 0
     specPid2 = skus[0]?[1]?.pid || 0
     specQty = skus[0]?.length || 0
-    @query "update ecm_goods set goods_name = '#{title}', price = #{price}, description = '#{desc}', spec_name_1 = '#{specName1}', spec_name_2 = '#{specName2}', spec_pid_1 = #{specPid1}, spec_pid_2 = #{specPid2}, spec_qty = #{specQty}, realpic = #{realPic}, default_image = '#{defaultImage}' where good_http = '#{goodHttp}'", (err, result) ->
+    sql += "update ecm_goods set goods_name = '#{title}', price = #{price}, description = '#{desc}', spec_name_1 = '#{specName1}', spec_name_2 = '#{specName2}', spec_pid_1 = #{specPid1}, spec_pid_2 = #{specPid2}, spec_qty = #{specQty}, realpic = #{realPic}, default_image = '#{defaultImage}' where good_http = '#{goodHttp}'"
+    @query sql, (err, result) ->
       if err
         error "error in update goods: #{goodHttp}"
       callback err, result
@@ -135,7 +141,7 @@ class db
       if i is 0
         sql += "insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) select #{goodsId}, '#{img.url}', '#{img.url}_460x460.jpg', (select ifnull(so,0) from (select max(sort_order) + 1 so from ecm_goods_image where goods_id = #{goodsId}) t), 0 from dual where not exists (select 1 from ecm_goods_image where goods_id = #{goodsId});"
       else
-        sql += "insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) select #{goodsId}, '#{img.url}', '#{img.url}_460x460.jpg', (select ifnull(so,0) from (select max(sort_order) + 1 so from ecm_goods_image where goods_id = #{goodsId}) t), 0 from dual where not exists (select 1 from ecm_goods_image where goods_id = #{goodsId} and image_url = '#{img.url}');"
+        sql += "insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) select #{goodsId}, '#{img.url}', '#{img.url}_460x460.jpg', (select ifnull(so,0) from (select max(sort_order) + 1 so from ecm_goods_image where goods_id = #{goodsId}) t), 0 from dual where not exists (select 1 from ecm_goods_image where goods_id = #{goodsId} and substr(image_url, -56) = substr('#{img.url}', -56));"
     if sql
       @query sql, (err, result) ->
         callback err, result

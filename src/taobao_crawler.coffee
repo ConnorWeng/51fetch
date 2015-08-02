@@ -78,7 +78,7 @@ exports.crawlItemsInStore = (storeId, done) ->
 exports.crawlItemViaApi = (good, done) ->
   itemUri = good.good_http
   numIid = getNumIidFromUri itemUri
-  getTaobaoItem numIid, 'title,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', (err, item) ->
+  getTaobaoItem numIid, 'title,seller_cids,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', (err, item) ->
     if err
       error err
       done()
@@ -144,7 +144,7 @@ updateItemDetailInDatabase = ({item, desc, skus, good, attrs, cats, realPic, ite
           callback err, stores
     (result, callback) ->
       price = parsePrice item.price, store['see_price'], title
-      db.updateGoods title, price, desc, itemUri, realPic, skus, item.pic_url, callback
+      db.updateGoods goodsId, title, price, desc, itemUri, realPic, skus, item.pic_url, item.seller_cids, callback
     (result, callback) ->
       db.updateItemImgs goodsId, itemImgs, callback
     (result, callback) ->
