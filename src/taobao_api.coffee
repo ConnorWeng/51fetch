@@ -24,6 +24,15 @@ exports.getItemCats = (cids, fields, callback) ->
     else
       handleError err, result, callback
 
+exports.getSellercatsList = (nick, callback) ->
+  apiParams =
+    'nick': nick
+  execute 'taobao.sellercats.list.get', apiParams, (err, result) ->
+    if result.sellercats_list_get_response?.seller_cats?.seller_cat?
+      callback null, result.sellercats_list_get_response.seller_cats.seller_cat
+    else
+      handleError err, result, callback
+
 execute = (method, apiParams, callback) ->
   sysParams =
     'app_key': config.taobao_app_key
