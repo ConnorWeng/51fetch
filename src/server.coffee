@@ -8,7 +8,7 @@ config = require './config'
 database = require './database'
 
 args = process.argv.slice 2
-port = 9000
+port = 30004
 
 db = new database config.database[args[0]]
 setDatabase db
