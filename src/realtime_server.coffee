@@ -46,7 +46,7 @@ handleStore = (req, res, storeId, jsonp_callback) ->
         log "store #{storeId}: ready crawl if need"
         crawlStore store, false, ->
           if needCrawlItemsViaApi
-            crawlItemsInStore storeId, ->
+            crawlItemsInStore storeId, null, ->
               response res, jsonp_callback, "{'status': 'ok'}"
           else
             response res, jsonp_callback, "{'status': 'ok'}"
@@ -57,7 +57,30 @@ handleStore = (req, res, storeId, jsonp_callback) ->
         error "id:#{storeId} query returns err: #{err}"
         response res, jsonp_callback, "{'error': true, 'message': 'id:#{storeId} query returns err: #{err}'}"
 
-handleNewItem = (req, res, itemUri, jsonp_callback) ->
+handleNewItem = (req, res, numIid, nick, title, price, jsonp_callback) ->
+  query "select * from ecm_store s left join ecm_member_auth a on s.store_id = a.user_id where s.im_ww = '#{nick}'", (err, stores) ->
+    if err or not stores[0]?
+      response res, jsonp_callback, "{'error': true, 'message': 'cannot find store which im_ww is #{nick}'}"
+    else
+      store = stores[0]
+      storeId = store['store_id']
+      storeName = store['store_name']
+      accessToken = store['access_token']
+      if accessToken
+        goodHttp = "http://item.taobao.com/item.htm?id=#{numIid}"
+        items = [
+          goodsName: title
+          defaultImage: ''
+          price: price
+          goodHttp: goodHttp
+        ]
+        db.saveItems storeId, storeName, items, goodHttp, '所有宝贝', 1, ->
+          crawlItemsInStore storeId, accessToken, ->
+            response res, jsonp_callback, "{'status': 'ok'}"
+      else
+        response res, jsonp_callback, "{'error': true, 'message': '#{nick} no session'}"
+
+submitNewItem = (req, res, itemUri, jsonp_callback) ->
   matches = itemUri.match /id=(\d+)/
   goodsId = matches?[1]
   getTaobaoItem goodsId, 'title,nick,pic_url,price,', (err, good) ->
@@ -79,13 +102,13 @@ handleNewItem = (req, res, itemUri, jsonp_callback) ->
         storeId = store['store_id']
         storeName = store['store_name']
         db.saveItems storeId, storeName, items, goodHttp, '所有宝贝', 1, ->
-          crawlItemsInStore storeId, ->
+          crawlItemsInStore storeId, null, ->
             response res, jsonp_callback, "{'status': 'ok'}"
 
 handleUpdateItem = (req, res, goodsId, jsonp_callback) ->
   db.query "select * from ecm_goods where goods_id = #{goodsId}", (err, goods) ->
     good = goods[0]
-    crawlItemViaApi good, () ->
+    crawlItemViaApi good, null, () ->
       log "#{good['goods_id']}:#{good['goods_name']} updated manually"
       response res, jsonp_callback, "{'status': 'ok'}"
 
@@ -99,11 +122,15 @@ handleDeleteItem = (req, res, numIid, jsonp_callback) ->
 
 handleChangeItem  = (req, res, numIid, jsonp_callback) ->
   likeGoodHttp = "http://item.taobao.com/item.htm?id=#{numIid}%"
-  query "select goods_id from ecm_goods where good_http like '#{likeGoodHttp}'"
+  query "select * from ecm_goods g left join ecm_member_auth a on g.store_id = a.user_id where g.good_http like '#{likeGoodHttp}'"
     .then (result) ->
       if result?[0]?
-        goodsId = result[0]['goods_id']
-        handleUpdateItem req, res, goodsId, jsonp_callback
+        good = result[0]
+        goodsId = good['goods_id']
+        accessToken = good['access_token']
+        crawlItemViaApi good, accessToken, () ->
+          log "#{good['goods_id']}:#{good['goods_name']} updated manually"
+          response res, jsonp_callback, "{'status': 'ok'}"
       else
         throw new Error('good not found')
     .then undefined, (reason) ->
@@ -124,14 +151,13 @@ http.createServer((req, res) ->
     storeId = urlParts[2]
     handleStore req, res, storeId, urlObj.query.jsonp_callback
   else if matchUrlPattern urlParts, '/item'
-    handleNewItem req, res, urlObj.query.itemUri, urlObj.query.jsonp_callback
+    submitNewItem req, res, urlObj.query.itemUri, urlObj.query.jsonp_callback
   else if matchUrlPattern urlParts, '/update'
     handleUpdateItem req, res, urlObj.query.goodsId, urlObj.query.jsonp_callback
   else if matchUrlPattern urlParts, '/delete'
     handleDeleteItem req, res, urlObj.query.numIid, null
   else if matchUrlPattern urlParts, '/add'
-    goodHttp = "http://item.taobao.com/item.htm?id=#{urlObj.query.numIid}"
-    handleNewItem req, res, goodHttp, null
+    handleNewItem req, res, urlObj.query.numIid, decodeURI(urlObj.query.nick), decodeURI(urlObj.query.title), urlObj.query.price, null
   else if matchUrlPattern urlParts, '/change'
     handleChangeItem req, res, urlObj.query.numIid, null
 ).listen port

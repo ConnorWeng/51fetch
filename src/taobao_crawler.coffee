@@ -7,7 +7,7 @@ jquery = require('jquery')
 crawler = require('crawler').Crawler
 database = require './database'
 config = require './config'
-{getTaobaoItem, getItemCats, getSellercatsList} = require './taobao_api'
+{getTaobaoItem, getTaobaoItemSeller, getItemCats, getSellercatsList} = require './taobao_api'
 
 TEMPLATES = [
   BY_NEW: 'a.by-new'
@@ -59,7 +59,7 @@ exports.buildOuterIid = (storeId, callback) ->
 exports.getAllStores = (condition, callback) ->
   db.getStores condition, callback
 
-exports.crawlItemsInStore = (storeId, done) ->
+exports.crawlItemsInStore = (storeId, session, done) ->
   db.getUnfetchedGoodsInStore storeId, (err, goods) ->
     if err
       done new Error('error when call getUnfetchedGoodsInStore on db')
@@ -68,17 +68,17 @@ exports.crawlItemsInStore = (storeId, done) ->
       next = ->
         if remainGoods.length > 0
           good = remainGoods.shift()
-          exports.crawlItemViaApi good, ->
+          exports.crawlItemViaApi good, session, ->
             log "#{good.goods_id}: #{good.goods_name} updated"
             next()
         else
           done()
       next()
 
-exports.crawlItemViaApi = (good, done) ->
+exports.crawlItemViaApi = (good, session, done) ->
   itemUri = good.good_http
   numIid = getNumIidFromUri itemUri
-  getTaobaoItem numIid, 'title,seller_cids,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', (err, item) ->
+  callback = (err, item) ->
     if err
       error err
       done()
@@ -100,6 +100,10 @@ exports.crawlItemViaApi = (good, done) ->
             realPic: isRealPic item.title, item.props_name
             itemImgs: item.item_imgs?.item_img || []
           , done
+  if session
+    getTaobaoItemSeller numIid, 'title,seller_cids,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', session, callback
+  else
+    getTaobaoItem numIid, 'title,seller_cids,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', callback
 
 exports.crawlStore = (store, fullCrawl, done) ->
   if fullCrawl

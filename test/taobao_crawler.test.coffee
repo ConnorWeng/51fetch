@@ -372,9 +372,9 @@ describe 'taobao_crawler', () ->
           goods_id: '3'
           goods_name: 'goods3'
         }]
-      crawlItemViaApiStub = sinon.stub taobao_crawler, 'crawlItemViaApi', (good, callback) ->
+      crawlItemViaApiStub = sinon.stub taobao_crawler, 'crawlItemViaApi', (good, session, callback) ->
         callback()
-      taobao_crawler.crawlItemsInStore 0, ->
+      taobao_crawler.crawlItemsInStore 0, null, ->
         assert.equal crawlItemViaApiStub.callCount, 3
         assert.isTrue crawlItemViaApiStub.calledWith
           goods_id: '1'

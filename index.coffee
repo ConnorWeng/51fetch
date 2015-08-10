@@ -29,7 +29,7 @@ crawl = ->
     store = stores.shift()
     crawlStore store, fullCrawl, ->
       if needCrawlItemsViaApi
-        crawlItemsInStore store['store_id'], ->
+        crawlItemsInStore store['store_id'], null, ->
           buildOuterIid store['store_id'], ->
             crawl()
       else

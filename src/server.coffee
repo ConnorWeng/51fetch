@@ -35,7 +35,7 @@ http.createServer((req, res) ->
             log "store #{storeId}: ready crawl if need"
             crawlStore store, false, ->
               if needCrawlItemsViaApi
-                crawlItemsInStore storeId, ->
+                crawlItemsInStore storeId, null, ->
                   tasks.splice tasks.indexOf(storeId), 1
               else
                 tasks.splice tasks.indexOf(storeId), 1

@@ -12,7 +12,7 @@ unfetchedGoods = []
 crawl = ->
   if unfetchedGoods.length > 0
     good = unfetchedGoods.shift()
-    crawlItemViaApi good, ->
+    crawlItemViaApi good, null, ->
       log "#{good.goods_id}: #{good.goods_name} updated"
       crawl()
   else
