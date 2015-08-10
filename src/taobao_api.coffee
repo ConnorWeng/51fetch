@@ -4,11 +4,21 @@ http = require 'http'
 querystring = require 'querystring'
 config = require './config'
 
+exports.getTaobaoItemSeller = (numIid, fields, session, callback) ->
+  apiParams =
+    'num_iid': numIid
+    'fields': fields
+  execute 'taobao.item.seller.get', apiParams, session, (err, result) ->
+    if result.item_seller_get_response?.item?
+      callback null, result.item_seller_get_response.item
+    else
+      handleError err, result, callback
+
 exports.getTaobaoItem = (numIid, fields, callback) ->
   apiParams =
     'num_iid': numIid
     'fields': fields
-  execute 'taobao.item.get', apiParams, (err, result) ->
+  execute 'taobao.item.get', apiParams, null, (err, result) ->
     if result.item_get_response?.item?
       callback null, result.item_get_response.item
     else
@@ -18,7 +28,7 @@ exports.getItemCats = (cids, fields, callback) ->
   apiParams =
     'cids': "#{cids}"
     'fields': fields
-  execute 'taobao.itemcats.get', apiParams, (err, result) ->
+  execute 'taobao.itemcats.get', apiParams, null, (err, result) ->
     if result.itemcats_get_response?.item_cats?.item_cat?
       callback null, result.itemcats_get_response.item_cats.item_cat
     else
@@ -27,7 +37,7 @@ exports.getItemCats = (cids, fields, callback) ->
 exports.getSellercatsList = (nick, callback) ->
   apiParams =
     'nick': nick
-  execute 'taobao.sellercats.list.get', apiParams, (err, result) ->
+  execute 'taobao.sellercats.list.get', apiParams, null, (err, result) ->
     if result.sellercats_list_get_response?
       if result.sellercats_list_get_response?.seller_cats?.seller_cat?
         callback null, result.sellercats_list_get_response.seller_cats.seller_cat
@@ -36,7 +46,7 @@ exports.getSellercatsList = (nick, callback) ->
     else
       handleError err, result, callback
 
-execute = (method, apiParams, callback) ->
+execute = (method, apiParams, session, callback) ->
   sysParams =
     'app_key': config.taobao_app_key
     'v': '2.0'
@@ -45,6 +55,7 @@ execute = (method, apiParams, callback) ->
     'method': method
     'timestamp': phpjs.date 'Y-m-d H:i:s'
     'partner_id': 'top-sdk-php-20140420'
+  if session then sysParams['session'] = session
   sign = generateSign phpjs.array_merge sysParams, apiParams
   sysParams['sign'] = sign
   options =
