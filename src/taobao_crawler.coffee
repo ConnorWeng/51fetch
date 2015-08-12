@@ -529,7 +529,7 @@ getHuoHao = (title) ->
 getHuoHaoFromAttrs = (attrs) ->
   for attr in attrs
     if attr.attrName is '货号'
-      return attr.attrValue
+      return attr.attrValue.replace '#', ''
   return ''
 
 exports.isRealPic = isRealPic = (title, propsName) ->
