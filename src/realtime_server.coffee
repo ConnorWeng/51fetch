@@ -106,9 +106,9 @@ submitNewItem = (req, res, itemUri, jsonp_callback) ->
             response res, jsonp_callback, "{'status': 'ok'}"
 
 handleUpdateItem = (req, res, goodsId, jsonp_callback) ->
-  db.query "select * from ecm_goods where goods_id = #{goodsId}", (err, goods) ->
+  db.query "select * from ecm_goods g left join ecm_store s on g.store_id = s.store_id left join ecm_member_auth a on s.im_ww = a.vendor_user_nick where g.goods_id = #{goodsId}", (err, goods) ->
     good = goods[0]
-    crawlItemViaApi good, null, () ->
+    crawlItemViaApi good, good['access_token'], () ->
       log "#{good['goods_id']}:#{good['goods_name']} updated manually"
       response res, jsonp_callback, "{'status': 'ok'}"
 
