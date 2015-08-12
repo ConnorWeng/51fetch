@@ -91,8 +91,11 @@ handleError = (err, result, callback) ->
   if err
     callback err, null
   else
-    errorResponse = result.error_response
-    callback new Error("#{errorResponse.code}; #{errorResponse.msg}; #{errorResponse.sub_code}; #{errorResponse.sub_msg}"), null
+    if result.error_response?
+      errorResponse = result.error_response
+      callback new Error("#{errorResponse.code}; #{errorResponse.msg}; #{errorResponse.sub_code}; #{errorResponse.sub_msg}"), null
+    else
+      callback new Error(result), null
 
 generateSign = (params) ->
   sortedParams = ksort params
