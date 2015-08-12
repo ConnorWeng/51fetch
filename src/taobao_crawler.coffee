@@ -389,7 +389,7 @@ extractDefaultImage = ($item) ->
     process.exit -1
   defaultImage
 
-parsePrice = (price, seePrice, goodsName) ->
+exports.parsePrice = parsePrice = (price, seePrice, goodsName) ->
   rawPrice = parseFloat price
   finalPrice = rawPrice
   if not seePrice? then finalPrice = formatPrice rawPrice

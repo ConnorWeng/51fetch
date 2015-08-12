@@ -5,7 +5,7 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
-{crawlItemViaApi, $fetch, crawlItemsInStore, setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
+{crawlItemViaApi, $fetch, crawlItemsInStore, setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw, parsePrice} = require './taobao_crawler'
 {getTaobaoItem} = require './taobao_api'
 database = require './database'
 
@@ -71,7 +71,7 @@ handleNewItem = (req, res, numIid, nick, title, price, jsonp_callback) ->
         items = [
           goodsName: title
           defaultImage: ''
-          price: price
+          price: parsePrice price, store['see_price'], title
           goodHttp: goodHttp
         ]
         db.saveItems storeId, storeName, items, goodHttp, '所有宝贝', 1, ->
@@ -87,13 +87,6 @@ submitNewItem = (req, res, itemUri, jsonp_callback) ->
     if err
       response res, jsonp_callback, "{'error': true, 'message': 'failed to call taobao api'}"
       return;
-    goodHttp = "http://item.taobao.com/item.htm?id=#{goodsId}"
-    items = [
-      goodsName: good.title
-      defaultImage: good.pic_url
-      price: good.price
-      goodHttp: goodHttp
-    ]
     db.getStores "im_ww = '#{good.nick}'", (err, stores) ->
       if err or not stores[0]?
         response res, jsonp_callback, "{'error': true, 'message': 'cannot find store which url is #{goodHttp}'}"
@@ -101,6 +94,13 @@ submitNewItem = (req, res, itemUri, jsonp_callback) ->
         store = stores[0]
         storeId = store['store_id']
         storeName = store['store_name']
+        goodHttp = "http://item.taobao.com/item.htm?id=#{goodsId}"
+        items = [
+          goodsName: good.title
+          defaultImage: good.pic_url
+          price: parsePrice good.price, store['see_price'], good.title
+          goodHttp: goodHttp
+        ]
         db.saveItems storeId, storeName, items, goodHttp, '所有宝贝', 1, ->
           crawlItemsInStore storeId, null, ->
             response res, jsonp_callback, "{'status': 'ok'}"

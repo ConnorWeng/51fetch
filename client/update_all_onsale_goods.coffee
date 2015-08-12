@@ -1,6 +1,6 @@
 Q = require 'q'
 {getTaobaoItemsOnsale} = require '../src/taobao_api'
-{setDatabase, crawlItemsInStore} = require '../src/taobao_crawler'
+{setDatabase, crawlItemsInStore, parsePrice} = require '../src/taobao_crawler'
 database = require '../src/database'
 config = require '../src/config'
 args = process.argv.slice 2
@@ -20,7 +20,7 @@ update = () ->
         items.push {
           goodsName: item.title
           defaultImage: item.pic_url
-          price: item.price
+          price: parsePrice item.price, store['see_price'], item.title
           goodHttp: "http://item.taobao.com/item.htm?id=#{item.num_iid}"
         } for item in itemsOnsale
         db.saveItems store['store_id'], store['store_name'], items, '', '所有宝贝', 1, ->
