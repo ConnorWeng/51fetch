@@ -31,7 +31,7 @@ update = () ->
         console.error "store #{store['store_id']} error: #{err}"
         update()
 
-query 'select * from ecm_store s inner join ecm_member_auth a on s.store_id = a.user_id'
+query 'select * from ecm_store s inner join ecm_member_auth a on s.im_ww = a.vendor_user_nick'
   .then (stores) ->
     storesNeedUpdate = stores
     console.log "There are total #{stores.length} stores need to be updated."

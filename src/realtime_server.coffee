@@ -58,7 +58,7 @@ handleStore = (req, res, storeId, jsonp_callback) ->
         response res, jsonp_callback, "{'error': true, 'message': 'id:#{storeId} query returns err: #{err}'}"
 
 handleNewItem = (req, res, numIid, nick, title, price, jsonp_callback) ->
-  query "select * from ecm_store s left join ecm_member_auth a on s.store_id = a.user_id where s.im_ww = '#{nick}'", (err, stores) ->
+  query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick where s.im_ww = '#{nick}'", (err, stores) ->
     if err or not stores[0]?
       response res, jsonp_callback, "{'error': true, 'message': 'cannot find store which im_ww is #{nick}'}"
     else
@@ -122,7 +122,7 @@ handleDeleteItem = (req, res, numIid, jsonp_callback) ->
 
 handleChangeItem  = (req, res, numIid, jsonp_callback) ->
   likeGoodHttp = "http://item.taobao.com/item.htm?id=#{numIid}%"
-  query "select * from ecm_goods g left join ecm_member_auth a on g.store_id = a.user_id where g.good_http like '#{likeGoodHttp}'"
+  query "select * from ecm_goods g left join ecm_store s on g.store_id = s.store_id left join ecm_member_auth a on s.im_ww = a.vendor_user_nick where g.good_http like '#{likeGoodHttp}'"
     .then (result) ->
       if result?[0]?
         good = result[0]
