@@ -4,6 +4,15 @@ http = require 'http'
 querystring = require 'querystring'
 config = require './config'
 
+exports.getTaobaoItemsOnsale = (fields, session, callback) ->
+  apiParams =
+    'fields': fields
+  execute 'taobao.items.onsale.get', apiParams, session, (err, result) ->
+    if result.items_onsale_get_response?.items?.item?
+      callback null, result.items_onsale_get_response.items.item
+    else
+      handleError err, result, callback
+
 exports.getTaobaoItemSeller = (numIid, fields, session, callback) ->
   apiParams =
     'num_iid': numIid
