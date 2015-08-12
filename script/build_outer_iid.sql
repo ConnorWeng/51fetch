@@ -32,7 +32,7 @@ begin
 
     select shop_mall, address into v_shop_mall, v_address from ecm_store where store_id = v_store_id;
 
-    select substring_index(attr_value, '_', -2) into v_price_huohao from ecm_goods_attr where goods_id = v_goods_id and attr_id = 1;
+    select substring_index(attr_value, '_', -2) into v_price_huohao from ecm_goods_attr where goods_id = v_goods_id and attr_id = 1 limit 1;
 
     select substring_index(v_price_huohao, '_', -1) into v_huohao;
 
