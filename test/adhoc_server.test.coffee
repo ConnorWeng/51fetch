@@ -1,5 +1,5 @@
 chai = require 'chai'
-{matchUrlPattern} = require '../src/realtime_server'
+{matchUrlPattern} = require '../src/adhoc_server'
 
 chai.should()
 
