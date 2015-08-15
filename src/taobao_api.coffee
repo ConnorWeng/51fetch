@@ -55,6 +55,17 @@ exports.getSellercatsList = (nick, callback) ->
     else
       handleError err, result, callback
 
+exports.getItemProps = (cid, fields, parentPid, callback) ->
+  apiParams =
+    'cid': cid
+    'fields':fields
+  if parentPid then apiParams['parent_pid'] = parentPid
+  execute 'taobao.itemprops.get', apiParams, null, (err, result) ->
+    if result.itemprops_get_response?.item_props?.item_prop?
+      callback null, result.itemprops_get_response.item_props.item_prop
+    else
+      handleError err, result, callback
+
 execute = (method, apiParams, session, callback) ->
   sysParams =
     'app_key': config.taobao_app_key
