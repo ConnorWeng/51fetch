@@ -568,6 +568,7 @@ crawlDesc = (url) ->
     .then (body) ->
       if ~body.indexOf 'var desc'
         desc = body.replace "var desc='", ''
+        desc = desc.replace new RegExp('//img', 'g'), "http://img"
         desc = desc.substr 0, desc.length - 2
         defered.resolve desc
       else
