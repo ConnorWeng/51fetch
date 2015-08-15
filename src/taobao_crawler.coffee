@@ -575,6 +575,13 @@ crawlDesc = (url) ->
       defered.reject reason
   defered.promise
 
+extractDescUrl = (html) ->
+  matches = /"https:" === location.protocol \? "(.+)" :"(.+)"/.exec html
+  if matches?
+    'https:' + matches[1]
+  else
+    throw new Error 'item html does not contain desc url'
+
 debug = (content) ->
   if process.env.NODE_ENV is 'debug'
     console.log '=============================================================='
@@ -610,6 +617,7 @@ if process.env.NODE_ENV is 'test'
   exports.changeRemains = changeRemains
   exports.getPropertyAlias = getPropertyAlias
   exports.crawlDesc = crawlDesc
+  exports.extractDescUrl = extractDescUrl
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

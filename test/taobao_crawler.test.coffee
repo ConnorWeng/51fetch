@@ -413,6 +413,10 @@ describe 'taobao_crawler', () ->
         .finally ->
           taobao_crawler.setFetch f
 
+  describe '#extractDescUrl', ->
+    it 'should return desc url', ->
+      assert.equal taobao_crawler.extractDescUrl(DESC_URL_HTML), 'https://desc.alicdn.com/i6/440/690/44469144076/TB19Th7HFXXXXXHXXXX8qtpFXXX.desc%7Cvar%5Edesc%3Bsign%5E6228467ccd3990ad0fa0cee6a646bfe3%3Blang%5Egbk%3Bt%5E1432183676'
+
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>
 <div>
@@ -888,4 +892,9 @@ ITEMS_HTML_TEMPLATE_B = '''
 
 DESC_RESPONSE = '''
 var desc='<p><img align="absmiddle" style="width: 750.0px;float: none;margin: 0.0px;" src="https://img.alicdn.com/imgextra/i3/1706550192/TB29m7NeXXXXXb3XXXXXXXXXXXX-1706550192.jpg"></p>';
+'''
+
+DESC_URL_HTML = '''
+ g_config.dynamicScript = function(f,c){var e=document,d=e.createElement("script");d.src=f;if(c){for(var b in c){d[b]=c[b];}};e.getElementsByTagName("head")[0].appendChild(d)};
+     g_config.dynamicScript("https:" === location.protocol ? "//desc.alicdn.com/i6/440/690/44469144076/TB19Th7HFXXXXXHXXXX8qtpFXXX.desc%7Cvar%5Edesc%3Bsign%5E6228467ccd3990ad0fa0cee6a646bfe3%3Blang%5Egbk%3Bt%5E1432183676" :"//dsc.taobaocdn.com/i6/440/690/44469144076/TB19Th7HFXXXXXHXXXX8qtpFXXX.desc%7Cvar%5Edesc%3Bsign%5E6228467ccd3990ad0fa0cee6a646bfe3%3Blang%5Egbk%3Bt%5E1432183676")
 '''
