@@ -542,6 +542,7 @@ exports.fetch = fetch = (url) ->
   defered = Q.defer()
   c.queue [
     'uri': url
+    'method': 'GET'
     'forceUTF8': true
     'callback': (err, result) ->
       if err
@@ -581,6 +582,20 @@ extractDescUrl = (html) ->
     'https:' + matches[1]
   else
     throw new Error 'item html does not contain desc url'
+
+exports.crawlTaobaoItem = (numIid, callback) ->
+  url = "https://item.taobao.com/item.htm?id=#{numIid}"
+  $fetch url, ($) ->
+    taobaoItem = {}
+    taobaoItem.title = $('.tb-main-title').attr('data-title');
+    taobaoItem.pic_url = makeSureProtocol $('.tb-thumb li:eq(0) img').attr('data-src').replace('_50x50.jpg', '');
+    descUrl = extractDescUrl $('html').html()
+    crawlDesc descUrl
+      .then (desc) ->
+        taobaoItem.desc = desc
+        callback null, taobaoItem
+      .catch (reason) ->
+        callback reason, null
 
 debug = (content) ->
   if process.env.NODE_ENV is 'debug'
