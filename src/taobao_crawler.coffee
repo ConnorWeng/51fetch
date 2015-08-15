@@ -599,6 +599,14 @@ extractSkus = ($, price) ->
         quantity: 999
   skus
 
+extractItemImgs = ($) ->
+  itemImgs = item_img: []
+  $('.tb-thumb li').each ->
+    $li = $ @
+    itemImgs.item_img.push
+      url: makeSureProtocol $li.find('img').attr('data-src').replace('_50x50.jpg', '');
+  itemImgs
+
 exports.crawlTaobaoItem = (numIid, callback) ->
   url = "https://item.taobao.com/item.htm?id=#{numIid}"
   $fetch url, ($) ->
@@ -653,6 +661,7 @@ if process.env.NODE_ENV is 'test'
   exports.crawlDesc = crawlDesc
   exports.extractDescUrl = extractDescUrl
   exports.extractSkus = extractSkus
+  exports.extractItemImgs = extractItemImgs
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

@@ -446,6 +446,25 @@ describe 'taobao_crawler', () ->
         window.close()
         done()
 
+  describe '#extractItemImgs', ->
+    it 'should return item imgs', (done) ->
+      env ITEM_IMGS_HTML, (error, window) ->
+        $ = jquery window
+        assert.deepEqual taobao_crawler.extractItemImgs($),
+          item_img: [
+            url: 'http://gd1.alicdn.com/bao/uploaded/i1/TB1pj7lHpXXXXc7aXXXXXXXXXXX_!!0-item_pic.jpg'
+          ,
+            url: 'http://gd4.alicdn.com/imgextra/i4/660463857/TB2q_dSdpXXXXbAXpXXXXXXXXXX_!!660463857.jpg'
+          ,
+            url: 'http://gd1.alicdn.com/imgextra/i1/660463857/TB2JaRRdpXXXXbfXpXXXXXXXXXX_!!660463857.jpg'
+          ,
+            url: 'http://gd3.alicdn.com/imgextra/i3/660463857/TB2HxpVdpXXXXXRXpXXXXXXXXXX_!!660463857.jpg'
+          ,
+            url: 'http://gd4.alicdn.com/imgextra/i4/660463857/TB2IeqedpXXXXXtXXXXXXXXXXXX_!!660463857.jpg'
+          ]
+        window.close()
+        done()
+
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>
 <div>
@@ -975,4 +994,34 @@ SKUS_HTML = '''
 <div class="tb-btn-add"><a href="#" title="加入购物车" class="J_LinkAdd" data-spm-click="gostr=/tbdetail;locaid=d2" shortcut-key="a" shortcut-label="加入购物车" shortcut-effect="click" data-spm-anchor-id="2013.1.20140002.10"><i class="tb-iconfont">ŭ</i>加入购物车</a></div>
 </div>
 </div></div>
+'''
+
+ITEM_IMGS_HTML = '''
+<ul id="J_UlThumb" class="tb-thumb tb-clearfix" data-spm="20140009">
+     <li class="tb-selected" data-index="0">
+     <div class="tb-pic tb-s50">
+ <a href="#" data-spm-click="gostr=/tbdetail;locaid=d1"><img data-src="//gd1.alicdn.com/bao/uploaded/i1/TB1pj7lHpXXXXc7aXXXXXXXXXXX_!!0-item_pic.jpg_50x50.jpg" src="//gd1.alicdn.com/bao/uploaded/i1/TB1pj7lHpXXXXc7aXXXXXXXXXXX_!!0-item_pic.jpg_50x50.jpg"></a>
+ </div>
+   </li>
+   <li data-index="1" class="">
+     <div class="tb-pic tb-s50">
+ <a href="#" data-spm-click="gostr=/tbdetail;locaid=d2"><img data-src="//gd4.alicdn.com/imgextra/i4/660463857/TB2q_dSdpXXXXbAXpXXXXXXXXXX_!!660463857.jpg_50x50.jpg" src="//gd4.alicdn.com/imgextra/i4/660463857/TB2q_dSdpXXXXbAXpXXXXXXXXXX_!!660463857.jpg_50x50.jpg"></a>
+ </div>
+   </li>
+   <li data-index="2" class="">
+     <div class="tb-pic tb-s50">
+ <a href="#" data-spm-click="gostr=/tbdetail;locaid=d3"><img data-src="//gd1.alicdn.com/imgextra/i1/660463857/TB2JaRRdpXXXXbfXpXXXXXXXXXX_!!660463857.jpg_50x50.jpg" src="//gd1.alicdn.com/imgextra/i1/660463857/TB2JaRRdpXXXXbfXpXXXXXXXXXX_!!660463857.jpg_50x50.jpg"></a>
+ </div>
+   </li>
+   <li data-index="3" class="">
+     <div class="tb-pic tb-s50">
+ <a href="#" data-spm-click="gostr=/tbdetail;locaid=d4"><img data-src="//gd3.alicdn.com/imgextra/i3/660463857/TB2HxpVdpXXXXXRXpXXXXXXXXXX_!!660463857.jpg_50x50.jpg" src="//gd3.alicdn.com/imgextra/i3/660463857/TB2HxpVdpXXXXXRXpXXXXXXXXXX_!!660463857.jpg_50x50.jpg"></a>
+ </div>
+   </li>
+   <li data-index="4" class="">
+     <div class="tb-pic tb-s50">
+ <a href="#" data-spm-click="gostr=/tbdetail;locaid=d5"><img data-src="//gd4.alicdn.com/imgextra/i4/660463857/TB2IeqedpXXXXXtXXXXXXXXXXXX_!!660463857.jpg_50x50.jpg" src="//gd4.alicdn.com/imgextra/i4/660463857/TB2IeqedpXXXXXtXXXXXXXXXXXX_!!660463857.jpg_50x50.jpg"></a>
+ </div>
+   </li>
+     </ul>
 '''
