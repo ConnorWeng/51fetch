@@ -60,4 +60,5 @@ describe 'taobao_crawler', ->
           ,
             url: 'http://gd4.alicdn.com/imgextra/i4/660463857/TB2IeqedpXXXXXtXXXXXXXXXXXX_!!660463857.jpg'
           ]
+        taobaoItem.cid.should.eql 50010850
         done()
