@@ -632,6 +632,7 @@ exports.crawlTaobaoItem = (numIid, callback) ->
     taobaoItem.property_alias = ''
     taobaoItem.item_imgs = extractItemImgs $
     taobaoItem.cid = extractCid $('html').html()
+    taobaoItem.nick = extractNick $('html').html()
     descUrl = extractDescUrl $('html').html()
     crawlDesc descUrl
       .then (desc) ->
