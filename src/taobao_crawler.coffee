@@ -584,6 +584,21 @@ extractDescUrl = (html) ->
   else
     throw new Error 'item html does not contain desc url'
 
+extractSkus = ($, price) ->
+  skus = sku: []
+  $sizeLis = $('.J_Prop_measurement li')
+  $colorLis = $('.J_Prop_Color li')
+  for colorLi in $colorLis
+    for sizeLi in $sizeLis
+      $colorLi = $ colorLi
+      $sizeLi = $ sizeLi
+      skus.sku.push
+        price: price
+        properties: "#{$colorLi.attr('data-value')};#{$sizeLi.attr('data-value')}"
+        properties_name: "#{$colorLi.attr('data-value')}:#{$('.J_Prop_Color .tb-property-type').text()}:#{$colorLi.find('span').text()};#{$sizeLi.attr('data-value')}:#{$('.J_Prop_measurement .tb-property-type').text()}:#{$sizeLi.find('span').text()}"
+        quantity: 999
+  skus
+
 exports.crawlTaobaoItem = (numIid, callback) ->
   url = "https://item.taobao.com/item.htm?id=#{numIid}"
   $fetch url, ($) ->
@@ -635,6 +650,7 @@ if process.env.NODE_ENV is 'test'
   exports.getPropertyAlias = getPropertyAlias
   exports.crawlDesc = crawlDesc
   exports.extractDescUrl = extractDescUrl
+  exports.extractSkus = extractSkus
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

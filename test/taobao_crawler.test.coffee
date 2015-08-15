@@ -417,6 +417,35 @@ describe 'taobao_crawler', () ->
     it 'should return desc url', ->
       assert.equal taobao_crawler.extractDescUrl(DESC_URL_HTML), 'https://desc.alicdn.com/i6/440/690/44469144076/TB19Th7HFXXXXXHXXXX8qtpFXXX.desc%7Cvar%5Edesc%3Bsign%5E6228467ccd3990ad0fa0cee6a646bfe3%3Blang%5Egbk%3Bt%5E1432183676'
 
+  describe '#extractSkus', ->
+    it 'should return skus', (done) ->
+      env SKUS_HTML,(error, window) ->
+        $ = jquery window
+        assert.deepEqual taobao_crawler.extractSkus($, '234.00'),
+          sku: [
+            price: '234.00'
+            properties: '1627207:6594326;20509:28314'
+            properties_name: '1627207:6594326:颜色分类:图片色;20509:28314:尺码:S'
+            quantity: 999
+          ,
+            price: '234.00'
+            properties: '1627207:6594326;20509:28315'
+            properties_name: '1627207:6594326:颜色分类:图片色;20509:28315:尺码:M'
+            quantity: 999
+          ,
+            price: '234.00'
+            properties: '1627207:6594326;20509:28316'
+            properties_name: '1627207:6594326:颜色分类:图片色;20509:28316:尺码:L'
+            quantity: 999
+          ,
+            price: '234.00'
+            properties: '1627207:6594326;20509:28317'
+            properties_name: '1627207:6594326:颜色分类:图片色;20509:28317:尺码:XL'
+            quantity: 999
+          ]
+        window.close()
+        done()
+
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>
 <div>
@@ -897,4 +926,53 @@ var desc='<p><img align="absmiddle" style="width: 750.0px;float: none;margin: 0.
 DESC_URL_HTML = '''
  g_config.dynamicScript = function(f,c){var e=document,d=e.createElement("script");d.src=f;if(c){for(var b in c){d[b]=c[b];}};e.getElementsByTagName("head")[0].appendChild(d)};
      g_config.dynamicScript("https:" === location.protocol ? "//desc.alicdn.com/i6/440/690/44469144076/TB19Th7HFXXXXXHXXXX8qtpFXXX.desc%7Cvar%5Edesc%3Bsign%5E6228467ccd3990ad0fa0cee6a646bfe3%3Blang%5Egbk%3Bt%5E1432183676" :"//dsc.taobaocdn.com/i6/440/690/44469144076/TB19Th7HFXXXXXHXXXX8qtpFXXX.desc%7Cvar%5Edesc%3Bsign%5E6228467ccd3990ad0fa0cee6a646bfe3%3Blang%5Egbk%3Bt%5E1432183676")
+'''
+
+SKUS_HTML = '''
+<div id="J_isku" data-spm="20140002" class="tb-key tb-key-sku" shortcut-key="i" shortcut-label="挑选宝贝" shortcut-effect="focus" data-spm-max-idx="10">
+<div class="tb-skin">
+ <dl class="J_Prop J_TMySizeProp tb-size tb-prop tb-clearfix      J_Prop_measurement  ">
+<dt class="tb-property-type">尺码</dt>
+<dd>
+<ul data-property="尺码" class="J_TSaleProp tb-clearfix">
+<li data-value="20509:28314" class="tb-selected"><a href="#" data-spm-anchor-id="2013.1.20140002.1"><span>S</span></a><i>已选中</i></li>
+<li data-value="20509:28315" class=""><a href="#" data-spm-anchor-id="2013.1.20140002.2"><span>M</span></a><i>已选中</i></li>
+<li data-value="20509:28316" class=""><a href="#" data-spm-anchor-id="2013.1.20140002.3"><span>L</span></a><i>已选中</i></li>
+<li data-value="20509:28317" class=""><a href="#" data-spm-anchor-id="2013.1.20140002.4"><span>XL</span></a><i>已选中</i></li>
+</ul></dd></dl>
+<span id="J_TMySize" class="size-btn" data-template-id="" data-value-type="1" data-value="50010850" data-value-rt="16">› 尺码助手</span>
+ <dl class="J_Prop tb-prop tb-clearfix   J_Prop_Color     ">
+<dt class="tb-property-type">颜色分类</dt>
+<dd>
+<ul data-property="颜色分类" class="J_TSaleProp tb-clearfix tb-img">
+<li data-value="1627207:6594326" class="tb-txt tb-selected">
+<a href="#" data-spm-anchor-id="2013.1.20140002.5">
+<span>图片色</span>
+</a>
+<i>已选中</i>
+</li>
+</ul></dd></dl>
+<dl class="tb-amount tb-clearfix">
+<dt class="tb-property-type">数量</dt>
+<dd>
+<span class="tb-stock" id="J_Stock">
+ <a href="#" hidefocus="" class="tb-reduce J_Reduce tb-iconfont tb-disable-reduce" data-spm-anchor-id="2013.1.20140002.6">ƛ</a><input id="J_IptAmount" type="text" class="tb-text" value="1" maxlength="8" title="请输入购买量"><a href="#" hidefocus="" class="tb-increase J_Increase tb-iconfont" data-spm-anchor-id="2013.1.20140002.7">ƚ</a>件
+ </span>
+<em>(库存<span id="J_SpanStock" class="tb-count">999</span>件)</em>
+</dd>
+</dl>
+<dl id="J_DlChoice" class="tb-choice tb-clearfix">
+<dt>请选择：</dt>
+<dd>
+<em>"尺码"</em><em>"颜色分类"</em></dd>
+</dl>
+<div class="tb-sure" id="J_SureSKU"><p class="tb-choice">请勾选您要的商品信息</p>
+<p class="tb-sure-continue"><a href="#" id="J_SureContinue" data-spm-anchor-id="2013.1.20140002.8">确定</a></p>
+<span class="close J_Close tb-iconfont">ß</span>
+</div>
+<div class="tb-msg tb-hidden"><p class="tb-stop">发生错误</p></div><div class="tb-msg tb-hidden"><p class="tb-stop">请稍后重试</p></div><div id="J_juValid" class="tb-action tb-clearfix ">
+<div class="tb-btn-buy"><a href="#" data-addfastbuy="true" title="点击此按钮，到下一步确认购买信息" class="J_LinkBuy" data-spm-click="gostr=/tbdetail;locaid=d1" shortcut-key="b" shortcut-label="立即购买" shortcut-effect="click" data-spm-anchor-id="2013.1.20140002.9">立即购买</a></div>
+<div class="tb-btn-add"><a href="#" title="加入购物车" class="J_LinkAdd" data-spm-click="gostr=/tbdetail;locaid=d2" shortcut-key="a" shortcut-label="加入购物车" shortcut-effect="click" data-spm-anchor-id="2013.1.20140002.10"><i class="tb-iconfont">ŭ</i>加入购物车</a></div>
+</div>
+</div></div>
 '''
