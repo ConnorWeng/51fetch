@@ -26,4 +26,26 @@ describe 'taobao_crawler', ->
         taobaoItem.pic_url.should.eql 'http://gd1.alicdn.com/bao/uploaded/i1/TB1pj7lHpXXXXc7aXXXXXXXXXXX_!!0-item_pic.jpg'
         taobaoItem.desc.should.include 'http://img.alicdn.com/imgextra/i4/660463857/TB2Ba8SdpXXXXa3XpXXXXXXXXXX-660463857.jpg'
         taobaoItem.price.should.eql '234.00'
+        taobaoItem.skus.should.eql
+          sku: [
+            price: '234.00'
+            properties: '1627207:6594326;20509:28314'
+            properties_name: '1627207:6594326:颜色分类:图片色;20509:28314:尺码:S'
+            quantity: 999
+          ,
+            price: '234.00'
+            properties: '1627207:6594326;20509:28315'
+            properties_name: '1627207:6594326:颜色分类:图片色;20509:28315:尺码:M'
+            quantity: 999
+          ,
+            price: '234.00'
+            properties: '1627207:6594326;20509:28316'
+            properties_name: '1627207:6594326:颜色分类:图片色;20509:28316:尺码:L'
+            quantity: 999
+          ,
+            price: '234.00'
+            properties: '1627207:6594326;20509:28317'
+            properties_name: '1627207:6594326:颜色分类:图片色;20509:28317:尺码:XL'
+            quantity: 999
+          ]
         done()
