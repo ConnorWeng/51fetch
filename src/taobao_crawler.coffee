@@ -561,6 +561,20 @@ exports.$fetch = $fetch = (url, callback) ->
       window.close()
     .then undefined, (reason) -> throw new Error(reason)
 
+crawlDesc = (url) ->
+  defered = Q.defer()
+  fetch url
+    .then (body) ->
+      if ~body.indexOf 'var desc'
+        desc = body.replace "var desc='", ''
+        desc = desc.substr 0, desc.length - 2
+        defered.resolve desc
+      else
+        defered.reject new Error 'desc response text does not contain valid content'
+    .catch (reason) ->
+      defered.reject reason
+  defered.promise
+
 debug = (content) ->
   if process.env.NODE_ENV is 'debug'
     console.log '=============================================================='
@@ -575,6 +589,7 @@ if process.env.NODE_ENV is 'test'
   exports.setMakeUriWithStoreInfo = (f) -> makeUriWithStoreInfo = f
   exports.setChangeRemains = (f) -> changeRemains = f
   exports.setCrawlItemViaApi = (f) -> crawlItemViaApi = f
+  exports.setFetch = (f) -> fetch = f
   exports.parsePrice = parsePrice
   exports.formatPrice = formatPrice
   exports.crawlAllPagesOfByNew = crawlAllPagesOfByNew
@@ -594,6 +609,7 @@ if process.env.NODE_ENV is 'test'
   exports.isRealPic = isRealPic
   exports.changeRemains = changeRemains
   exports.getPropertyAlias = getPropertyAlias
+  exports.crawlDesc = crawlDesc
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

@@ -387,6 +387,31 @@ describe 'taobao_crawler', () ->
           goods_name: 'goods3'
         done()
 
+  describe '#crawlDesc', ->
+    it 'should return html', () ->
+      f = taobao_crawler.fetch
+      taobao_crawler.setFetch (url) ->
+        then: (cb) ->
+          cb DESC_RESPONSE
+          catch: ->
+      taobao_crawler.crawlDesc 'http://some_url'
+        .then (desc) ->
+          assert.equal desc, '<p><img align="absmiddle" style="width: 750.0px;float: none;margin: 0.0px;" src="https://img.alicdn.com/imgextra/i3/1706550192/TB29m7NeXXXXXb3XXXXXXXXXXXX-1706550192.jpg"></p>'
+        .finally ->
+          taobao_crawler.setFetch f
+    it 'should report error', () ->
+      f = taobao_crawler.fetch
+      taobao_crawler.setFetch (url) ->
+        then: (cb) ->
+          cb ''
+          catch: ->
+      taobao_crawler.crawlDesc 'http://some_url'
+        .then (desc) ->
+          undefined
+        .catch (reason) ->
+          assert.include reason.message, 'desc response text does not contain valid content'
+        .finally ->
+          taobao_crawler.setFetch f
 
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>
@@ -859,4 +884,8 @@ ITEMS_HTML_TEMPLATE_B = '''
 </div>
 </div>
 </body>
+'''
+
+DESC_RESPONSE = '''
+var desc='<p><img align="absmiddle" style="width: 750.0px;float: none;margin: 0.0px;" src="https://img.alicdn.com/imgextra/i3/1706550192/TB29m7NeXXXXXb3XXXXXXXXXXXX-1706550192.jpg"></p>';
 '''
