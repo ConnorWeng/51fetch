@@ -48,4 +48,16 @@ describe 'taobao_crawler', ->
             properties_name: '1627207:6594326:颜色分类:图片色;20509:28317:尺码:XL'
             quantity: 999
           ]
+        taobaoItem.item_imgs.should.eql
+          item_img: [
+            url: 'http://gd1.alicdn.com/bao/uploaded/i1/TB1pj7lHpXXXXc7aXXXXXXXXXXX_!!0-item_pic.jpg'
+          ,
+            url: 'http://gd4.alicdn.com/imgextra/i4/660463857/TB2q_dSdpXXXXbAXpXXXXXXXXXX_!!660463857.jpg'
+          ,
+            url: 'http://gd1.alicdn.com/imgextra/i1/660463857/TB2JaRRdpXXXXbfXpXXXXXXXXXX_!!660463857.jpg'
+          ,
+            url: 'http://gd3.alicdn.com/imgextra/i3/660463857/TB2HxpVdpXXXXXRXpXXXXXXXXXX_!!660463857.jpg'
+          ,
+            url: 'http://gd4.alicdn.com/imgextra/i4/660463857/TB2IeqedpXXXXXtXXXXXXXXXXXX_!!660463857.jpg'
+          ]
         done()
