@@ -465,6 +465,10 @@ describe 'taobao_crawler', () ->
         window.close()
         done()
 
+  describe '#extractCid', ->
+    it 'should return cid', () ->
+      assert.equal taobao_crawler.extractCid(CID_HTML), 50010850
+
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>
 <div>
@@ -1024,4 +1028,60 @@ ITEM_IMGS_HTML = '''
  </div>
    </li>
      </ul>
+'''
+
+CID_HTML = '''
+(function(){
+      g_config.DyBase={iurl:"//item.taobao.com",purl:"//paimai.taobao.com",spurl:"//archer.taobao.com",durl:"//design.taobao.com",lgurl:"https://login.taobao.com/member/login.jhtml?redirectURL=http%3A%2F%2Flocal_jboss%2Fitem.htm%3Fspm%3Da1z10.1-c.w4004-10773970730.24.q4onzq%26id%3D520223599219%26mt%3D",
+surl:"//upload.taobao.com", shurl:"//shuo.taobao.com", murl:"http://meal.taobao.com" }; g_config.idata={
+ item:{
+ id:"520223599219",title:"2015\u590F\u65B0\u54C1\u540D\u5A9B\u6027\u611F\u6302\u8116\u9732\u80CC\u5370\u82B1\u4FEE\u8EAB\u663E\u7626\u6C14\u8D28\u6536\u8170\u4E2D\u957F\u8FDE\u8863\u88D9",
+ skuComponentFirst: 'true',
+  sellerNickGBK:'%CC%EC%CA%B9%B2%CA%BA%E7%B3%C7',
+ sellerNick:'天使彩虹城',
+ rcid:'16', cid:'50010850', virtQuantity:'2', holdQuantity:'0', edit:true, status:0,xjcc:false,
+desc:false,
+price:234.00,
+ bnow:true, prepay:true, dbst:1434980561000,tka:false,
+ chong:false, ju:false, iju: false, cu: false,  fcat:false, auto:"false", jbid:"",stepdata:{},
+  jmark:"",   quickAdd: 1,
+     initSizeJs:true,
+           sizeGroupName:"中国码",
+       auctionImages:[
+   "//gd1.alicdn.com/bao/uploaded/i1/TB1pj7lHpXXXXc7aXXXXXXXXXXX_!!0-item_pic.jpg"
+   ,
+     "//gd4.alicdn.com/bao/uploaded/i4/660463857/TB2q_dSdpXXXXbAXpXXXXXXXXXX_!!660463857.jpg"
+   ,
+     "//gd1.alicdn.com/bao/uploaded/i1/660463857/TB2JaRRdpXXXXbfXpXXXXXXXXXX_!!660463857.jpg"
+   ,
+     "//gd3.alicdn.com/bao/uploaded/i3/660463857/TB2HxpVdpXXXXXRXpXXXXXXXXXX_!!660463857.jpg"
+   ,
+     "//gd4.alicdn.com/bao/uploaded/i4/660463857/TB2IeqedpXXXXXtXXXXXXXXXXXX_!!660463857.jpg"
+     ],
+   pic: "//gd1.alicdn.com/bao/uploaded/i1/TB1pj7lHpXXXXc7aXXXXXXXXXXX_!!0-item_pic.jpg",
+
+     enterprise:false,
+   disableAddToCart: false }, seller:{
+ id:660463857,
+ mode: 0,          tad:1,                    shopAge:4,
+  status:0
+}, shop:{
+ id:"64472728",
+ url: "//shop64472728.taobao.com/",
+ pid:"",
+ sid:"",
+ xshop:true }     ,toggle:{
+ "addCartJump":10
+,"fangXinTaoMod":0
+,"domainDegradeMod":0
+ }
+ } })();
+</script>
+  <script>if(!g_config.vdata.sys.toggle){g_config.vdata.sys.toggle={
+ "thumb": false,
+ "v":{"s1212v":"1"},
+ "p":1.0,
+ "dcP":"true",
+ "sl":3000
+ }}
 '''

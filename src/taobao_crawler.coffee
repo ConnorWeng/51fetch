@@ -607,6 +607,13 @@ extractItemImgs = ($) ->
       url: makeSureProtocol $li.find('img').attr('data-src').replace('_50x50.jpg', '');
   itemImgs
 
+extractCid = (html) ->
+  matches = /[^r]cid:'(\d+)'/.exec html
+  if matches?
+    parseInt matches[1]
+  else
+    throw new Error 'item html does not contain cid'
+
 exports.crawlTaobaoItem = (numIid, callback) ->
   url = "https://item.taobao.com/item.htm?id=#{numIid}"
   $fetch url, ($) ->
@@ -663,6 +670,7 @@ if process.env.NODE_ENV is 'test'
   exports.extractDescUrl = extractDescUrl
   exports.extractSkus = extractSkus
   exports.extractItemImgs = extractItemImgs
+  exports.extractCid = extractCid
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats
