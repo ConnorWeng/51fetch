@@ -25,4 +25,5 @@ describe 'taobao_crawler', ->
         taobaoItem.title.should.eql '实拍806#2015秋装新款女装打底衫韩版雪纺衬衣长袖衬衫女'
         taobaoItem.pic_url.should.eql 'http://gd3.alicdn.com/bao/uploaded/i3/TB1aay4IVXXXXb2XVXXXXXXXXXX_!!0-item_pic.jpg'
         taobaoItem.desc.should.include 'https://img.alicdn.com/imgextra/i3/1706550192/TB29m7NeXXXXXb3XXXXXXXXXXXX-1706550192.jpg'
+        taobaoItem.price.should.eql '48.00'
         done()

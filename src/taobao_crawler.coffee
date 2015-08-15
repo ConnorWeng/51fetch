@@ -589,6 +589,7 @@ exports.crawlTaobaoItem = (numIid, callback) ->
     taobaoItem = {}
     taobaoItem.title = $('.tb-main-title').attr('data-title');
     taobaoItem.pic_url = makeSureProtocol $('.tb-thumb li:eq(0) img').attr('data-src').replace('_50x50.jpg', '');
+    taobaoItem.price = $('.tb-rmb-num').text()
     descUrl = extractDescUrl $('html').html()
     crawlDesc descUrl
       .then (desc) ->
