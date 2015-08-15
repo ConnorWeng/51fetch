@@ -614,6 +614,13 @@ extractCid = (html) ->
   else
     throw new Error 'item html does not contain cid'
 
+extractNick = (html) ->
+  matches = /sellerNick:'(.+)'/.exec html
+  if matches?
+    matches[1]
+  else
+    throw new Error 'item html does not contain nick'
+
 exports.crawlTaobaoItem = (numIid, callback) ->
   url = "https://item.taobao.com/item.htm?id=#{numIid}"
   $fetch url, ($) ->
@@ -672,6 +679,7 @@ if process.env.NODE_ENV is 'test'
   exports.extractSkus = extractSkus
   exports.extractItemImgs = extractItemImgs
   exports.extractCid = extractCid
+  exports.extractNick = extractNick
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

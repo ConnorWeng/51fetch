@@ -466,8 +466,12 @@ describe 'taobao_crawler', () ->
         done()
 
   describe '#extractCid', ->
-    it 'should return cid', () ->
+    it 'should return cid', ->
       assert.equal taobao_crawler.extractCid(CID_HTML), 50010850
+
+  describe '#extractNick', ->
+    it 'should return nick', ->
+      assert.equal taobao_crawler.extractNick(CID_HTML), '天使彩虹城'
 
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>
