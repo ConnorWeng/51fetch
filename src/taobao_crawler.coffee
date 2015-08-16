@@ -668,6 +668,9 @@ exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback) ->
     taobaoItem.cid = extractCid $('html').html()
     taobaoItem.nick = extractNick $('html').html()
     descUrl = extractDescUrl $('html').html()
+    if not taobaoItem.title or not taobaoItem.price or not descUrl
+      error "num_iid: #{numIid} fail to crawl"
+      process.exit -98
     extractPropsName $, taobaoItem.cid
       .then (propsName) ->
         taobaoItem.props_name = propsName
