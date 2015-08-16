@@ -1,4 +1,5 @@
 Q = require 'q'
+phpjs = require 'phpjs'
 {getTaobaoItemsOnsale} = require '../src/taobao_api'
 {setDatabase, crawlItemsInStore, parsePrice} = require '../src/taobao_crawler'
 database = require '../src/database'
@@ -14,19 +15,24 @@ storesNeedUpdate = []
 update = () ->
   if storesNeedUpdate.length > 0
     store = storesNeedUpdate.shift()
-    getTaobaoItemsOnsale 'title,pic_url,price,num_iid', store['access_token'], (err, itemsOnsale) ->
+    getTaobaoItemsOnsale 'title,pic_url,price,num_iid,list_time', store['access_token'], (err, itemsOnsale) ->
       if itemsOnsale and itemsOnsale[0]?.title?
+        sql = ''
         items = []
-        items.push {
-          goodsName: item.title
-          defaultImage: item.pic_url
-          price: parsePrice item.price, store['see_price'], item.title
-          goodHttp: "http://item.taobao.com/item.htm?id=#{item.num_iid}"
-        } for item in itemsOnsale
+        for item in itemsOnsale
+          items.push {
+            goodsName: item.title
+            defaultImage: item.pic_url
+            price: parsePrice item.price, store['see_price'], item.title
+            goodHttp: "http://item.taobao.com/item.htm?id=#{item.num_iid}"
+          }
+          listTime = phpjs.strtotime item.list_time
+          sql += "update ecm_goods set add_time = #{listTime} where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{item.num_iid}';"
         db.saveItems store['store_id'], store['store_name'], items, '', '所有宝贝', 1, ->
-          crawlItemsInStore store['store_id'], store['access_token'], ->
-            console.log "store #{store['store_id']} updated #{items.length} items"
-            update()
+          db.query sql, ->
+            crawlItemsInStore store['store_id'], store['access_token'], ->
+              console.log "store #{store['store_id']} updated #{items.length} items"
+              update()
       else
         console.error "store #{store['store_id']} error: #{err}"
         update()
