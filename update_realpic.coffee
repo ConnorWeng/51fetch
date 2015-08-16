@@ -1,7 +1,7 @@
 Q = require 'q'
 {log, error} = require 'util'
-{getTaobaoItem, getItemCats} = require './src/taobao_api'
-{isRealPic, getNumIidFromUri} = require './src/taobao_crawler'
+{getItemCats} = require './src/taobao_api'
+{crawlTaobaoItem, isRealPic, getNumIidFromUri} = require './src/taobao_crawler'
 database = require './src/database'
 config = require './src/config'
 args = process.argv.slice 2
@@ -9,7 +9,7 @@ args = process.argv.slice 2
 db = new database(config.database[args[0]])
 addTime = args[1]
 
-fetchTaobaoItem = Q.nfbind getTaobaoItem
+fetchTaobaoItem = Q.nfbind crawlTaobaoItem
 query = Q.nbind db.query, db
 
 goods = []
@@ -25,7 +25,7 @@ query "select goods_id, add_time, realpic, good_http from ecm_goods where add_ti
 updateRealPic = ->
   if goods.length > 0
     good = goods.shift()
-    fetchTaobaoItem getNumIidFromUri(good.good_http), 'title, props_name'
+    fetchTaobaoItem getNumIidFromUri(good.good_http)
       .then (item) ->
         realpic = isRealPic item.title, item.props_name
         if realpic is 1

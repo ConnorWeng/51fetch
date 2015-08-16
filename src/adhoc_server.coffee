@@ -5,8 +5,7 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
-{crawlItemViaApi, $fetch, crawlItemsInStore, setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw, parsePrice} = require './taobao_crawler'
-{getTaobaoItem} = require './taobao_api'
+{crawlTaobaoItem, crawlItemViaApi, $fetch, crawlItemsInStore, setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw, parsePrice} = require './taobao_crawler'
 database = require './database'
 
 args = process.argv.slice 2
@@ -83,7 +82,7 @@ handleNewItem = (req, res, numIid, nick, title, price, jsonp_callback) ->
 submitNewItem = (req, res, itemUri, jsonp_callback) ->
   matches = itemUri.match /id=(\d+)/
   goodsId = matches?[1]
-  getTaobaoItem goodsId, 'title,nick,pic_url,price,', (err, good) ->
+  crawlTaobaoItem goodsId, (err, good) ->
     if err
       response res, jsonp_callback, "{'error': true, 'message': 'failed to call taobao api'}"
       return;

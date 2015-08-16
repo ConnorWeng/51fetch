@@ -7,7 +7,7 @@ jquery = require('jquery')
 crawler = require('crawler').Crawler
 database = require './database'
 config = require './config'
-{getTaobaoItem, getTaobaoItemSeller, getItemCats, getSellercatsList, getItemProps} = require './taobao_api'
+{getTaobaoItemSeller, getItemCats, getSellercatsList, getItemProps} = require './taobao_api'
 
 TEMPLATES = [
   BY_NEW: 'a.by-new'
@@ -103,7 +103,7 @@ exports.crawlItemViaApi = (good, session, done) ->
   if session
     getTaobaoItemSeller numIid, 'title,seller_cids,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', session, callback
   else
-    getTaobaoItem numIid, 'title,seller_cids,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', callback
+    crawlTaobaoItem numIid, callback
 
 exports.crawlStore = (store, fullCrawl, done) ->
   if fullCrawl
@@ -655,7 +655,7 @@ extractPropsName = ($, cid) ->
       defered.resolve propsName
   defered.promise
 
-exports.crawlTaobaoItem = (numIid, callback) ->
+exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback) ->
   url = "https://item.taobao.com/item.htm?id=#{numIid}"
   $fetch url, ($) ->
     taobaoItem = {}
