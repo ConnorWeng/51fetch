@@ -29,7 +29,8 @@ crawl = ->
     store = stores.shift()
     crawlStore store, fullCrawl, ->
       if needCrawlItemsViaApi
-        crawlItemsInStore store['store_id'], null, ->
+        console.log "id:#{store['store_id']} #{store['store_name']} access_token: #{store['access_token']}"
+        crawlItemsInStore store['store_id'], store['access_token'], ->
           buildOuterIid store['store_id'], ->
             crawl()
       else
@@ -39,7 +40,7 @@ crawl = ->
 
 condition = if args[1] then args[1] else ''
 
-getAllStores "#{condition} order by store_id", (err, unfetchedStores) ->
+db.query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick where #{condition} order by s.store_id", (err, unfetchedStores) ->
   if err then throw err
   stores = unfetchedStores
   console.log "There are total #{stores.length} stores need to be fetched."
