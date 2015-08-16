@@ -7,7 +7,7 @@ jquery = require('jquery')
 crawler = require('crawler').Crawler
 database = require './database'
 config = require './config'
-{getTaobaoItem, getTaobaoItemSeller, getItemCats, getSellercatsList} = require './taobao_api'
+{getTaobaoItem, getTaobaoItemSeller, getItemCats, getSellercatsList, getItemProps} = require './taobao_api'
 
 TEMPLATES = [
   BY_NEW: 'a.by-new'
@@ -621,6 +621,41 @@ extractNick = (html) ->
   else
     throw new Error 'item html does not contain nick'
 
+findPid = (pname, props) ->
+  for prop in props
+    if prop.name is pname then return prop.pid
+  0
+
+findVid = (vname, pid, props) ->
+  for prop in props
+    if prop.pid is pid and prop.prop_values?.prop_value?
+      for value in prop.prop_values.prop_value
+        if value.name is vname then return value.vid
+      return prop.prop_values.prop_value[0]?.vid || 0
+  0
+
+extractPropsName = ($, cid) ->
+  defered = Q.defer()
+  attrs = []
+  $('.attributes-list li').each ->
+    $li = $ @
+    [pname, vname] = $li.text().split ': '
+    attrs.push "#{pname}:#{vname}"
+  getItemProps cid, 'pid,name,must,multi,prop_values,is_key_prop,is_sale_prop,parent_vid,is_enum_prop', null, (err, props) ->
+    if err
+      defered.reject err
+    else
+      propsName = ''
+      for attr in attrs
+        [pname, vname] = attr.split ':'
+        pid = findPid pname, props
+        vid = findVid vname, pid, props
+        propsName += "#{pid}:#{vid}:#{attr};"
+      if propsName.length > 0 then propsName = propsName.substr 0, propsName.length - 2
+      defered.resolve propsName
+  defered.promise
+
+
 exports.crawlTaobaoItem = (numIid, callback) ->
   url = "https://item.taobao.com/item.htm?id=#{numIid}"
   $fetch url, ($) ->
@@ -656,6 +691,7 @@ if process.env.NODE_ENV is 'test'
   exports.setChangeRemains = (f) -> changeRemains = f
   exports.setCrawlItemViaApi = (f) -> crawlItemViaApi = f
   exports.setFetch = (f) -> fetch = f
+  exports.setGetItemProps = (f) -> getItemProps = f
   exports.parsePrice = parsePrice
   exports.formatPrice = formatPrice
   exports.crawlAllPagesOfByNew = crawlAllPagesOfByNew
@@ -681,6 +717,7 @@ if process.env.NODE_ENV is 'test'
   exports.extractItemImgs = extractItemImgs
   exports.extractCid = extractCid
   exports.extractNick = extractNick
+  exports.extractPropsName = extractPropsName
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats
