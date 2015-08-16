@@ -655,7 +655,6 @@ extractPropsName = ($, cid) ->
       defered.resolve propsName
   defered.promise
 
-
 exports.crawlTaobaoItem = (numIid, callback) ->
   url = "https://item.taobao.com/item.htm?id=#{numIid}"
   $fetch url, ($) ->
@@ -669,7 +668,10 @@ exports.crawlTaobaoItem = (numIid, callback) ->
     taobaoItem.cid = extractCid $('html').html()
     taobaoItem.nick = extractNick $('html').html()
     descUrl = extractDescUrl $('html').html()
-    crawlDesc descUrl
+    extractPropsName $, taobaoItem.cid
+      .then (propsName) ->
+        taobaoItem.props_name = propsName
+        crawlDesc descUrl
       .then (desc) ->
         taobaoItem.desc = desc
         callback null, taobaoItem

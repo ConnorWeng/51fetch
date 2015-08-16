@@ -62,4 +62,5 @@ describe 'taobao_crawler', ->
           ]
         taobaoItem.cid.should.eql 50010850
         taobaoItem.nick.should.eql '天使彩虹城'
+        taobaoItem.props_name.should.include '122216588:129555:流行元素/工艺:印花;20551:20213:面料:其他;13328588:492838732:成分含量:81%(含)-90%(含);'
         done()

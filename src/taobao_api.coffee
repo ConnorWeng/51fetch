@@ -57,7 +57,7 @@ exports.getSellercatsList = (nick, callback) ->
 
 exports.getItemProps = (cid, fields, parentPid, callback) ->
   apiParams =
-    'cid': cid
+    'cid': cid + ''
     'fields':fields
   if parentPid then apiParams['parent_pid'] = parentPid
   execute 'taobao.itemprops.get', apiParams, null, (err, result) ->
