@@ -7,6 +7,8 @@ config = require './config'
 exports.getTaobaoItemsOnsale = (fields, session, callback) ->
   apiParams =
     'fields': fields
+    'order_by': 'modified:desc'
+    'page_size': '200'
   execute 'taobao.items.onsale.get', apiParams, session, (err, result) ->
     if result.items_onsale_get_response?.items?.item?
       callback null, result.items_onsale_get_response.items.item

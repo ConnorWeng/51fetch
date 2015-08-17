@@ -15,7 +15,7 @@ storesNeedUpdate = []
 update = () ->
   if storesNeedUpdate.length > 0
     store = storesNeedUpdate.shift()
-    getTaobaoItemsOnsale 'title,pic_url,price,num_iid,list_time', store['access_token'], (err, itemsOnsale) ->
+    getTaobaoItemsOnsale 'title,pic_url,price,num_iid,modified', store['access_token'], (err, itemsOnsale) ->
       if itemsOnsale and itemsOnsale[0]?.title?
         sql = ''
         items = []
@@ -26,8 +26,8 @@ update = () ->
             price: parsePrice item.price, store['see_price'], item.title
             goodHttp: "http://item.taobao.com/item.htm?id=#{item.num_iid}"
           }
-          listTime = phpjs.strtotime item.list_time
-          sql += "update ecm_goods set add_time = #{listTime} where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{item.num_iid}';"
+          modifiedTime = phpjs.strtotime item.modified
+          sql += "update ecm_goods set add_time = #{modifiedTime} where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{item.num_iid}';"
         db.saveItems store['store_id'], store['store_name'], items, '', '所有宝贝', 1, ->
           db.query sql, ->
             crawlItemsInStore store['store_id'], store['access_token'], ->
