@@ -15,6 +15,17 @@ exports.getTaobaoItemsOnsale = (fields, session, callback) ->
     else
       handleError err, result, callback
 
+exports.getTaobaoItemsSellerListBatch = (numIids, fields, session, items, callback) ->
+  numIidsList = numIids.split ','
+  if numIidsList.length > 0 and numIidsList[0]
+    iids = numIidsList.splice 0, 20
+    exports.getTaobaoItemsSellerList iids.join(','), fields, session, (err, itemsList) ->
+      if err then throw err
+      items.push itemsList...
+      exports.getTaobaoItemsSellerListBatch numIidsList.join(','), fields, session, items, callback
+  else
+    callback null, items
+
 exports.getTaobaoItemsSellerList = (numIids, fields, session, callback) ->
   apiParams =
     'num_iids': numIids
