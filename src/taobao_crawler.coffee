@@ -83,6 +83,9 @@ exports.crawlItemViaApi = (good, session, done) ->
       error err
       done()
     else
+      if item.approve_status is 'instock'
+        log "#{good.goods_id}: #{good.goods_name} is instock, no need update"
+        return done()
       skus = parseSkus item.skus, item.property_alias
       attrs = parseAttrs item.props_name, item.property_alias
       getHierarchalCats item.cid, (err, cats) ->
@@ -101,7 +104,7 @@ exports.crawlItemViaApi = (good, session, done) ->
             itemImgs: item.item_imgs?.item_img || []
           , done
   if session
-    getTaobaoItemSeller numIid, 'title,seller_cids,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', session, callback
+    getTaobaoItemSeller numIid, 'approve_status,title,seller_cids,desc,pic_url,sku,item_weight,property_alias,price,item_img.url,cid,nick,props_name,prop_img,delist_time', session, callback
   else
     crawlTaobaoItem numIid, callback
 
