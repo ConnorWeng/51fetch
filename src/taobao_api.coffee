@@ -15,6 +15,16 @@ exports.getTaobaoItemsOnsale = (fields, session, callback) ->
     else
       handleError err, result, callback
 
+exports.getTaobaoItemsSellerList = (numIids, fields, session, callback) ->
+  apiParams =
+    'num_iids': numIids
+    'fields': fields
+  execute 'taobao.items.seller.list.get', apiParams, session, (err, result) ->
+    if result.items_seller_list_get_response?.items?.item?
+      callback null, result.items_seller_list_get_response.items.item
+    else
+      handleError err, result, callback
+
 exports.getTaobaoItemSeller = (numIid, fields, session, callback) ->
   apiParams =
     'num_iid': numIid
