@@ -1,6 +1,6 @@
 Q = require 'q'
 phpjs = require 'phpjs'
-{getTaobaoItemsOnsale} = require '../src/taobao_api'
+{getTaobaoItemsOnsale, getTaobaoItemsSellerListBatch} = require '../src/taobao_api'
 {setDatabase, crawlItemsInStore, parsePrice} = require '../src/taobao_crawler'
 database = require '../src/database'
 config = require '../src/config'
@@ -19,6 +19,7 @@ update = () ->
       if itemsOnsale and itemsOnsale[0]?.title?
         sql = ''
         items = []
+        numIids = ''
         for item in itemsOnsale
           items.push {
             goodsName: item.title
@@ -26,13 +27,15 @@ update = () ->
             price: parsePrice item.price, store['see_price'], item.title
             goodHttp: "http://item.taobao.com/item.htm?id=#{item.num_iid}"
           }
-          modifiedTime = phpjs.strtotime item.modified
-          sql += "update ecm_goods set add_time = #{modifiedTime} where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{item.num_iid}';"
-        db.saveItems store['store_id'], store['store_name'], items, '', '所有宝贝', 1, ->
-          db.query sql, ->
-            crawlItemsInStore store['store_id'], store['access_token'], ->
-              console.log "store #{store['store_id']} updated #{items.length} items"
-              update()
+          numIids += "#{item.num_iid},"
+        numIids = numIids.substr 0, numIids.length - 1
+        getTaobaoItemsSellerListBatch numIids, 'num_iid, created', store['access_token'], [], (err, itemsInBatch) ->
+          sql += "update ecm_goods set add_time = #{phpjs.strtotime(oneItem.created)} where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{oneItem.num_iid}';" for oneItem in itemsInBatch
+          db.saveItems store['store_id'], store['store_name'], items, '', '所有宝贝', 1, ->
+            db.query sql, ->
+              crawlItemsInStore store['store_id'], store['access_token'], ->
+                console.log "store #{store['store_id']} updated #{items.length} items"
+                update()
       else
         console.error "store #{store['store_id']} error: #{err}"
         update()
