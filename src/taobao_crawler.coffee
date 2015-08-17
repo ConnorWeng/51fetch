@@ -654,7 +654,7 @@ extractPropsName = ($, cid) ->
         pid = findPid pname, props
         vid = findVid vname, pid, props
         propsName += "#{pid}:#{vid}:#{attr};"
-      if propsName.length > 0 then propsName = propsName.substr 0, propsName.length - 2
+      if propsName.length > 0 then propsName = propsName.substr 0, propsName.length - 1
       defered.resolve propsName
   defered.promise
 
