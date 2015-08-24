@@ -489,7 +489,7 @@ parseAttrs = (propsName, propertyAlias = null) ->
           attrId: attrId
           valueId: valueId
           attrName: attrName
-          attrValue: attrValue
+          attrValue: attrValue.replace "'", "\\'"
   attrs
 
 getPropertyAlias = (propertyAlias, valueId, value) ->
