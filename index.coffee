@@ -30,15 +30,15 @@ crawl = ->
   if stores.length > 0
     store = stores.shift()
     crawlStore store, fullCrawl, ->
-      if needCrawlItemsViaApi
-        console.log "id:#{store['store_id']} #{store['store_name']} access_token: #{store['access_token']}"
-        crawlItemsInStore store['store_id'], store['access_token'], ->
-          buildOuterIid store['store_id'], ->
-            db.query "update ecm_crawl_config set now_id = #{store['store_id']}, last_update = '#{new Date()}' where ip = '#{ip}'", ->
+      db.query "update ecm_crawl_config set now_id = #{store['store_id']}, last_update = '#{new Date()}' where ip = '#{ip}'", ->
+        if needCrawlItemsViaApi
+          console.log "id:#{store['store_id']} #{store['store_name']} access_token: #{store['access_token']}"
+          crawlItemsInStore store['store_id'], store['access_token'], ->
+            buildOuterIid store['store_id'], ->
               crawl()
-      else
-        db.query "update ecm_crawl_config set last_update = '#{new Date()}'", ->
-          crawl()
+        else
+          db.query "update ecm_crawl_config set last_update = '#{new Date()}'", ->
+            crawl()
   else
     console.log 'completed.'
 
