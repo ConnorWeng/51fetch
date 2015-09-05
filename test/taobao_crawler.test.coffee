@@ -209,59 +209,68 @@ describe 'taobao_crawler', () ->
     it 'should return skus array', ->
       assert.deepEqual taobao_crawler.parseSkus(
         sku: [
-          {properties_name: '1627207:3232484:颜色分类:天蓝色;20509:28314:尺码:S'},
-          {properties_name: '1627207:3232484:颜色分类:天蓝色;20509:28317:尺码:XL'},
-          {properties_name: '1627207:3232481:颜色分类:巧克力色;20509:28316:尺码:L'},
+          {properties_name: '1627207:3232484:颜色分类:天蓝色;20509:28314:尺码:S', price: '12.00'},
+          {properties_name: '1627207:3232484:颜色分类:天蓝色;20509:28317:尺码:XL', price: '22.00'},
+          {properties_name: '1627207:3232481:颜色分类:巧克力色;20509:28316:尺码:L', price: '11.00'},
         ]
+      , null, '实价', ''
       ), [
         [
           pid: '1627207'
           vid: '3232484'
           name: '颜色分类'
           value: '天蓝色'
+          price: '12'
         ,
           pid: '20509'
           vid: '28314'
           name: '尺码'
           value: 'S'
+          price: '12'
         ], [
           pid: '1627207'
           vid: '3232484'
           name: '颜色分类'
           value: '天蓝色'
+          price: '22'
         ,
           pid: '20509'
           vid: '28317'
           name: '尺码'
           value: 'XL'
+          price: '22'
         ], [
           pid: '1627207'
           vid: '3232481'
           name: '颜色分类'
           value: '巧克力色'
+          price: '11'
         ,
           pid: '20509'
           vid: '28316'
           name: '尺码'
           value: 'L'
+          price: '11'
         ]
       ]
     it 'should return skus array with alias', ->
       assert.deepEqual taobao_crawler.parseSkus(
         sku: [
-          {properties_name: '1627207:3232484:颜色分类:天蓝色;20509:28314:尺码:S'},
+          {properties_name: '1627207:3232484:颜色分类:天蓝色;20509:28314:尺码:S', price: '10.00'},
         ]
-      , '20509:28314:S(XS)'), [
+      , '20509:28314:S(XS)', '实价', ''), [
         [
           pid: '1627207'
           vid: '3232484'
           name: '颜色分类'
           value: '天蓝色'
+          price: '10'
         ,
           pid: '20509'
           vid: '28314'
           name: '尺码'
           value: 'S(XS)'
+          price: '10'
         ]
       ]
 

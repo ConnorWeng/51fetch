@@ -86,7 +86,6 @@ exports.crawlItemViaApi = (good, session, done) ->
       if item.approve_status is 'instock'
         log "#{good.goods_id}: #{good.goods_name} is instock, no need update"
         return done()
-      skus = parseSkus item.skus, item.property_alias
       attrs = parseAttrs item.props_name, item.property_alias
       getHierarchalCats item.cid, (err, cats) ->
         if err or cats.length is 0
@@ -97,7 +96,6 @@ exports.crawlItemViaApi = (good, session, done) ->
             item: item
             good: good
             desc: removeSingleQuotes item.desc
-            skus: skus
             attrs: attrs
             cats: cats
             realPic: isRealPic item.title, item.props_name
@@ -131,7 +129,7 @@ exports.crawlStore = (store, fullCrawl, done) ->
     if err then error err
     done()
 
-updateItemDetailInDatabase = ({item, desc, skus, good, attrs, cats, realPic, itemImgs}, callback) ->
+updateItemDetailInDatabase = ({item, desc, good, attrs, cats, realPic, itemImgs}, callback) ->
   goodsId = good.goods_id
   itemUri = good.good_http
   title = item.title
@@ -139,6 +137,7 @@ updateItemDetailInDatabase = ({item, desc, skus, good, attrs, cats, realPic, ite
   storeId = good.store_id
   huohao = (getHuoHaoFromAttrs attrs) || (getHuoHao good.goods_name)
   store = {}
+  skus = []
   async.waterfall [
     (callback) ->
       db.getStores "store_id = #{storeId}", (err, stores) ->
@@ -148,6 +147,7 @@ updateItemDetailInDatabase = ({item, desc, skus, good, attrs, cats, realPic, ite
         else
           callback err, stores
     (result, callback) ->
+      skus = parseSkus item.skus, item.property_alias, store['see_price'], title
       price = parsePrice item.price, store['see_price'], title
       db.updateGoods goodsId, title, price, desc, itemUri, realPic, skus, item.pic_url, item.seller_cids, callback
     (result, callback) ->
@@ -454,7 +454,7 @@ exports.getNumIidFromUri = getNumIidFromUri = (uri) ->
   else
     throw new Error('there is no numIid in uri')
 
-parseSkus = (itemSkus, propertyAlias = null) ->
+parseSkus = (itemSkus, propertyAlias = null, seePrice, title) ->
   skuArray = itemSkus?.sku || []
   skus = []
   for sku in skuArray
@@ -468,6 +468,7 @@ parseSkus = (itemSkus, propertyAlias = null) ->
         vid: vid
         name: name
         value: value
+        price: parsePrice sku.price, seePrice, title
     skus.push properties
   skus
 

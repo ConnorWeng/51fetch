@@ -85,23 +85,27 @@ describe 'database', () ->
           vid: '3232484'
           name: '颜色分类'
           value: '天蓝色'
+          price: '11'
         ,
           pid: '20509'
           vid: '28314'
           name: '尺码'
           value: 'S'
+          price: '11'
         ], [
           pid: '1627207'
           vid: '3232484'
           name: '颜色分类'
           value: '天蓝色'
+          price: '11'
         ,
           pid: '20509'
           vid: '28317'
           name: '尺码'
           value: 'XL'
+          price: '11'
         ]
-      ], 1, 11, 999, ->
+      ], 1, 12, 999, ->
       assert.isTrue db.pool.query.calledWith "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku) values ('1', '天蓝色', 'S', 3232484, 28314, 11, 1000, '999');insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku) values ('1', '天蓝色', 'XL', 3232484, 28317, 11, 1000, '999');"
 
   describe '#updateGoods', ->
