@@ -86,7 +86,7 @@ submitNewItem = (req, res, itemUri, jsonp_callback) ->
     if err
       response res, jsonp_callback, "{'error': true, 'message': 'failed to call taobao api'}"
       return;
-    db.getStores "im_ww = '#{good.nick}'", (err, stores) ->
+    query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick where s.im_ww = '#{good.nick}'", (err, stores) ->
       if err or not stores[0]?
         response res, jsonp_callback, "{'error': true, 'message': 'cannot find store which url is #{goodHttp}'}"
       else
@@ -101,7 +101,7 @@ submitNewItem = (req, res, itemUri, jsonp_callback) ->
           goodHttp: goodHttp
         ]
         db.saveItems storeId, storeName, items, goodHttp, '所有宝贝', 1, ->
-          crawlItemsInStore storeId, null, ->
+          crawlItemsInStore storeId, store['access_token'], ->
             response res, jsonp_callback, "{'status': 'ok'}"
 
 handleUpdateItem = (req, res, goodsId, jsonp_callback) ->
