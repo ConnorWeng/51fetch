@@ -16,6 +16,7 @@ parseStore = ($store) ->
   store_name: $store.find('.rebirth-describing-clothes').text().trim()
   see_price: $store.find('.rebirth-arch-infor-block-font:eq(3)').text()
   im_ww: parseImWW $store.find('.rebirth-arch-infor-block a:eq(1)').attr('href')
+  shop_http: $store.find('a.rebirth-product-picture').attr('href')
 
 parseImWW = (url) ->
   if !url then return ''
@@ -33,6 +34,12 @@ parseImQQ = (url) ->
       return part.substr 4
   ''
 
+generateSql = (stores) ->
+  sql = ''
+  for store in stores
+    sql += "call register_store('#{store['qq']}','#{store['mk_name']}','#{store['shop_mall']}','#{store['address']}','#{store['dangkou_address']}','#{store['store_name']}','#{store['see_price']}','#{store['im_ww']}','#{store['shop_http']}');\n"
+  sql
+
 fetch 'http://dg.17zwd.com/market.htm'
   .then (body) ->
     makeJsDom body
@@ -41,5 +48,5 @@ fetch 'http://dg.17zwd.com/market.htm'
     stores = []
     $('.rebirth-ks-waterfall').each () ->
       stores.push parseStore $ @
-    console.log stores
+    console.log generateSql stores
     window.close()
