@@ -37,7 +37,7 @@ parseImQQ = (url) ->
 generateSql = (stores) ->
   sql = ''
   for store in stores
-    sql += "call register_store('#{store['qq']}','#{store['mk_name']}','#{store['shop_mall']}','#{store['address']}','#{store['dangkou_address']}','#{store['store_name']}','#{store['see_price']}','#{store['im_ww']}','#{store['shop_http']}');\n"
+    sql += "call register_store('#{store['qq']}','#{store['mk_name']}','#{store['shop_mall']}','#{store['floor']}','#{store['address']}','#{store['dangkou_address']}','#{store['store_name']}','#{store['see_price']}','#{store['im_ww']}','#{store['shop_http']}');\n"
   sql
 
 fetch 'http://dg.17zwd.com/market.htm'
