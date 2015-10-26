@@ -582,9 +582,9 @@ crawlDesc = (url) ->
   defered.promise
 
 extractDescUrl = (html) ->
-  matches = /"https:" === location.protocol \? "(.+)" :"(.+)"/.exec html
+  matches = /location.protocol==='http:' \? '(.+)' : '(.+)'/.exec html
   if matches?
-    'https:' + matches[1]
+    'https:' + matches[2]
   else
     throw new Error 'item html does not contain desc url'
 
@@ -612,14 +612,14 @@ extractItemImgs = ($) ->
   itemImgs
 
 extractCid = (html) ->
-  matches = /[^r]cid:'(\d+)'/.exec html
+  matches = /[^r]cid\s*:\s*'(\d+)'/.exec html
   if matches?
     parseInt matches[1]
   else
     throw new Error 'item html does not contain cid'
 
 extractNick = (html) ->
-  matches = /sellerNick:'(.+)'/.exec html
+  matches = /sellerNick\s*:\s*'(.+)'/.exec html
   if matches?
     matches[1]
   else
