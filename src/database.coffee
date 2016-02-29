@@ -65,7 +65,7 @@ class db
     specPid1 = skus[0]?[0]?.pid || 0
     specPid2 = skus[0]?[1]?.pid || 0
     specQty = skus[0]?.length || 0
-    sql += "update ecm_goods set goods_name = '#{title}', price = #{price}, description = '#{desc}', spec_name_1 = '#{specName1}', spec_name_2 = '#{specName2}', spec_pid_1 = #{specPid1}, spec_pid_2 = #{specPid2}, spec_qty = #{specQty}, realpic = #{realPic}, default_image = '#{defaultImage}' where good_http = '#{goodHttp}'"
+    sql += "update ecm_goods set goods_name = #{@pool.escape(title)}, price = #{price}, description = '#{desc}', spec_name_1 = '#{specName1}', spec_name_2 = '#{specName2}', spec_pid_1 = #{specPid1}, spec_pid_2 = #{specPid2}, spec_qty = #{specQty}, realpic = #{realPic}, default_image = '#{defaultImage}' where good_http = '#{goodHttp}'"
     @query sql, (err, result) ->
       if err
         error "error in update goods: #{goodHttp}"
