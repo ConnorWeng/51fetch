@@ -39,6 +39,8 @@ begin
 
     replace into ecm_category_goods(cate_id, goods_id) values (i_cid, v_good_id);
 
+    update ecm_store set last_update = i_now_time where store_id = i_store_id;
+
     select i_store_name, i_goods_name, o_retcode;
 
 end$$
