@@ -109,12 +109,24 @@ execute = (method, apiParams, session, callback) ->
       'Content-Type': 'application/x-www-form-urlencoded'
       'Content-Length': querystring.stringify(apiParams).length
   req = http.request options, (res) ->
-    res.setEncoding 'utf8'
-    data = ''
+    chunks = []
+    size = 0;
     res.on 'data', (chunk) ->
-      data += chunk;
+      chunks.push chunk
+      size += chunk.length
     res.on 'end', ->
-      res = JSON.parse data
+      data = null
+      if size is 0
+        data = new Buffer(0)
+      else if size is 1
+        data = chunks[0]
+      else
+        data = new Buffer(size)
+        pos = 0
+        for chunk in chunks
+          chunk.copy data, pos
+          pos += chunk.length
+      res = JSON.parse data.toString()
       callback null, res
   req.on 'error', (err) ->
     callback err, null
