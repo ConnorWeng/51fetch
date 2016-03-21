@@ -26,7 +26,7 @@ begin
     set v_uid = last_insert_id();
     insert into ucenter51.uc_memberfields set uid = v_uid;
     insert into ecm_member set user_id=v_uid, user_name=v_username, password=md5(concat(md5(v_username), v_salt)), email=concat(i_qq, '@qq.com'), reg_time=1443279999;
-    insert into ecm_store set store_id=v_uid, owner_name=v_uid, owner_card='', region_id=2, region_name='中国', sgrade=1, domain='', state=1, add_time=1443279999, im_qq=i_qq, mk_name=i_mk_name, shop_mall=i_shop_mall, floor=i_floor, address=i_address, dangkou_address=i_dangkou_address, store_name=i_store_name, see_price=i_see_price, im_ww=i_im_ww, shop_http=i_shop_http, has_link=0, serv_refund=0, serv_exchgoods=0, serv_sendgoods=0, serv_probexch=0, serv_deltpic=0, serv_modpic=0, serv_golden=0, last_update=1443279999;
+    insert into ecm_store set store_id=v_uid, owner_name=v_uid, owner_card='', region_id=2, region_name='中国', sgrade=1, domain='', state=1, add_time=1443279999, im_qq=i_qq, mk_name=i_mk_name, shop_mall=i_shop_mall, floor=i_floor, address=i_address, dangkou_address=i_dangkou_address, store_name=i_store_name, see_price=i_see_price, im_ww=i_im_ww, shop_http=i_shop_http, has_link=0, serv_refund=0, serv_exchgoods=0, serv_sendgoods=0, serv_probexch=0, serv_deltpic=0, serv_modpic=0, serv_golden=0, last_update=1443279999, sort_order=65535;
     insert into ecm_shipping set store_id=v_uid, shipping_name='网站默认快递', shipping_desc='网站默认快递', first_price=10, step_price=0, enabled=1, sort_order=255;
   end if;
 
