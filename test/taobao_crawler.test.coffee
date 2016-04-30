@@ -6,14 +6,10 @@ env = require('jsdom').env
 jquery = require 'jquery'
 database = require '../src/database'
 taobao_crawler = require '../src/taobao_crawler'
-memwatch = require 'memwatch'
 
 newCrawler = null
 databaseStub = null
 originMakeUriWithStoreInfo = taobao_crawler.makeUriWithStoreInfo
-
-memwatch.on 'leak', (info) ->
-  console.log info
 
 http.createServer((req, res) ->
   res.end 'ok'
