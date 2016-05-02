@@ -420,7 +420,7 @@ describe 'taobao_crawler', () ->
 
   describe '#extractDescUrl', ->
     it 'should return desc url', ->
-      assert.equal taobao_crawler.extractDescUrl(DESC_URL_HTML), 'https://desc.alicdn.com/i6/440/690/44469144076/TB19Th7HFXXXXXHXXXX8qtpFXXX.desc%7Cvar%5Edesc%3Bsign%5E6228467ccd3990ad0fa0cee6a646bfe3%3Blang%5Egbk%3Bt%5E1432183676'
+      assert.equal taobao_crawler.extractDescUrl(DESC_URL_HTML), 'https://desc.alicdn.com/i2/521/440/528447815254/TB1JwITLVXXXXbjaXXX8qtpFXlX.desc%7Cvar%5Edesc%3Bsign%5Eab4bb99867ba9d2d3ed24ac06b9f8257%3Blang%5Egbk%3Bt%5E1461420667'
 
   describe '#extractSkus', ->
     it 'should return skus', (done) ->
@@ -969,8 +969,7 @@ var desc='<p><img align="absmiddle" style="width: 750.0px;float: none;margin: 0.
 '''
 
 DESC_URL_HTML = '''
- g_config.dynamicScript = function(f,c){var e=document,d=e.createElement("script");d.src=f;if(c){for(var b in c){d[b]=c[b];}};e.getElementsByTagName("head")[0].appendChild(d)};
-     g_config.dynamicScript("https:" === location.protocol ? "//desc.alicdn.com/i6/440/690/44469144076/TB19Th7HFXXXXXHXXXX8qtpFXXX.desc%7Cvar%5Edesc%3Bsign%5E6228467ccd3990ad0fa0cee6a646bfe3%3Blang%5Egbk%3Bt%5E1432183676" :"//dsc.taobaocdn.com/i6/440/690/44469144076/TB19Th7HFXXXXXHXXXX8qtpFXXX.desc%7Cvar%5Edesc%3Bsign%5E6228467ccd3990ad0fa0cee6a646bfe3%3Blang%5Egbk%3Bt%5E1432183676")
+descUrl          : location.protocol==='http:' ? '//dsc.taobaocdn.com/i2/521/440/528447815254/TB1JwITLVXXXXbjaXXX8qtpFXlX.desc%7Cvar%5Edesc%3Bsign%5Eab4bb99867ba9d2d3ed24ac06b9f8257%3Blang%5Egbk%3Bt%5E1461420667' : '//desc.alicdn.com/i2/521/440/528447815254/TB1JwITLVXXXXbjaXXX8qtpFXlX.desc%7Cvar%5Edesc%3Bsign%5Eab4bb99867ba9d2d3ed24ac06b9f8257%3Blang%5Egbk%3Bt%5E1461420667',
 '''
 
 SKUS_HTML = '''
