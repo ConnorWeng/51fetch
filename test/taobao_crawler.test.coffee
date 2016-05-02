@@ -422,6 +422,10 @@ describe 'taobao_crawler', () ->
     it 'should return desc url', ->
       assert.equal taobao_crawler.extractDescUrl(DESC_URL_HTML), 'https://desc.alicdn.com/i2/521/440/528447815254/TB1JwITLVXXXXbjaXXX8qtpFXlX.desc%7Cvar%5Edesc%3Bsign%5Eab4bb99867ba9d2d3ed24ac06b9f8257%3Blang%5Egbk%3Bt%5E1461420667'
 
+  describe '#extractSkuMap', ->
+    it 'should return sku map', ->
+      assert.deepEqual taobao_crawler.extractSkuMap(SKUS_HTML), {";20509:115781;1627207:4966037;":{"price":"65.00","skuId":"84333713484","stock":"2"},";20509:28314;1627207:4966037;":{"price":"64.00","skuId":"84333713479","stock":"2"},";20509:28315;1627207:4966037;":{"price":"64.00","skuId":"84333713480","stock":"2"},";20509:28316;1627207:4966037;":{"price":"64.00","skuId":"84333713481","stock":"2"},";20509:28317;1627207:4966037;":{"price":"64.00","skuId":"84333713482","stock":"2"},";20509:6145171;1627207:4966037;":{"price":"64.00","skuId":"84333713483","stock":"2"}}
+
   describe '#extractSkus', ->
     it 'should return skus', (done) ->
       env SKUS_HTML,(error, window) ->
@@ -453,7 +457,7 @@ describe 'taobao_crawler', () ->
             properties_name: '1627207:4966037:颜色分类:牛仔蓝;20509:6145171:尺码:2XL'
             quantity: 999
           ,
-            price: '64.00'
+            price: '65.00'
             properties: '1627207:4966037;20509:115781'
             properties_name: '1627207:4966037:颜色分类:牛仔蓝;20509:115781:尺码:3XL'
             quantity: 999
@@ -1086,7 +1090,7 @@ Hub.config.set('sku', {
 valItemInfo      : {
 
             defSelected: -1,
-            skuMap     : {";20509:115781;1627207:4966037;":{"price":"64.00","skuId":"84333713484","stock":"2"},";20509:28314;1627207:4966037;":{"price":"64.00","skuId":"84333713479","stock":"2"},";20509:28315;1627207:4966037;":{"price":"64.00","skuId":"84333713480","stock":"2"},";20509:28316;1627207:4966037;":{"price":"64.00","skuId":"84333713481","stock":"2"},";20509:28317;1627207:4966037;":{"price":"64.00","skuId":"84333713482","stock":"2"},";20509:6145171;1627207:4966037;":{"price":"64.00","skuId":"84333713483","stock":"2"}}
+            skuMap     : {";20509:115781;1627207:4966037;":{"price":"65.00","skuId":"84333713484","stock":"2"},";20509:28314;1627207:4966037;":{"price":"64.00","skuId":"84333713479","stock":"2"},";20509:28315;1627207:4966037;":{"price":"64.00","skuId":"84333713480","stock":"2"},";20509:28316;1627207:4966037;":{"price":"64.00","skuId":"84333713481","stock":"2"},";20509:28317;1627207:4966037;":{"price":"64.00","skuId":"84333713482","stock":"2"},";20509:6145171;1627207:4966037;":{"price":"64.00","skuId":"84333713483","stock":"2"}}
             ,propertyMemoMap: {}
         }
 });

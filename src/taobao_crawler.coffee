@@ -588,20 +588,39 @@ extractDescUrl = (html) ->
   else
     throw new Error 'item html does not contain desc url'
 
-extractSkus = ($, price) ->
+extractSkus = ($, defaultPrice) ->
   skus = sku: []
+  skuMap = extractSkuMap $('html').html()
   $sizeLis = $('.J_Prop_measurement li')
   $colorLis = $('.J_Prop_Color li')
   for colorLi in $colorLis
     for sizeLi in $sizeLis
       $colorLi = $ colorLi
       $sizeLi = $ sizeLi
+      colorProp = $colorLi.attr('data-value')
+      sizeProp = $sizeLi.attr('data-value')
+      price = skuPrice colorProp, sizeProp, skuMap, defaultPrice
       skus.sku.push
         price: price
-        properties: "#{$colorLi.attr('data-value')};#{$sizeLi.attr('data-value')}"
-        properties_name: "#{$colorLi.attr('data-value')}:#{$('.J_Prop_Color .tb-property-type').text()}:#{$colorLi.find('span').text()};#{$sizeLi.attr('data-value')}:#{$('.J_Prop_measurement .tb-property-type').text()}:#{$sizeLi.find('span').text()}"
+        properties: "#{colorProp};#{sizeProp}"
+        properties_name: "#{colorProp}:#{$('.J_Prop_Color .tb-property-type').text()}:#{$colorLi.find('span').text()};#{sizeProp}:#{$('.J_Prop_measurement .tb-property-type').text()}:#{$sizeLi.find('span').text()}"
         quantity: 999
   skus
+
+skuPrice = (p1, p2, skuMap, defaultPrice) ->
+  if skuMap[";#{p1};#{p2};"]
+    skuMap[";#{p1};#{p2};"].price
+  else if skuMap[";#{p2};#{p1};"]
+    skuMap[";#{p2};#{p1};"].price
+  else
+    defaultPrice
+
+extractSkuMap = (html) ->
+  matches = /skuMap +: +(.+)/.exec html
+  if matches?
+    JSON.parse matches[1]
+  else
+    {}
 
 extractItemImgs = ($) ->
   itemImgs = item_img: []
@@ -723,6 +742,7 @@ if process.env.NODE_ENV is 'test'
   exports.crawlDesc = crawlDesc
   exports.extractDescUrl = extractDescUrl
   exports.extractSkus = extractSkus
+  exports.extractSkuMap = extractSkuMap
   exports.extractItemImgs = extractItemImgs
   exports.extractCid = extractCid
   exports.extractNick = extractNick
