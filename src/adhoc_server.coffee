@@ -156,7 +156,7 @@ http.createServer((req, res) ->
   else if matchUrlPattern urlParts, '/delete'
     handleDeleteItem req, res, urlObj.query.numIid, null
   else if matchUrlPattern urlParts, '/add'
-    handleNewItem req, res, urlObj.query.numIid, decodeURI(urlObj.query.nick), decodeURI(urlObj.query.title), urlObj.query.price, null
+    handleNewItem req, res, urlObj.query.numIid, decodeURI(urlObj.query.nick), decodeURI(urlObj.query.title.replace(/%/g, '')), urlObj.query.price, null
   else if matchUrlPattern urlParts, '/change'
     handleChangeItem req, res, urlObj.query.numIid, null
 ).listen port
