@@ -662,7 +662,7 @@ extractPropsName = ($, cid) ->
   attrs = []
   $('.attributes-list li').each ->
     $li = $ @
-    [pname, vname] = $li.text().split ': '
+    [pname, vname] = $li.text().split ': '
     attrs.push "#{pname}:#{vname}"
   getItemProps cid, 'pid,name,must,multi,prop_values,is_key_prop,is_sale_prop,parent_vid,is_enum_prop', null, (err, props) ->
     if err
