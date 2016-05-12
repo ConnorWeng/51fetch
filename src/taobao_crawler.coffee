@@ -454,7 +454,7 @@ exports.getNumIidFromUri = getNumIidFromUri = (uri) ->
   else
     throw new Error('there is no numIid in uri')
 
-parseSkus = (itemSkus, propertyAlias = null, seePrice, title) ->
+exports.parseSkus = parseSkus = (itemSkus, propertyAlias = null, seePrice, title) ->
   skuArray = itemSkus?.sku || []
   skus = []
   for sku in skuArray
