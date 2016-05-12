@@ -469,6 +469,7 @@ parseSkus = (itemSkus, propertyAlias = null, seePrice, title) ->
         name: name
         value: value
         price: parsePrice sku.price, seePrice, title
+        quantity: sku.quantity
     skus.push properties
   skus
 
