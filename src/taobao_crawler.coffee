@@ -5,6 +5,14 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 crawler = require('crawler').Crawler
+
+exports.getHuoHao = getHuoHao = (title) ->
+  regex = /[A-Z]?\d+/g
+  matches = regex.exec title
+  while matches? and ((matches[0].length is 4 and matches[0].substr(0, 3) is '201') or matches[0].length is 1)
+    matches = regex.exec title
+  matches?[0] || ''
+
 database = require './database'
 config = require './config'
 {getTaobaoItemSeller, getItemCats, getSellercatsList, getItemProps} = require './taobao_api'
@@ -524,13 +532,6 @@ makeOuterId = (store, huohao, price) ->
   seller = store.shop_mall + store.address
   "#{seller}_P#{price}_#{huohao}#"
 
-getHuoHao = (title) ->
-  regex = /[A-Z]?\d+/g
-  matches = regex.exec title
-  while matches? and ((matches[0].length is 4 and matches[0].substr(0, 3) is '201') or matches[0].length is 1)
-    matches = regex.exec title
-  matches?[0] || ''
-
 getHuoHaoFromAttrs = (attrs) ->
   for attr in attrs
     if attr.attrName is '货号'
@@ -730,7 +731,6 @@ if process.env.NODE_ENV is 'test'
   exports.parseSkus = parseSkus
   exports.parseAttrs = parseAttrs
   exports.removeSingleQuotes = removeSingleQuotes
-  exports.getHuoHao = getHuoHao
   exports.makeOuterId = makeOuterId
   exports.extractCatsTreeHtml = extractCatsTreeHtml
   exports.extractUris = extractUris
