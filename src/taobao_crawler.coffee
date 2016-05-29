@@ -7,11 +7,14 @@ jquery = require('jquery')
 crawler = require('crawler').Crawler
 
 exports.getHuoHao = getHuoHao = (title) ->
-  regex = /[A-Z]?\d+/g
+  regex = /[A-Z]?#?(\d+)#?/g
   matches = regex.exec title
-  while matches? and ((matches[0].length is 4 and matches[0].substr(0, 3) is '201') or matches[0].length is 1)
-    matches = regex.exec title
-  matches?[0] || ''
+  if matches? and ~matches[0].indexOf('#')
+    matches[1]
+  else
+    while matches? and ((matches[1].length is 4 and matches[1].substr(0, 3) is '201') or matches[1].length is 1 or matches[1] is '16')
+      matches = regex.exec title
+    matches?[1] || ''
 
 database = require './database'
 config = require './config'
