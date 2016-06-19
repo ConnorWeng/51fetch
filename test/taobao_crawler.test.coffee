@@ -475,6 +475,23 @@ describe 'taobao_crawler', () ->
           ]
         window.close()
         done()
+    it 'should return skus with one prop', (done) ->
+      env SKUS_HTML_WITH_ONE_PROP, (error, window) ->
+        $ = jquery window
+        assert.deepEqual taobao_crawler.extractSkus($, '24.00'),
+          sku: [
+            price: '42.00'
+            properties: '1627207:132069'
+            properties_name: '1627207:132069:颜色分类:银色'
+            quantity: 999
+          ,
+            price: '42.00'
+            properties: '1627207:28341'
+            properties_name: '1627207:28341:颜色分类:黑色'
+            quantity: 999
+          ]
+        window.close()
+        done()
 
   describe '#extractItemImgs', ->
     it 'should return item imgs', (done) ->
@@ -1106,6 +1123,36 @@ valItemInfo      : {
             ,propertyMemoMap: {}
         }
 });
+</script>
+'''
+
+SKUS_HTML_WITH_ONE_PROP = '''
+<dl class="J_Prop tb-prop tb-clear  J_Prop_Color ">
+  <dt class="tb-property-type">颜色分类</dt>
+  <dd>
+    <ul data-property="颜色分类" class="J_TSaleProp tb-img tb-clearfix">
+      <li data-value="1627207:132069" class="tb-txt">
+        <a href="javascript:void(0);">
+          <span>银色</span>
+        </a>
+        <i>已选中</i>
+      </li>
+
+      <li data-value="1627207:28341" class="tb-txt">
+        <a href="javascript:void(0);">
+          <span>黑色</span>
+        </a>
+        <i>已选中</i>
+      </li>
+    </ul>
+  </dd>
+</dl>
+<script>
+Hub.config.set('sku', {
+  valItemInfo      : {
+    skuMap     : {";1627207:132069;":{"price":"42.00","skuId":"3138277425760","stock":"2"},";1627207:28341;":{"price":"42.00","skuId":"3138277425761","stock":"2"}}
+  }
+}
 </script>
 '''
 

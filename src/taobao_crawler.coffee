@@ -598,17 +598,30 @@ extractSkus = ($, defaultPrice) ->
   skuMap = extractSkuMap $('html').html()
   $sizeLis = $('.J_Prop_measurement li')
   $colorLis = $('.J_Prop_Color li')
-  for colorLi in $colorLis
-    for sizeLi in $sizeLis
-      $colorLi = $ colorLi
-      $sizeLi = $ sizeLi
-      colorProp = $colorLi.attr('data-value')
-      sizeProp = $sizeLi.attr('data-value')
-      price = skuPrice colorProp, sizeProp, skuMap, defaultPrice
+  if $sizeLis.length > 0 and $colorLis.length > 0
+    for colorLi in $colorLis
+      for sizeLi in $sizeLis
+        $colorLi = $ colorLi
+        $sizeLi = $ sizeLi
+        colorProp = $colorLi.attr('data-value')
+        sizeProp = $sizeLi.attr('data-value')
+        price = skuPrice colorProp, sizeProp, skuMap, defaultPrice
+        skus.sku.push
+          price: price
+          properties: "#{colorProp};#{sizeProp}"
+          properties_name: "#{colorProp}:#{$('.J_Prop_Color .tb-property-type').text()}:#{$colorLi.find('span').text()};#{sizeProp}:#{$('.J_Prop_measurement .tb-property-type').text()}:#{$sizeLi.find('span').text()}"
+          quantity: 999
+  else
+    $oneLis = if $sizeLis.length > 0 then $sizeLis else $colorLis
+    oneSelector = if $sizeLis.length > 0 then '.J_Prop_measurement' else '.J_Prop_Color'
+    for oneLi in $oneLis
+      $oneLi = $ oneLi
+      oneProp = $oneLi.attr('data-value')
+      price = skuPrice oneProp, '', skuMap, defaultPrice
       skus.sku.push
         price: price
-        properties: "#{colorProp};#{sizeProp}"
-        properties_name: "#{colorProp}:#{$('.J_Prop_Color .tb-property-type').text()}:#{$colorLi.find('span').text()};#{sizeProp}:#{$('.J_Prop_measurement .tb-property-type').text()}:#{$sizeLi.find('span').text()}"
+        properties: "#{oneProp}"
+        properties_name: "#{oneProp}:#{$(oneSelector + ' .tb-property-type').text()}:#{$oneLi.find('span').text()}"
         quantity: 999
   skus
 
@@ -617,6 +630,8 @@ skuPrice = (p1, p2, skuMap, defaultPrice) ->
     skuMap[";#{p1};#{p2};"].price
   else if skuMap[";#{p2};#{p1};"]
     skuMap[";#{p2};#{p1};"].price
+  else if skuMap[";#{p1};"]
+    skuMap[";#{p1};"].price
   else
     defaultPrice
 
