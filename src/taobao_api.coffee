@@ -4,14 +4,24 @@ http = require 'http'
 querystring = require 'querystring'
 config = require './config'
 
-exports.getTaobaoItemsOnsale = (fields, session, callback) ->
+exports.getTaobaoItemsOnsaleBatch = (fields, pageNo, session, items, callback) ->
+  exports.getTaobaoItemsOnsale fields, pageNo, session, (err, res) ->
+    if err then throw err
+    items.push res.items.item...
+    if items.length < res.total_results
+      exports.getTaobaoItemsOnsaleBatch fields, (parseInt(pageNo) + 1) + '', session, items, callback
+    else
+      callback null, items
+
+exports.getTaobaoItemsOnsale = (fields, pageNo, session, callback) ->
   apiParams =
     'fields': fields
     'order_by': 'modified:desc'
     'page_size': '200'
+    'page_no': pageNo
   execute 'taobao.items.onsale.get', apiParams, session, (err, result) ->
-    if result.items_onsale_get_response?.items?.item?
-      callback null, result.items_onsale_get_response.items.item
+    if result.items_onsale_get_response?
+      callback null, result.items_onsale_get_response
     else
       handleError err, result, callback
 

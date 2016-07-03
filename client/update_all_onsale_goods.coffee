@@ -1,7 +1,7 @@
 Q = require 'q'
 phpjs = require 'phpjs'
 {log} = require 'util'
-{getTaobaoItemsOnsale, getTaobaoItemsSellerListBatch} = require '../src/taobao_api'
+{getTaobaoItemsOnsaleBatch, getTaobaoItemsSellerListBatch} = require '../src/taobao_api'
 {setDatabase, crawlItemsInStore, parsePrice, parseSkus} = require '../src/taobao_crawler'
 database = require '../src/database'
 config = require '../src/config'
@@ -16,7 +16,7 @@ storesNeedUpdate = []
 update = () ->
   if storesNeedUpdate.length > 0
     store = storesNeedUpdate.shift()
-    getTaobaoItemsOnsale 'title,pic_url,price,num_iid,modified', store['access_token'], (err, itemsOnsale) ->
+    getTaobaoItemsOnsaleBatch 'title,pic_url,price,num_iid,modified', '1', store['access_token'], [], (err, itemsOnsale) ->
       if itemsOnsale and itemsOnsale[0]?.title?
         sql = ''
         items = []
