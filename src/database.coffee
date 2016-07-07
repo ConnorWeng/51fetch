@@ -103,6 +103,8 @@ class db
 
   updateSpecs: (skus, goodsId, price, huohao, callback) ->
     insertSql = ''
+    # FIXME: if skus is undefined then quantity should get value from item instead
+    quantity = 1000
     for sku in skus
       spec1 = sku[0]?.value
       spec2 = sku[1]?.value || ''
