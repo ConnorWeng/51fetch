@@ -6,7 +6,9 @@ config = require './config'
 
 exports.getTaobaoItemsOnsaleBatch = (fields, pageNo, session, items, callback) ->
   exports.getTaobaoItemsOnsale fields, pageNo, session, (err, res) ->
-    if err then throw err
+    if err
+      callback err, null
+      return
     items.push res.items.item...
     if items.length < res.total_results
       exports.getTaobaoItemsOnsaleBatch fields, (parseInt(pageNo) + 1) + '', session, items, callback
@@ -30,7 +32,9 @@ exports.getTaobaoItemsSellerListBatch = (numIids, fields, session, items, callba
   if numIidsList.length > 0 and numIidsList[0]
     iids = numIidsList.splice 0, 20
     exports.getTaobaoItemsSellerList iids.join(','), fields, session, (err, itemsList) ->
-      if err then throw err
+      if err
+        callback err, null
+        return
       items.push itemsList...
       exports.getTaobaoItemsSellerListBatch numIidsList.join(','), fields, session, items, callback
   else
