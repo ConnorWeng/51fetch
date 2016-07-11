@@ -9,7 +9,7 @@ exports.getTaobaoItemsOnsaleBatch = (fields, pageNo, session, items, callback) -
     if err
       callback err, null
       return
-    items.push res.items.item...
+    if res.items?.item? then items.push res.items.item...
     if items.length < res.total_results
       exports.getTaobaoItemsOnsaleBatch fields, (parseInt(pageNo) + 1) + '', session, items, callback
     else
