@@ -35,9 +35,14 @@ update = () ->
           log "store #{store['store_id']} taobao goods length: #{numIids.split(',').length}"
           numIids = filterItems numIids, goodHttps
           log "store #{store['store_id']} after filtered length: #{numIids.split(',').length}"
-          getTaobaoItemsSellerListBatch numIids, 'num_iid,created,sku,props_name,property_alias,title', store['access_token'], [], (err, itemsInBatch) ->
+          getTaobaoItemsSellerListBatch numIids, 'num_iid,created,sku,props_name,property_alias,title,cid,seller_cids', store['access_token'], [], (err, itemsInBatch) ->
             sql += "update ecm_goods set add_time = #{phpjs.strtotime(oneItem.created)} where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{oneItem.num_iid}';" for oneItem in itemsInBatch
             for oneItem in itemsInBatch
+              if oneItem.seller_cids
+                cids = oneItem.seller_cids.split ','
+                for cid in cids
+                  if cid and ~goodHttps.indexOf("http://item.taobao.com/item.htm?id=#{oneItem.num_iid}")
+                    sql += "replace into ecm_category_goods(cate_id, goods_id) values (#{cid}, (select goods_id from ecm_goods where good_http='http://item.taobao.com/item.htm?id=#{oneItem.num_iid}' limit 1));"
               skus = parseSkus oneItem.skus, oneItem.propertyAlias, store['see_price'], oneItem.title
               for sku in skus
                 specVid1 = sku[0]?.vid || 0
@@ -45,7 +50,8 @@ update = () ->
                 quantity = sku[0]?.quantity || 1000
                 sql += "update ecm_goods_spec set stock = #{quantity} where goods_id = (select goods_id from ecm_goods where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{oneItem.num_iid}') and spec_vid_1 = '#{specVid1}' and spec_vid_2 = '#{specVid2}';"
             db.saveItems store['store_id'], store['store_name'], items, '', '所有宝贝', 1, ->
-              db.query sql, ->
+              db.query sql, (err, res) ->
+                if err then console.error err
                 crawlItemsInStore store['store_id'], store['access_token'], ->
                   log "store #{store['store_id']} updated #{items.length} items"
                   update()
