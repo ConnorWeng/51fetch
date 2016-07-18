@@ -48,7 +48,8 @@ update = () ->
                 specVid1 = sku[0]?.vid || 0
                 specVid2 = sku[1]?.vid || 0
                 quantity = sku[0]?.quantity || 1000
-                sql += "update ecm_goods_spec set stock = #{quantity} where goods_id = (select goods_id from ecm_goods where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{oneItem.num_iid}') and spec_vid_1 = '#{specVid1}' and spec_vid_2 = '#{specVid2}';"
+                price = sku[0]?.price || parsePrice(oneItem.price, store['see_price'], oneItem.title)
+                sql += "update ecm_goods_spec set stock = #{quantity}, price = #{price} where goods_id = (select goods_id from ecm_goods where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{oneItem.num_iid}') and spec_vid_1 = '#{specVid1}' and spec_vid_2 = '#{specVid2}';"
             db.saveItems store['store_id'], store['store_name'], items, '', '所有宝贝', 1, ->
               db.query sql, (err, res) ->
                 if err then console.error err
@@ -76,7 +77,7 @@ filterItems = (numIids, existedGoods) ->
       notExistedNumIids.push numIid
   notExistedNumIids.join ','
 
-query 'select * from ecm_store s inner join ecm_member_auth a on s.im_ww = a.vendor_user_nick and s.store_id > 0 and s.state = 1 order by s.store_id'
+query 'select * from ecm_store s inner join ecm_member_auth a on s.im_ww = a.vendor_user_nick and s.store_id > 0 and s.state = 1 order by s.store_id DESC'
   .then (stores) ->
     storesNeedUpdate = stores
     log "There are total #{stores.length} stores need to be updated."
