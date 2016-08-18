@@ -18,6 +18,7 @@ begin
     declare v_good_id int(10) unsigned;
     declare v_cids, v_shop_mall, v_address varchar(500);
     declare pos int(10);
+    declare v_price decimal(10,2);
 
     select goods_id,cids into v_good_id, v_cids from ecm_goods where good_http=i_good_http and store_id=i_store_id limit 1;
 
@@ -34,6 +35,11 @@ begin
        if i_huohao != '' then
           select shop_mall, address into v_shop_mall, v_address from ecm_store where store_id = i_store_id;
           update ecm_goods_attr set attr_value = concat(v_shop_mall, v_address, '_P', cast(i_price as unsigned), '_', i_huohao, '#') where goods_id = v_good_id and attr_id = 1;
+       end if;
+
+       select price into v_price from ecm_goods_spec where goods_id = v_good_id order by price limit 1;
+       if v_price != i_price then
+          update ecm_goods_spec set price = i_price where goods_id = v_good_id;
        end if;
 
        set o_retcode = 1;
