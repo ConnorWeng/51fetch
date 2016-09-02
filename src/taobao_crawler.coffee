@@ -317,8 +317,9 @@ saveItemsFromPageAndQueueNext = (callback) ->
         $ = jquery window
         store = parseStoreFromUri result.uri
         if $('.item-not-found').length > 0
-          changeRemains '-', callback
           log "id:#{store['store_id']} #{store['store_name']} has one empty page: #{result.uri}"
+          bannedError = new Error('been banned by taobao')
+          changeRemains '-', callback, bannedError
         else
           nextUri = nextPageUri $
           if nextUri?
