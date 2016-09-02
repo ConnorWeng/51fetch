@@ -36,7 +36,7 @@ update = () ->
           numIids = filterItems numIids, goodHttps
           log "store #{store['store_id']} after filtered length: #{numIids.split(',').length}"
           getTaobaoItemsSellerListBatch numIids, 'num_iid,created,sku,props_name,property_alias,title,cid,seller_cids', store['access_token'], [], (err, itemsInBatch) ->
-            sql += "update ecm_goods set add_time = #{phpjs.strtotime(oneItem.created)} where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{oneItem.num_iid}';" for oneItem in itemsInBatch
+            sql += "update ecm_goods set add_time = #{phpjs.strtotime(oneItem.created)}, last_update = #{db.getDateTime()} where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{oneItem.num_iid}';" for oneItem in itemsInBatch
             for oneItem in itemsInBatch
               if oneItem.seller_cids
                 cids = oneItem.seller_cids.split ','
