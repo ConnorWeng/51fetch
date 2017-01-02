@@ -42,7 +42,7 @@ crawl = ->
   else
     console.log 'completed.'
 
-db.query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick where s.state = 1 and s.store_id > (select now_id from ecm_crawl_config where ip = '#{ip}') and s.store_id <= (select end_id from ecm_crawl_config where ip = '#{ip}') order by s.store_id", (err, unfetchedStores) ->
+db.query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 where s.state = 1 and s.store_id > (select now_id from ecm_crawl_config where ip = '#{ip}') and s.store_id <= (select end_id from ecm_crawl_config where ip = '#{ip}') order by s.store_id", (err, unfetchedStores) ->
   if err then throw err
   stores = unfetchedStores
   console.log "There are total #{stores.length} stores need to be fetched."

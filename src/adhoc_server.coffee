@@ -57,7 +57,7 @@ handleStore = (req, res, storeId, jsonp_callback) ->
         response res, jsonp_callback, "{'error': true, 'message': 'id:#{storeId} query returns err: #{err}'}"
 
 handleNewItem = (req, res, numIid, nick, title, price, jsonp_callback) ->
-  query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick where s.im_ww = '#{nick}'", (err, stores) ->
+  query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 where s.im_ww = '#{nick}'", (err, stores) ->
     if err or not stores[0]?
       response res, jsonp_callback, "{'error': true, 'message': 'cannot find store which im_ww is #{nick}'}"
     else
@@ -86,7 +86,7 @@ submitNewItem = (req, res, itemUri, jsonp_callback) ->
     if err
       response res, jsonp_callback, "{'error': true, 'message': 'failed to call taobao api'}"
       return;
-    query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick where s.im_ww = '#{good.nick}'", (err, stores) ->
+    query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 where s.im_ww = '#{good.nick}'", (err, stores) ->
       if err or not stores[0]?
         response res, jsonp_callback, "{'error': true, 'message': 'cannot find store which url is #{goodHttp}'}"
       else
@@ -105,7 +105,7 @@ submitNewItem = (req, res, itemUri, jsonp_callback) ->
             response res, jsonp_callback, "{'status': 'ok'}"
 
 handleUpdateItem = (req, res, goodsId, jsonp_callback) ->
-  db.query "select * from ecm_goods g left join ecm_store s on g.store_id = s.store_id left join ecm_member_auth a on s.im_ww = a.vendor_user_nick where g.goods_id = #{goodsId}", (err, goods) ->
+  db.query "select * from ecm_goods g left join ecm_store s on g.store_id = s.store_id left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 where g.goods_id = #{goodsId}", (err, goods) ->
     good = goods[0]
     crawlItemViaApi good, good['access_token'], () ->
       log "#{good['goods_id']}:#{good['goods_name']} updated manually"
@@ -121,7 +121,7 @@ handleDeleteItem = (req, res, numIid, jsonp_callback) ->
 
 handleChangeItem  = (req, res, numIid, jsonp_callback) ->
   likeGoodHttp = "http://item.taobao.com/item.htm?id=#{numIid}%"
-  query "select * from ecm_goods g left join ecm_store s on g.store_id = s.store_id left join ecm_member_auth a on s.im_ww = a.vendor_user_nick where g.good_http like '#{likeGoodHttp}'"
+  query "select * from ecm_goods g left join ecm_store s on g.store_id = s.store_id left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 where g.good_http like '#{likeGoodHttp}'"
     .then (result) ->
       if result?[0]?
         good = result[0]
