@@ -21,7 +21,7 @@ config = require './config'
 {getTaobaoItemSeller, getItemCats, getSellercatsList, getItemProps} = require './taobao_api'
 
 TEMPLATES = [
-  BY_NEW: 'a.by-new'
+  BY_NEW: ['a.by-new', 'a.cat-name[title="按新品"]']
   CAT_NAME: 'a.cat-name'
   CATS_TREE: 'ul.cats-tree'
   REPLACE: (html, store) ->
@@ -230,13 +230,14 @@ extractUris = ($, store) ->
     byNewUris: []
     catesUris: []
   for template in TEMPLATES
-    if $(template.BY_NEW).length > 0
-      uris.byNewUris.push makeUriWithStoreInfo($(template.BY_NEW).attr('href') + '&viewType=grid', store)
+    BY_NEW = selectRightTemplate $('body'), template.BY_NEW
+    if $(BY_NEW).length > 0
+      uris.byNewUris.push makeUriWithStoreInfo($(BY_NEW).attr('href') + '&viewType=grid', store)
     $(template.CAT_NAME).each (index, element) ->
       uri = $(element).attr('href')
       if uris.catesUris.indexOf(uri) is -1 and ~uri.indexOf('category-') and (~uri.indexOf('#bd') or ~uri.indexOf('categoryp'))
         uris.catesUris.push makeUriWithStoreInfo(uri.replace('#bd', '') + '&viewType=grid', store)
-    if $(template.BY_NEW).length > 0 then break
+    if $(BY_NEW).length > 0 then break
   uris
 
 exports.extractImWw = extractImWw = ($, storeId, storeName) ->
