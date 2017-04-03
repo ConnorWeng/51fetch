@@ -51,7 +51,7 @@ handleStore = (req, res, storeId, jsonp_callback) ->
             response res, jsonp_callback, "{'status': 'ok'}"
       else
         log "store #{storeId}: has updated in half hour, so no need crawl for now"
-        response res, jsonp_callback, "{'status': 'ok'}"
+        response res, jsonp_callback, "{'status': 'wait'}"
     , (err) ->
         error "id:#{storeId} query returns err: #{err}"
         response res, jsonp_callback, "{'error': true, 'message': 'id:#{storeId} query returns err: #{err}'}"
