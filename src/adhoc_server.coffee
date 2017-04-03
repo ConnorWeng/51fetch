@@ -71,6 +71,7 @@ handleNewItem = (req, res, numIid, nick, title, price, jsonp_callback) ->
           goodsName: title
           defaultImage: ''
           price: parsePrice price, store['see_price'], title
+          taobaoPrice: parsePrice price
           goodHttp: goodHttp
         ]
         db.saveItems storeId, storeName, items, goodHttp, '所有宝贝', 1, ->
@@ -98,6 +99,7 @@ submitNewItem = (req, res, itemUri, jsonp_callback) ->
           goodsName: good.title
           defaultImage: good.pic_url
           price: parsePrice good.price, store['see_price'], good.title
+          taobaoPrice: parsePrice good.price
           goodHttp: goodHttp
         ]
         db.saveItems storeId, storeName, items, goodHttp, '所有宝贝', 1, ->

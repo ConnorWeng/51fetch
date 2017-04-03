@@ -15,14 +15,16 @@ describe 'database', () ->
             goodsName: 'apple 最新OS系统 U盘安装'
             defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg'
             price: '65.00'
+            taobaoPrice: '85.00'
             goodHttp: 'http://item.taobao.com/item.htm?id=37498952035'
           }, {
             goodsName: 'zara 男士休闲皮衣 专柜正品'
             defaultImage: 'http://img01.taobaocdn.com/bao/uploaded/i1/T1.cFWFuRaXXb0JV6a_240x240.jpg'
             price: '299.00'
+            taobaoPrice: '319.00'
             goodHttp: 'http://item.taobao.com/item.htm?id=37178066336'
           }], 1234567, '服装', 1
-      assert.equal sql, "insert into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('1234567', 'anyStoreId', '服装', 1) on duplicate key update store_id = 'anyStoreId', cate_name = '服装', if_show = 1;call proc_merge_good('anyStoreId','http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg','65.00','http://item.taobao.com/item.htm?id=37498952035','1234567','anyStoreName','apple 最新OS系统 U盘安装','9939','服装','',@o_retcode);call proc_merge_good('anyStoreId','http://img01.taobaocdn.com/bao/uploaded/i1/T1.cFWFuRaXXb0JV6a_240x240.jpg','299.00','http://item.taobao.com/item.htm?id=37178066336','1234567','anyStoreName','zara 男士休闲皮衣 专柜正品','9938','服装','',@o_retcode);"
+      assert.equal sql, "insert into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('1234567', 'anyStoreId', '服装', 1) on duplicate key update store_id = 'anyStoreId', cate_name = '服装', if_show = 1;call proc_merge_good('anyStoreId','http://img01.taobaocdn.com/bao/uploaded/i4/T1q3ONFuJdXXXXXXXX_!!0-item_pic.jpg_240x240.jpg','65.00','85.00','http://item.taobao.com/item.htm?id=37498952035','1234567','anyStoreName','apple 最新OS系统 U盘安装','9939','服装','',@o_retcode);call proc_merge_good('anyStoreId','http://img01.taobaocdn.com/bao/uploaded/i1/T1.cFWFuRaXXb0JV6a_240x240.jpg','299.00','319.00','http://item.taobao.com/item.htm?id=37178066336','1234567','anyStoreName','zara 男士休闲皮衣 专柜正品','9938','服装','',@o_retcode);"
 
   describe '#getCidFromUrl()', () ->
     it 'should return cid', () ->
@@ -107,14 +109,14 @@ describe 'database', () ->
           value: 'XL'
           price: '11'
         ]
-      ], 1, 12, 999, ->
-      assert.isTrue db.pool.query.calledWith "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku) values ('1', '天蓝色', 'S', 3232484, 28314, 11, 100, '999');insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku) values ('1', '天蓝色', 'XL', 3232484, 28317, 11, 1000, '999');"
+      ], 1, 12, 13, 999, ->
+      assert.isTrue db.pool.query.calledWith "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('1', '天蓝色', 'S', 3232484, 28314, 11, 100, '999', 13);insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('1', '天蓝色', 'XL', 3232484, 28317, 11, 1000, '999', 13);"
 
   describe '#updateGoods', ->
     beforeEach ->
       sinon.stub db.pool, 'query', ->
     it 'should be 1 spec', ->
-      db.updateGoods 1, 'title', 15, 'desc', 'good http', 1, [
+      db.updateGoods 1, 'title', 15, 30, 'desc', 'good http', 1, [
         [
           pid: '1627207'
           vid: '3232484'
@@ -122,9 +124,9 @@ describe 'database', () ->
           value: '天蓝色'
         ]
       ], 'default image', null, ->
-      assert.isTrue db.pool.query.calledWith "update ecm_goods set goods_name = 'title', price = 15, description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '', spec_pid_1 = 1627207, spec_pid_2 = 0, spec_qty = 1, realpic = 1, default_image = 'default image' where good_http = 'good http'"
+      assert.isTrue db.pool.query.calledWith "update ecm_goods set goods_name = 'title', price = 15, taobao_price = 30, description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '', spec_pid_1 = 1627207, spec_pid_2 = 0, spec_qty = 1, realpic = 1, default_image = 'default image' where good_http = 'good http'"
     it 'should be 2 specs', ->
-      db.updateGoods 2, 'title', 15.2, 'desc', 'good http', 1, [
+      db.updateGoods 2, 'title', 15.2, 30.4, 'desc', 'good http', 1, [
         [
           pid: '1627207'
           vid: '3232484'
@@ -137,7 +139,7 @@ describe 'database', () ->
           value: 'S'
         ]
       ], 'default image', null, ->
-      assert.isTrue db.pool.query.calledWith "update ecm_goods set goods_name = 'title', price = 15.2, description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '尺码', spec_pid_1 = 1627207, spec_pid_2 = 20509, spec_qty = 2, realpic = 1, default_image = 'default image' where good_http = 'good http'"
+      assert.isTrue db.pool.query.calledWith "update ecm_goods set goods_name = 'title', price = 15.2, taobao_price = 30.4, description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '尺码', spec_pid_1 = 1627207, spec_pid_2 = 20509, spec_qty = 2, realpic = 1, default_image = 'default image' where good_http = 'good http'"
 
   describe '#updateImWw', ->
     it 'should run the correct update sql', ->

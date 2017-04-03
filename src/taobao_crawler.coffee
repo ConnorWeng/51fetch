@@ -160,7 +160,7 @@ updateItemDetailInDatabase = ({item, desc, good, attrs, cats, realPic, itemImgs}
     (result, callback) ->
       skus = parseSkus item.skus, item.property_alias, store['see_price'], title
       price = parsePrice item.price, store['see_price'], title
-      db.updateGoods goodsId, title, price, desc, itemUri, realPic, skus, item.pic_url, item.seller_cids, callback
+      db.updateGoods goodsId, title, price, item.price, desc, itemUri, realPic, skus, item.pic_url, item.seller_cids, callback
     (result, callback) ->
       db.updateItemImgs goodsId, itemImgs, callback
     (result, callback) ->
@@ -168,7 +168,7 @@ updateItemDetailInDatabase = ({item, desc, good, attrs, cats, realPic, itemImgs}
     (result, callback) ->
       db.deleteSpecs goodsId, callback
     (result, callback) ->
-      db.updateSpecs skus, goodsId, price, huohao, callback
+      db.updateSpecs skus, goodsId, price, item.price, huohao, callback
     (result, callback) ->
       if result?
         insertId = if result.length > 0 then result[0].insertId else result.insertId
@@ -383,6 +383,7 @@ exports.extractItemsFromContent = extractItemsFromContent = ($, store) ->
           goodsName: $item.find(ITEM_NAME).text().trim()
           defaultImage: makeSureProtocol extractDefaultImage $item
           price: parsePrice $item.find(PRICE).text().trim(), store['see_price'], $item.find(ITEM_NAME).text().trim()
+          taobaoPrice: parsePrice $item.find(PRICE).text().trim()
           goodHttp: makeSureProtocol $item.find(ITEM_NAME).attr('href')
       break
   filterItems items
@@ -405,7 +406,7 @@ extractDefaultImage = ($item) ->
     process.exit -1
   defaultImage
 
-exports.parsePrice = parsePrice = (price, seePrice, goodsName) ->
+exports.parsePrice = parsePrice = (price, seePrice = '实价', goodsName = '') ->
   rawPrice = parseFloat price
   finalPrice = rawPrice
   if not seePrice? then finalPrice = formatPrice rawPrice
@@ -482,6 +483,7 @@ exports.parseSkus = parseSkus = (itemSkus, propertyAlias = null, seePrice, title
         name: name
         value: value
         price: parsePrice sku.price, seePrice, title
+        taobaoPrice: parsePrice sku.price
         quantity: sku.quantity
     skus.push properties
   skus

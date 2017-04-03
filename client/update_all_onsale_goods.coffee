@@ -26,6 +26,7 @@ update = () ->
             goodsName: item.title
             defaultImage: item.pic_url
             price: parsePrice item.price, store['see_price'], item.title
+            taobaoPrice: parsePrice item.price
             goodHttp: "http://item.taobao.com/item.htm?id=#{item.num_iid}"
           }
           numIids += "#{item.num_iid},"
@@ -49,7 +50,8 @@ update = () ->
                 specVid2 = sku[1]?.vid || 0
                 quantity = sku[0]?.quantity || 1000
                 price = sku[0]?.price || parsePrice(oneItem.price, store['see_price'], oneItem.title)
-                sql += "update ecm_goods_spec set stock = #{quantity}, price = #{price} where goods_id = (select goods_id from ecm_goods where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{oneItem.num_iid}') and spec_vid_1 = '#{specVid1}' and spec_vid_2 = '#{specVid2}';"
+                taobaoPrice = sku[0]?.taobaoPrice || parsePrice(oneItem.price)
+                sql += "update ecm_goods_spec set stock = #{quantity}, price = #{price}, taobao_price = #{taobaoPrice} where goods_id = (select goods_id from ecm_goods where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{oneItem.num_iid}') and spec_vid_1 = '#{specVid1}' and spec_vid_2 = '#{specVid2}';"
             db.saveItems store['store_id'], store['store_name'], items, '', '所有宝贝', 1, ->
               db.query sql, (err, res) ->
                 if err then console.error err

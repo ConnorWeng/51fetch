@@ -55,7 +55,7 @@ class db
         error "error in getGood: #{goodHttp}"
       callback err, result[0]
 
-  updateGoods: (goodsId, title, price, desc, goodHttp, realPic, skus, defaultImage, sellerCids, callback) ->
+  updateGoods: (goodsId, title, price, taobaoPrice, desc, goodHttp, realPic, skus, defaultImage, sellerCids, callback) ->
     sql = ''
     if sellerCids
       cids = sellerCids.split ','
@@ -66,7 +66,7 @@ class db
     specPid1 = skus[0]?[0]?.pid || 0
     specPid2 = skus[0]?[1]?.pid || 0
     specQty = skus[0]?.length || 0
-    sql += "update ecm_goods set goods_name = #{@pool.escape(title)}, price = #{price}, description = '#{desc}', spec_name_1 = '#{specName1}', spec_name_2 = '#{specName2}', spec_pid_1 = #{specPid1}, spec_pid_2 = #{specPid2}, spec_qty = #{specQty}, realpic = #{realPic}, default_image = '#{defaultImage}' where good_http = '#{goodHttp}'"
+    sql += "update ecm_goods set goods_name = #{@pool.escape(title)}, price = #{price}, taobao_price = #{taobaoPrice}, description = '#{desc}', spec_name_1 = '#{specName1}', spec_name_2 = '#{specName2}', spec_pid_1 = #{specPid1}, spec_pid_2 = #{specPid2}, spec_qty = #{specQty}, realpic = #{realPic}, default_image = '#{defaultImage}' where good_http = '#{goodHttp}'"
     @query sql, (err, result) ->
       if err
         error "error in update goods: #{goodHttp}"
@@ -101,7 +101,7 @@ class db
         error "error in update default spec, goodsId:#{goodsId}, specId:#{specId}"
       callback err, result
 
-  updateSpecs: (skus, goodsId, price, huohao, callback) ->
+  updateSpecs: (skus, goodsId, price, taobaoPrice, huohao, callback) ->
     insertSql = ''
     # FIXME: if skus is undefined then quantity should get value from item instead
     quantity = 1000
@@ -111,9 +111,9 @@ class db
       specVid1 = sku[0]?.vid || 0
       specVid2 = sku[1]?.vid || 0
       quantity = sku[0]?.quantity || 1000
-      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{specVid1}, #{specVid2}, #{sku[0]?.price || price}, #{quantity}, '#{huohao}');"
+      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{specVid1}, #{specVid2}, #{sku[0]?.price || price}, #{quantity}, '#{huohao}', #{sku[0]?.taobaoPrice || taobaoPrice});"
     if insertSql is ''
-      insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku) values ('#{goodsId}', '', '', 0, 0, #{price}, #{quantity}, '#{huohao}');"
+      insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '', '', 0, 0, #{price}, #{quantity}, '#{huohao}', #{sku[0]?.taobaoPrice || taobaoPrice});"
     @query insertSql, (err, result) ->
       if err
         error "error in updateSpecs, goodsId:#{goodsId}"
@@ -207,7 +207,7 @@ class db
     if catName isnt '所有宝贝'
       sql += "insert into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('#{cid}', '#{storeId}', '#{catName}', 1) on duplicate key update store_id = '#{storeId}', cate_name = '#{catName}', if_show = 1;"
     for item, i in items
-      sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.goodHttp}','#{cid}','#{storeName}',#{@pool.escape(item.goodsName)},'#{time-i}','#{catName}','#{getHuoHao(item.goodsName)}',@o_retcode);"
+      sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.taobaoPrice}','#{item.goodHttp}','#{cid}','#{storeName}',#{@pool.escape(item.goodsName)},'#{time-i}','#{catName}','#{getHuoHao(item.goodsName)}',@o_retcode);"
     sql
 
   updateCategories: (storeId, cats, callback) ->
