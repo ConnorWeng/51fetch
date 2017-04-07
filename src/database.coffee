@@ -113,7 +113,7 @@ class db
       quantity = sku[0]?.quantity || 1000
       insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{specVid1}, #{specVid2}, #{sku[0]?.price || price}, #{quantity}, '#{huohao}', #{sku[0]?.taobaoPrice || taobaoPrice});"
     if insertSql is ''
-      insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '', '', 0, 0, #{price}, #{quantity}, '#{huohao}', #{sku[0]?.taobaoPrice || taobaoPrice});"
+      insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '', '', 0, 0, #{price}, #{quantity}, '#{huohao}', #{taobaoPrice});"
     @query insertSql, (err, result) ->
       if err
         error "error in updateSpecs, goodsId:#{goodsId}"
