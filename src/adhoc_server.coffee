@@ -57,6 +57,7 @@ handleStore = (req, res, storeId, jsonp_callback) ->
         response res, jsonp_callback, "{'error': true, 'message': 'id:#{storeId} query returns err: #{err}'}"
 
 handleNewItem = (req, res, numIid, nick, title, price, jsonp_callback) ->
+  log "#{nick} add a new item: #{title} #{price}"
   query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 where s.im_ww = '#{nick}'", (err, stores) ->
     if err or not stores[0]?
       response res, jsonp_callback, "{'error': true, 'message': 'cannot find store which im_ww is #{nick}'}"
@@ -145,7 +146,7 @@ matchUrlPattern = (urlParts, pattern) ->
       match = false
   match
 
-http.createServer((req, res) ->
+server = http.createServer((req, res) ->
   urlObj = parse req.url, true
   urlParts = urlObj.pathname.split '/'
   if matchUrlPattern urlParts, '/store/{storeId}'
@@ -158,10 +159,13 @@ http.createServer((req, res) ->
   else if matchUrlPattern urlParts, '/delete'
     handleDeleteItem req, res, urlObj.query.numIid, null
   else if matchUrlPattern urlParts, '/add'
-    handleNewItem req, res, urlObj.query.numIid, decodeURI(urlObj.query.nick), decodeURI(urlObj.query.title.replace(/%/g, '')), urlObj.query.price, null
+    handleNewItem req, res, urlObj.query.numIid, decodeURI(urlObj.query.nick), decodeURI(urlObj.query.title), decodeURI(urlObj.query.price), null
   else if matchUrlPattern urlParts, '/change'
     handleChangeItem req, res, urlObj.query.numIid, null
-).listen port
+)
+server.on 'clientError', (err, socket) ->
+  error "Bad request: #{err}"
+server.listen port
 
 log "server is listening: #{port}"
 
