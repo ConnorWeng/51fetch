@@ -28,6 +28,7 @@ parsePage = (page) ->
       $ = jquery window
       $('.items').each (i, item) ->
         saveShop page, $(item).attr('href').substr(6)
+      window.close()
 
 saveItem = (page, shop, item, shopFiles) ->
   dir = "../temp/#{page}/#{shop}"
@@ -57,8 +58,10 @@ _saveItems = (shopFiles, page) ->
           if item
             item = item.substr 6
             shop = $('.btn-shop-care').attr('data-sid')
+            window.close()
             saveItem page, shop, item, shopFiles
           else
+            window.close()
             _saveItems shopFiles, page
 
 saveItems = (page) ->
@@ -77,6 +80,7 @@ parseShops = (page) ->
       .then (window) ->
         $ = jquery window
         shopInfo = getShopInfo $
+        window.close()
         log shopInfo
 
 getShopInfo = ($) ->
