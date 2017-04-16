@@ -31,11 +31,11 @@ evaluate = (params, $) ->
 exports.crawl = crawl
 exports.evaluate = evaluate
 
-exports.fetch = fetch = (url) ->
+exports.fetch = fetch = (url, method = 'POST') ->
   defered = Q.defer()
   c.queue [
     'uri': url
-    'method': 'POST'
+    'method': method
     'callback': (err, result, $) ->
       if err
         defered.reject err
@@ -44,7 +44,7 @@ exports.fetch = fetch = (url) ->
   ]
   defered.promise
 
-makeJsDom = Q.nfbind env
+exports.makeJsDom = makeJsDom = Q.nfbind env
 
 firstModel = (map) ->
   for own key of map
