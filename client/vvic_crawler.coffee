@@ -79,11 +79,11 @@ parseShops = (page) ->
     makeJsDom shopFileContent
       .then (window) ->
         $ = jquery window
-        shopInfo = getShopInfo $
+        shopInfo = getShopInfo $, page
         window.close()
         log shopInfo
 
-getShopInfo = ($) ->
+getShopInfo = ($, page) ->
   storeName = $('.stall-head-name').text()
   taobaoLink = $('a[vda="action|shopInfo|tblink"]').attr('href')
   wwRegex = /touid=(.+)$/
@@ -112,8 +112,18 @@ getShopInfo = ($) ->
       market = addressParts[0]
       floor = parseInt addressParts[1] + ''
       dangkou = addressParts[2]
+
+  seePrice = ''
+  item = $('.title:eq(0) a').attr('href')
+  shop = $('.stall-head-name span').attr('href')
+  if item and shop
+    item = item.substr 6
+    shop = shop.substr 6
+    seePrice = getSeePrice page, shop, item
+
   return {
     storeName: storeName
+    seePrice: seePrice
     scope: scope
     address: address
     market: market
@@ -128,6 +138,22 @@ getShopInfo = ($) ->
     tuixian: tuixian
     realpic: realpic
   }
+
+getSeePrice = (page, shop, item) ->
+  itemFile = "../temp/#{page}/#{shop}/#{item}.txt"
+  if not existsSync itemFile then return ''
+  itemFileContent = readFileSync itemFile, 'utf8'
+  taobaoPriceRegex = /\<span class\="sale"\>(.+)\<\/span\>/
+  taobaoPriceMatches = itemFileContent.match(taobaoPriceRegex)
+  if not taobaoPriceMatches then return ''
+  taobaoPrice = parseFloat taobaoPriceMatches[1]
+  priceRegex = /\<strong class\="sale"\>(.+)\<\/strong\>/
+  priceMatches = itemFileContent.match(priceRegex)
+  if not priceMatches then return ''
+  price = parseFloat priceMatches[1]
+  if taobaoPrice / price is 2 then return '减半'
+  delta = parseInt(taobaoPrice - price)
+  "减#{delta}"
 
 pages = [19,12,10,13,14,15,18,11,24,37,17,34,20,16,23,25,42,35,36,26,28,41,27,29,43,39,45,44,38];
 
