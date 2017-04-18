@@ -1,8 +1,10 @@
-{writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync} = require 'fs'
+{writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync, appendFileSync, unlinkSync} = require 'fs'
 {log} = require 'util'
 jquery = require 'jquery'
 {fetch, makeJsDom} = require '../src/crawler'
 args = process.argv.slice 2
+
+IMPORT_SQL_FILE = '../temp/ecm_store_vvic.sql'
 
 savePage = (page) ->
   pageFile = "../temp/#{page}.txt"
@@ -69,22 +71,32 @@ saveItems = (page) ->
   shopFiles = readdirSync dir
   _saveItems shopFiles, page
 
+_parseShops = (shopFiles, page) ->
+  if shopFiles.length > 0
+    shopFileName = shopFiles.shift()
+    if not ~shopFileName.indexOf('.txt')
+      _parseShops shopFiles, page
+    else
+      shopFile = "../temp/#{page}/#{shopFileName}"
+      shopFileContent = readFileSync shopFile, 'utf8'
+      makeJsDom shopFileContent
+        .then (window) ->
+          $ = jquery window
+          shopInfo = getShopInfo $, page
+          window.close()
+          log shopInfo
+          appendFileSync IMPORT_SQL_FILE, "insert into ecm_store_vvic(store_name, see_price, business_scope, shop_mall, floor, dangkou_address, shop_http, im_ww, im_wx, im_qq, tel, service_daifa, service_tuixian, serv_realpic, mk_name) values ('#{shopInfo.storeName}', '#{shopInfo.seePrice}', '#{shopInfo.scope}', '#{shopInfo.market}', '#{shopInfo.floor}', '#{shopInfo.dangkou}', '#{shopInfo.taobaoLink}', '#{shopInfo.ww}', '#{shopInfo.wx}', '#{shopInfo.qq}', '#{shopInfo.tel}', '#{shopInfo.daifa}', '#{shopInfo.tuixian}', '#{shopInfo.realpic}', '#{shopInfo.market}-#{shopInfo.floor}F');\n"
+          _parseShops shopFiles, page
+  else
+    log "page #{page} completed"
+
 parseShops = (page) ->
   dir = "../temp/#{page}"
   shopFiles = readdirSync dir
-  for shopFileName in shopFiles
-    if not ~shopFileName.indexOf('.txt') then continue
-    shopFile = "../temp/#{page}/#{shopFileName}"
-    shopFileContent = readFileSync shopFile, 'utf8'
-    makeJsDom shopFileContent
-      .then (window) ->
-        $ = jquery window
-        shopInfo = getShopInfo $, page
-        window.close()
-        log shopInfo
+  _parseShops shopFiles, page
 
 getShopInfo = ($, page) ->
-  storeName = $('.stall-head-name').text()
+  storeName = $('.stall-head-name').text().replace(/'/g, "\\'")
   taobaoLink = $('a[vda="action|shopInfo|tblink"]').attr('href')
   wwRegex = /touid=(.+)$/
   wwHref = $('a[vda="action|shopInfo|ww"]').attr('href')
@@ -164,6 +176,7 @@ if args[0] is 'parse'
   parsePage page for page in pages
 
 if args[0] is 'shops'
+  if existsSync IMPORT_SQL_FILE then unlinkSync IMPORT_SQL_FILE
   parseShops page for page in pages
 
 if args[0] is 'items'
