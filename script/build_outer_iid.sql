@@ -30,7 +30,7 @@ begin
        set v_price = concat(v_price_1, '.', substr(v_price_2, 1, 1));
     end if;
 
-    select shop_mall, address into v_shop_mall, v_address from ecm_store where store_id = v_store_id;
+    select shop_mall, dangkou_address into v_shop_mall, v_address from ecm_store where store_id = v_store_id;
 
     select substring_index(attr_value, '_', -2) into v_price_huohao from ecm_goods_attr where goods_id = v_goods_id and attr_id = 1 limit 1;
 

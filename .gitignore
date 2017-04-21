@@ -8,3 +8,4 @@ add_store_csv.*
 *.csv
 pass.*
 *.txt
+/temp
