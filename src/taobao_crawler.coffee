@@ -532,7 +532,7 @@ getHierarchalCats = (cid, callback) ->
         getItemCats itemcats[0].parent_cid, 'name, cid, parent_cid', next
   getItemCats cid, 'name, cid, parent_cid', next
 
-removeSingleQuotes = (content) ->
+exports.removeSingleQuotes = removeSingleQuotes = (content) ->
   content.replace /'/g, ''
 
 makeOuterId = (store, huohao, price) ->
