@@ -90,7 +90,7 @@ begin
       leave vvic_exist_store_loop;
     end if;
 
-    if v_see_price != '' then
+    if v_see_price != '' and v_see_price != '减半' then
       update ecm_store set store_name = v_store_name, address = v_address, tel = v_tel, im_qq = v_im_qq, im_ww = v_im_ww, im_wx = v_im_wx, business_scope = v_business_scope, shop_mall = v_shop_mall, floor = v_floor, see_price = v_see_price, mk_name = v_mk_name, dangkou_address = v_dangkou_address, service_daifa = v_service_daifa, service_tuixian = v_service_tuixian, serv_realpic = v_serv_realpic where shop_http = v_shop_http;
     else
       update ecm_store set store_name = v_store_name, address = v_address, tel = v_tel, im_qq = v_im_qq, im_ww = v_im_ww, im_wx = v_im_wx, business_scope = v_business_scope, shop_mall = v_shop_mall, floor = v_floor, mk_name = v_mk_name, dangkou_address = v_dangkou_address, service_daifa = v_service_daifa, service_tuixian = v_service_tuixian, serv_realpic = v_serv_realpic where shop_http = v_shop_http;
