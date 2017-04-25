@@ -337,7 +337,7 @@ describe 'taobao_crawler', () ->
     it 'should return outer id', ->
       assert.equal taobao_crawler.makeOuterId(
         'shop_mall': 'mall'
-        'address': 'address'
+        'dangkou_address': 'address'
       , '705', 15), 'malladdress_P15_705#'
 
   describe '#getHuoHao', ->
