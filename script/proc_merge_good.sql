@@ -34,7 +34,7 @@ begin
        end if;
 
        if i_huohao != '' then
-          select shop_mall, address into v_shop_mall, v_address from ecm_store where store_id = i_store_id;
+          select shop_mall, dangkou_address into v_shop_mall, v_address from ecm_store where store_id = i_store_id;
           update ecm_goods_attr set attr_value = concat(v_shop_mall, v_address, '_P', cast(i_price as unsigned), '_', i_huohao, '#') where goods_id = v_good_id and attr_id = 1;
        end if;
 

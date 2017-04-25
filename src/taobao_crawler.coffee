@@ -536,7 +536,7 @@ exports.removeSingleQuotes = removeSingleQuotes = (content) ->
   content.replace /'/g, ''
 
 makeOuterId = (store, huohao, price) ->
-  seller = store.shop_mall + store.address
+  seller = store.shop_mall + store.dangkou_address
   "#{seller}_P#{price}_#{huohao}#"
 
 getHuoHaoFromAttrs = (attrs) ->
