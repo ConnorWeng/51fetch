@@ -50,7 +50,7 @@ c = new crawler
   'jQuery': false
 db = new database()
 
-makeJsDomPromise = Q.nfbind env
+exports.makeJsDomPromise = makeJsDomPromise = Q.nfbind env
 
 exports.setDatabase = (newDb) ->
   db = newDb
@@ -551,11 +551,11 @@ exports.isRealPic = isRealPic = (title, propsName) ->
   else
     0
 
-exports.fetch = fetch = (url) ->
+exports.fetch = fetch = (url, method = 'GET') ->
   defered = Q.defer()
   c.queue [
     'uri': url
-    'method': 'GET'
+    'method': method
     'forceUTF8': true
     'callback': (err, result) ->
       if err
