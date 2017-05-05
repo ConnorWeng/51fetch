@@ -3,6 +3,7 @@ delimiter $$
 drop procedure register_vvic_store$$
 
 create procedure register_vvic_store(
+  in i_name varchar(60),
   in i_qq varchar(60),
   in i_mk_name varchar(255),
   in i_shop_mall varchar(255),
@@ -21,20 +22,14 @@ create procedure register_vvic_store(
   in i_serv_realpic int(2)
 )
 begin
-  declare v_username, v_salt, v_time, v_name varchar(255);
+  declare v_username, v_salt, v_time varchar(255);
   declare v_uid int(10) unsigned;
 
-  if i_qq = '' then
-    set v_name = i_im_ww;
-  else
-    set v_name = i_qq;
-  end if;
-
-  select username into v_username from ucenter51.uc_members where username = concat('mall-', v_name);
+  select username into v_username from ucenter51.uc_members where username = concat('mall-', i_name);
   set v_time = timestampdiff(second, '1970-1-1 8:0:0', now());
 
   if v_username is null then
-    set v_username = concat('mall-', v_name);
+    set v_username = concat('mall-', i_name);
     set v_salt = substr(rand(), 3, 4);
     insert into ucenter51.uc_members set secques='', username=v_username, password=md5(concat(md5(v_username), v_salt)), email=concat(i_qq, '@qq.com'), regip='112.124.54.224', regdate=v_time, salt=v_salt;
     set v_uid = last_insert_id();

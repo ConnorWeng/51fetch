@@ -44,13 +44,21 @@ begin
     select uid into v_uid from ucenter51.uc_members where username = concat('mall-', v_name);
 
     if v_uid is null then
-      call register_vvic_store(v_im_qq, v_mk_name, v_shop_mall, v_floor, v_address, v_dangkou_address, v_store_name, v_see_price, v_im_ww, v_shop_http, v_business_scope, v_im_wx, v_tel, v_service_daifa, v_service_tuixian, v_serv_realpic);
+      call register_vvic_store(v_name, v_im_qq, v_mk_name, v_shop_mall, v_floor, v_address, v_dangkou_address, v_store_name, v_see_price, v_im_ww, v_shop_http, v_business_scope, v_im_wx, v_tel, v_service_daifa, v_service_tuixian, v_serv_realpic);
       select concat('registered vvic store: ', v_store_name, ' ', v_shop_http) info;
     else
       select state into v_51_state from ecm_store where store_id = v_uid;
       if v_51_state = 0 then
         update ecm_store set state = 1, close_reason = '', shop_http = v_shop_http where store_id = v_uid;
         select concat('opened vvic store: ', v_store_name, ' ', v_shop_http) info;
+      elseif v_51_state = 1 then
+        set v_name = v_im_ww;
+        set v_uid = null;
+        select uid into v_uid from ucenter51.uc_members where username = concat('mall-', v_name);
+        if v_uid is null then
+          call register_vvic_store(v_name, v_im_qq, v_mk_name, v_shop_mall, v_floor, v_address, v_dangkou_address, v_store_name, v_see_price, v_im_ww, v_shop_http, v_business_scope, v_im_wx, v_tel, v_service_daifa, v_service_tuixian, v_serv_realpic);
+          select concat('registered vvic store: ', v_store_name, ' ', v_shop_http) info;
+        end if;
       end if;
     end if;
 
