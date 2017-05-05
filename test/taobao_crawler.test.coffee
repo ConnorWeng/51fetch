@@ -64,15 +64,15 @@ describe 'taobao_crawler', () ->
         done()
 
   describe '#crawlAllPagesOfAllCates', ->
-    it.skip 'should callback when all uris are handled', (done) ->
+    it 'should callback when all uris are handled', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
         process.nextTick ->
-          options[0]['callback'](null, {uri:'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price', body:'<div>123</div>'})
+          options[0]['callback'](null, {uri:'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price', body: '<div class="search-result">共搜索到<span> 55 </span>个符合条件的商品。</div>'})
       taobao_crawler.setCrawler newCrawler
-      databaseStub.saveItems = (a, b, c, d, e, callback) ->
+      databaseStub.saveItems = (a, b, c, d, e, f, callback) ->
         process.nextTick ->
           callback null, null
-      taobao_crawler.crawlAllPagesOfAllCates ['http://localhost:9744/', 'http://localhost:9744/'], ->
+      taobao_crawler.crawlAllPagesOfAllCates {catesUris: ['http://localhost:9744/', 'http://localhost:9744/']}, ->
         done()
 
   describe '#saveItemsFromPageAndQueueNext', ->
@@ -423,7 +423,7 @@ describe 'taobao_crawler', () ->
       f = taobao_crawler.fetch
       taobao_crawler.setFetch (url) ->
         then: (cb) ->
-          cb DESC_RESPONSE
+          cb({body: DESC_RESPONSE})
           catch: ->
       taobao_crawler.crawlDesc 'http://some_url'
         .then (desc) ->
@@ -434,10 +434,10 @@ describe 'taobao_crawler', () ->
       f = taobao_crawler.fetch
       taobao_crawler.setFetch (url) ->
         then: (cb) ->
-          cb ''
+          cb({body: ''})
           catch: ->
       taobao_crawler.crawlDesc 'http://some_url'
-        .then (desc) ->
+        .then (result) ->
           undefined
         .catch (reason) ->
           assert.include reason.message, 'desc response text does not contain valid content'
@@ -548,6 +548,19 @@ describe 'taobao_crawler', () ->
             done()
           .catch done
         window.close()
+
+  describe '#queueStoreUri', ->
+    it 'should queue the store uri', (done) ->
+      sinon.stub newCrawler, 'queue', (options) ->
+        assert.equal options[0]['uri'], 'https://shop65626141.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid##any_store_name##any_store_id##any_see_price'
+        options[0]['callback']()
+      taobao_crawler.setCrawler newCrawler
+      taobao_crawler.queueStoreUri(
+        shop_http: 'https://shop65626141.taobao.com'
+        store_name: 'any_store_name'
+        store_id: 'any_store_id'
+        see_price: 'any_see_price'
+      )( -> done())
 
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>

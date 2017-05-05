@@ -192,11 +192,11 @@ updateItemDetailInDatabase = ({item, desc, good, attrs, cats, realPic, itemImgs}
 
 queueStoreUri = (store) ->
   (callback) ->
-    c.queue [
-      'uri': makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc&viewType=grid", store
-      'forceUTF8': true
-      'callback': callback
-    ]
+    fetch(makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc&viewType=grid", store)
+      .then (result) ->
+        callback null, result
+      .catch (err) ->
+        callback err, null
 
 makeJsDom = (result, callback) ->
   if result.body is ''
@@ -271,11 +271,11 @@ crawlAllPagesOfByNew = (uris, callback) ->
     for uri in uris.byNewUris
       store = parseStoreFromUri uri
       changeRemains '+', callback
-      c.queue [
-        'uri': makeUriWithStoreInfo uri, store
-        'forceUTF8': true
-        'callback': saveItemsFromPageAndQueueNext callbackWithUris
-      ]
+      fetch(makeUriWithStoreInfo uri, store)
+        .then (result) ->
+          saveItemsFromPageAndQueueNext(callbackWithUris)(null, result)
+        .catch (err) ->
+          saveItemsFromPageAndQueueNext(callbackWithUris)(err, null)
   else
     callback null, uris
 
@@ -286,11 +286,11 @@ crawlAllPagesOfAllCates = (uris, callback) ->
     for uri in uris.catesUris
       store = parseStoreFromUri uri
       changeRemains '+', callback
-      c.queue [
-        'uri': makeUriWithStoreInfo uri, store
-        'forceUTF8': true
-        'callback': saveItemsFromPageAndQueueNext callbackWithUris
-      ]
+      fetch(makeUriWithStoreInfo uri, store)
+        .then (result) ->
+          saveItemsFromPageAndQueueNext(callbackWithUris)(null, result)
+        .catch (err) ->
+          saveItemsFromPageAndQueueNext(callbackWithUris)(err, null)
   else
     callback null, uris
 
@@ -325,11 +325,11 @@ saveItemsFromPageAndQueueNext = (callback) ->
           nextUri = nextPageUri $
           if nextUri?
             changeRemains '+', callback
-            c.queue [
-              'uri': makeUriWithStoreInfo nextUri, store
-              'forceUTF8': true
-              'callback': saveItemsFromPageAndQueueNext callback
-            ]
+            fetch(makeUriWithStoreInfo nextUri, store)
+              .then (res) ->
+                saveItemsFromPageAndQueueNext(callback)(null, res)
+              .catch (err) ->
+                saveItemsFromPageAndQueueNext(callback)(err, null)
           items = extractItemsFromContent $, store
           bannedError = new Error('been banned by taobao') if isBanned $
           if bannedError then process.exit -99
@@ -561,13 +561,14 @@ exports.fetch = fetch = (url, method = 'GET') ->
       if err
         defered.reject err
       else
-        defered.resolve result.body
+        defered.resolve result
   ]
   defered.promise
 
 exports.$fetch = $fetch = (url, callback) ->
   fetch url
-    .then (body) ->
+    .then (result) ->
+      body = result.body
       makeJsDomPromise body
     .then (window) ->
       $ = jquery window
@@ -578,7 +579,8 @@ exports.$fetch = $fetch = (url, callback) ->
 crawlDesc = (url) ->
   defered = Q.defer()
   fetch url
-    .then (body) ->
+    .then (result) ->
+      body = result.body
       if ~body.indexOf 'var desc'
         desc = body.replace "var desc='", ''
         desc = desc.replace new RegExp('"//img', 'g'), '"http://img'
@@ -770,6 +772,7 @@ if process.env.NODE_ENV is 'test'
   exports.extractCid = extractCid
   exports.extractNick = extractNick
   exports.extractPropsName = extractPropsName
+  exports.queueStoreUri = queueStoreUri
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats
