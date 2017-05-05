@@ -67,6 +67,8 @@ _saveItems = (shopFiles, page) ->
           else
             window.close()
             _saveItems shopFiles, page
+  else
+    log "page #{page} completed"
 
 saveItems = (page) ->
   dir = "../temp/#{page}"
