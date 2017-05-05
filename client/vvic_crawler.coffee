@@ -133,7 +133,7 @@ getShopInfo = ($, page) ->
 
   seePrice = ''
   item = $('.title:eq(0) a').attr('href')
-  shop = $('.stall-head-name span').attr('href')
+  shop = $('.stall-head-name a').attr('href')
   if item and shop
     item = item.substr 6
     shop = shop.substr 6
