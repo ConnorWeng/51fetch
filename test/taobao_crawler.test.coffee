@@ -6,6 +6,7 @@ env = require('jsdom').env
 jquery = require 'jquery'
 taobao_crawler = require '../src/taobao_crawler'
 database = require '../src/database'
+{setCrawler} = require '../src/crawler'
 
 newCrawler = null
 databaseStub = null
@@ -18,7 +19,7 @@ http.createServer((req, res) ->
 describe 'taobao_crawler', () ->
   beforeEach () ->
     newCrawler = new crawler
-    taobao_crawler.setCrawler newCrawler
+    setCrawler newCrawler
     databaseStub = sinon.createStubInstance database
     taobao_crawler.setDatabase databaseStub
     taobao_crawler.setMakeUriWithStoreInfo originMakeUriWithStoreInfo
@@ -30,7 +31,7 @@ describe 'taobao_crawler', () ->
           body: htmlContent
           uri: 'http://shop_url##store_name##store_id##see_price'
         }
-      taobao_crawler.setCrawler newCrawler
+      setCrawler newCrawler
     store =
         store_id: 'store_id'
         store_name: 'store_name'
@@ -68,7 +69,7 @@ describe 'taobao_crawler', () ->
       sinon.stub newCrawler, 'queue', (options) ->
         process.nextTick ->
           options[0]['callback'](null, {uri:'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price', body: '<div class="search-result">共搜索到<span> 55 </span>个符合条件的商品。</div>'})
-      taobao_crawler.setCrawler newCrawler
+      setCrawler newCrawler
       databaseStub.saveItems = (a, b, c, d, e, f, callback) ->
         process.nextTick ->
           callback null, null
@@ -80,7 +81,7 @@ describe 'taobao_crawler', () ->
       sinon.stub newCrawler, 'queue', (options) ->
         assert.equal options[0]['uri'], 'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price'
         done()
-      taobao_crawler.setCrawler newCrawler
+      setCrawler newCrawler
       taobao_crawler.saveItemsFromPageAndQueueNext(->
       )(null,
         uri: 'any_uri##any_store_name##any_store_id##any_see_price'
@@ -554,7 +555,7 @@ describe 'taobao_crawler', () ->
       sinon.stub newCrawler, 'queue', (options) ->
         assert.equal options[0]['uri'], 'https://shop65626141.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid##any_store_name##any_store_id##any_see_price'
         options[0]['callback']()
-      taobao_crawler.setCrawler newCrawler
+      setCrawler newCrawler
       taobao_crawler.queueStoreUri(
         shop_http: 'https://shop65626141.taobao.com'
         store_name: 'any_store_name'

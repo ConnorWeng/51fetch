@@ -4,7 +4,7 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
-{crawlItemsInStore, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw} = require './taobao_crawler'
+{crawlItemsInStore, crawlStore, setDatabase, extractItemsFromContent, extractImWw} = require './taobao_crawler'
 database = require './database'
 
 args = process.argv.slice 2
@@ -12,7 +12,6 @@ port = 30004
 
 db = new database config.database[args[0]]
 setDatabase db
-c = getCrawler()
 query = Q.nbind db.query, db
 
 needCrawlItemsViaApi = true if args.length is 2 and args[1] is 'api'

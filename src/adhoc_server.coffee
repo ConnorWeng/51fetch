@@ -5,7 +5,7 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
-{crawlTaobaoItem, crawlItemViaApi, $fetch, crawlItemsInStore, setRateLimits, crawlStore, setDatabase, getCrawler, extractItemsFromContent, extractImWw, parsePrice} = require './taobao_crawler'
+{crawlTaobaoItem, crawlItemViaApi, $fetch, crawlItemsInStore, crawlStore, setDatabase, extractItemsFromContent, extractImWw, parsePrice} = require './taobao_crawler'
 database = require './database'
 
 args = process.argv.slice 2
@@ -13,7 +13,6 @@ port = 30005
 
 db = new database config.database[args[0]]
 setDatabase db
-setRateLimits 100
 query = Q.nbind db.query, db
 
 needCrawlItemsViaApi = true if args.length is 2 and args[1] is 'api'

@@ -4,7 +4,7 @@ async = require 'async'
 Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
-crawler = require('crawler').Crawler
+{fetch} = require './crawler'
 
 exports.getHuoHao = getHuoHao = (title) ->
   regex = /[A-Z]?#?(\d+)#?/g
@@ -41,28 +41,12 @@ TEMPLATES = [
   PRICE: '.price strong'
 ]
 
-c = new crawler
-  'headers':
-    'Cookie': config.cookie
-  'method': 'POST'
-  'forceUTF8': true
-  'rateLimits': 5000
-  'jQuery': false
 db = new database()
 
 exports.makeJsDomPromise = makeJsDomPromise = Q.nfbind env
 
 exports.setDatabase = (newDb) ->
   db = newDb
-
-exports.setCrawler = (newCrawler) ->
-  c = newCrawler
-
-exports.setRateLimits = (rateLimits) ->
-  c.options.rateLimits = rateLimits
-
-exports.getCrawler = ->
-  c
 
 exports.buildOuterIid = (storeId, callback) ->
   db.buildOuterIid storeId, callback
@@ -551,20 +535,6 @@ exports.isRealPic = isRealPic = (title, propsName) ->
   else
     0
 
-exports.fetch = fetch = (url, method = 'GET') ->
-  defered = Q.defer()
-  c.queue [
-    'uri': url
-    'method': method
-    'forceUTF8': true
-    'callback': (err, result) ->
-      if err
-        defered.reject err
-      else
-        defered.resolve result
-  ]
-  defered.promise
-
 exports.$fetch = $fetch = (url, callback) ->
   fetch url
     .then (result) ->
@@ -773,7 +743,7 @@ if process.env.NODE_ENV is 'test'
   exports.extractNick = extractNick
   exports.extractPropsName = extractPropsName
   exports.queueStoreUri = queueStoreUri
+  exports.fetch = fetch
 
 if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats
-  exports.crawler = c

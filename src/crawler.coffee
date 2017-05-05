@@ -2,13 +2,18 @@
 {env} = require 'jsdom'
 jquery = require 'jquery'
 Q = require 'q'
+config = require './config'
 
 c = new Crawler
+  'headers':
+    'Cookie': config.cookie
   'forceUTF8': true
-  'rateLimits': 500
-  'jQuery': true
+  'jQuery': false
 
-crawl = (url, params, callback) ->
+exports.setCrawler = (crawler) ->
+  c = crawler
+
+exports.crawl = crawl = (url, params, callback) ->
   c.queue [
     'uri': url
     'callback': (err, result, $) ->
@@ -22,25 +27,22 @@ crawl = (url, params, callback) ->
         callback null, data
   ]
 
-evaluate = (params, $) ->
+exports.evaluate = evaluate = (params, $) ->
   data = {}
   for name, func of params
     data[name] = func($)
   data
 
-exports.crawl = crawl
-exports.evaluate = evaluate
-
-exports.fetch = fetch = (url, method = 'POST') ->
+exports.fetch = fetch = (url, method = 'GET') ->
   defered = Q.defer()
   c.queue [
     'uri': url
     'method': method
-    'callback': (err, result, $) ->
+    'callback': (err, result) ->
       if err
         defered.reject err
       else
-        defered.resolve result.body
+        defered.resolve result
   ]
   defered.promise
 
