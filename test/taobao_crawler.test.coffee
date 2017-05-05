@@ -76,7 +76,7 @@ describe 'taobao_crawler', () ->
         done()
 
   describe '#saveItemsFromPageAndQueueNext', ->
-    it.skip 'should queue next page uri', (done) ->
+    it 'should queue next page uri', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
         assert.equal options[0]['uri'], 'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price'
         done()
@@ -873,6 +873,7 @@ DESC = '''
 '''
 
 PAGINATION_HTML = '''
+<div class="search-result">共搜索到<span> 55 </span>个符合条件的商品。</div>
 <div class="pagination">
   <a class="disable">上一页</a>
   <a class="page-cur">1</a>
