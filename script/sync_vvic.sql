@@ -129,7 +129,7 @@ begin
 
   start transaction;
   update ecm_store s set s.state = 0, s.close_reason = 'sync with vvic' where s.state = 1 and not exists (select 1 from ecm_store_vvic v where v.shop_http = s.shop_http);
-  update ecm_store set state = 1, close_reason = '' where store_id in (5889,6527,8131,10114,5867,11925,91134,7604,155600,156207,149278,9772,158398,9038,148204,105851,153569,19306,7241,5808,154398,10896,13778,21062,152975,8715,155480,162664,95833,154312,158522,159963);
+  update ecm_store set state = 1, close_reason = '' where store_id in (5889,6527,8131,10114,5867,11925,91134,7604,155600,156207,149278,9772,158398,9038,148204,105851,153569,19306,7241,5808,154398,10896,13778,21062,152975,8715,155480,162664,95833,154312,158522,159963,156604);
   commit;
 
   call build_market;
