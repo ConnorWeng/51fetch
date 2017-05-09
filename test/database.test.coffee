@@ -80,11 +80,44 @@ describe 'database', () ->
         done();
 
   describe '#updateSpecs', ->
-    it 'should run the correct update sql', (done) ->
-      sinon.stub db, 'getSpecs', ->
-        Q([])
+    oldSpecs = [{
+      spec_id: '9999991'
+      goods_id: '1'
+      spec_1: '天蓝色'
+      spec_2: 'S'
+      color_rgb: ''
+      price: '11.00'
+      stock: '1000'
+      sku: ''
+      spec_vid_1: '3232484'
+      spec_vid_2: '28314'
+      taobao_price: '31.00'
+    }, {
+      spec_id: '9999992'
+      goods_id: '1'
+      spec_1: '天蓝色'
+      spec_2: 'XL'
+      color_rgb: ''
+      price: '11.00'
+      stock: '1000'
+      sku: ''
+      spec_vid_1: '3232484'
+      spec_vid_2: '28317'
+      taobao_price: '31.00'
+    }]
+    beforeEach ->
       sinon.stub db.pool, 'query', (sql, cb) -> cb()
-      db.updateSpecs [
+      sinon.stub db, 'getSpecs', ->
+        Q oldSpecs
+    assertSql = (skus, expectSql, done) ->
+      db.updateSpecs skus, 1, 12, 13, 999, (err, result) ->
+        try
+          assert.equal db.pool.query.args[0][0], expectSql
+          done()
+        catch err
+          done err
+    it 'should run update sql', (done) ->
+      assertSql [
         [
           pid: '1627207'
           vid: '3232484'
@@ -105,16 +138,104 @@ describe 'database', () ->
           name: '颜色分类'
           value: '天蓝色'
           price: '11'
+          quantity: 100
         ,
           pid: '20509'
           vid: '28317'
           name: '尺码'
           value: 'XL'
           price: '11'
+          quantity: 100
         ]
-      ], 1, 12, 13, 999, (err, result) ->
-        assert.isTrue db.pool.query.calledWith "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('1', '天蓝色', 'S', 3232484, 28314, 11, 100, '999', 13);insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('1', '天蓝色', 'XL', 3232484, 28317, 11, 1000, '999', 13);"
-        done()
+      ], "update ecm_goods_spec set price = '11', stock = '100', sku = '999', taobao_price = '13' where spec_id = 9999991;update ecm_goods_spec set price = '11', stock = '100', sku = '999', taobao_price = '13' where spec_id = 9999992;", done
+    it 'should run insert sql', (done) ->
+      assertSql [
+        [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+          price: '11'
+          quantity: 100
+        ,
+          pid: '20509'
+          vid: '28314'
+          name: '尺码'
+          value: 'S'
+          price: '11'
+          quantity: 100
+        ], [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+          price: '11'
+          quantity: 100
+        ,
+          pid: '20509'
+          vid: '28317'
+          name: '尺码'
+          value: 'XL'
+          price: '11'
+          quantity: 100
+        ], [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+          price: '11'
+          quantity: 100
+        ,
+          pid: '20509'
+          vid: '28318'
+          name: '尺码'
+          value: 'M'
+          price: '11'
+          quantity: 100
+        ]
+      ], "update ecm_goods_spec set price = '11', stock = '100', sku = '999', taobao_price = '13' where spec_id = 9999991;update ecm_goods_spec set price = '11', stock = '100', sku = '999', taobao_price = '13' where spec_id = 9999992;insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('1', '天蓝色', 'M', '3232484', '28318', '11', '100', '999', '13');", done
+    it 'should run delete sql', (done) ->
+      assertSql [
+        [
+          pid: '1627207'
+          vid: '3232484'
+          name: '颜色分类'
+          value: '天蓝色'
+          price: '11'
+          quantity: 100
+        ,
+          pid: '20509'
+          vid: '28314'
+          name: '尺码'
+          value: 'S'
+          price: '11'
+          quantity: 100
+        ]
+      ], "update ecm_goods_spec set price = '11', stock = '100', sku = '999', taobao_price = '13' where spec_id = 9999991;delete from ecm_goods_spec where spec_id = 9999992;", done
+    it 'should run default update sql', (done) ->
+      backedSpecs = oldSpecs
+      oldSpecs = [{
+        spec_id: '9999991'
+        goods_id: '1'
+        spec_1: ''
+        spec_2: ''
+        color_rgb: ''
+        price: '11.00'
+        stock: '1000'
+        sku: ''
+        spec_vid_1: 0
+        spec_vid_2: 0
+        taobao_price: '31.00'
+      }]
+      assertSql [], "update ecm_goods_spec set price = '12', stock = '1000', sku = '999', taobao_price = '13' where spec_id = 9999991;", (err) ->
+        oldSpecs = backedSpecs
+        done(err)
+    it 'should run default insert sql', (done) ->
+      backedSpecs = oldSpecs
+      oldSpecs = []
+      assertSql [], "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('1', '', '', '0', '0', '12', '1000', '999', '13');", (err) ->
+        oldSpecs = backedSpecs
+        done(err)
 
   describe '#updateGoods', ->
     beforeEach ->

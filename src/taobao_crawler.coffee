@@ -150,8 +150,6 @@ updateItemDetailInDatabase = ({item, desc, good, attrs, cats, realPic, itemImgs}
     (result, callback) ->
       db.updateCats goodsId, storeId, cats, callback
     (result, callback) ->
-      db.deleteSpecs goodsId, callback
-    (result, callback) ->
       db.updateSpecs skus, goodsId, price, item.price, huohao, callback
     (result, callback) ->
       if result?

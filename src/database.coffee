@@ -109,8 +109,9 @@ class db
 
   updateSpecs: (skus, goodsId, price, taobaoPrice, huohao, callback) ->
     @getSpecs goodsId
-      .then (existSkus) =>
-        insertSql = ''
+      .then (oldSpecs) =>
+        sql = ''
+        newSpecs = []
         # FIXME: if skus is undefined then quantity should get value from item instead
         quantity = 1000
         for sku in skus
@@ -119,22 +120,48 @@ class db
           specVid1 = sku[0]?.vid || 0
           specVid2 = sku[1]?.vid || 0
           quantity = sku[0]?.quantity || 1000
-          insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{specVid1}, #{specVid2}, #{sku[0]?.price || price}, #{quantity}, '#{huohao}', #{sku[0]?.taobaoPrice || taobaoPrice});"
-        if insertSql is ''
-          insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '', '', 0, 0, #{price}, #{quantity}, '#{huohao}', #{taobaoPrice});"
-        @$query insertSql
+          newSpecs.push
+            goods_id: goodsId
+            spec_1: spec1
+            spec_2: spec2
+            spec_vid_1: specVid1
+            spec_vid_2: specVid2
+            price: sku[0]?.price || price
+            stock: quantity
+            sku: huohao
+            taobao_price: sku[0]?.taobaoPrice || taobaoPrice
+        if skus.length is 0
+          if oldSpecs.length is 0
+            sql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '', '', '0', '0', '#{price}', '#{quantity}', '#{huohao}', '#{taobaoPrice}');"
+          else if oldSpecs.length is 1 and oldSpecs[0].spec_1 is '' and oldSpecs[0].spec_2 is ''
+            sql = "update ecm_goods_spec set price = '#{price}', stock = '#{quantity}', sku = '#{huohao}', taobao_price = '#{taobaoPrice}' where spec_id = #{oldSpecs[0].spec_id};"
+        else
+          sql = @makeUpdateSpecsSql oldSpecs, newSpecs
+        @$query sql
       .then (result) ->
         callback null, result
       .catch (err) ->
         error "error in updateSpecs, goodsId:#{goodsId}"
         callback err, null
 
+  makeUpdateSpecsSql: (oldSpecs, newSpecs) ->
+    sql = ''
+    processed = []
+    for os in oldSpecs
+      found = false
+      for ns, i in newSpecs
+        if os.spec_1 == ns.spec_1 and os.spec_2 == ns.spec_2 and os.spec_vid_1 == ns.spec_vid_1 and os.spec_vid_2 == ns.spec_vid_2
+          sql += "update ecm_goods_spec set price = '#{ns.price}', stock = '#{ns.stock}', sku = '#{ns.sku}', taobao_price = '#{ns.taobao_price}' where spec_id = #{os.spec_id};"
+          found = true
+          processed.push i
+          break
+      if not found then sql += "delete from ecm_goods_spec where spec_id = #{os.spec_id};"
+    for ns, i in newSpecs
+      if not ~processed.indexOf i then sql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{ns.goods_id}', '#{ns.spec_1}', '#{ns.spec_2}', '#{ns.spec_vid_1}', '#{ns.spec_vid_2}', '#{ns.price}', '#{ns.stock}', '#{ns.sku}', '#{ns.taobao_price}');"
+    sql
+
   getSpecs: (goodsId) ->
     @$query "select * from ecm_goods_spec where goods_id = #{goodsId}"
-
-  deleteSpecs: (goodsId, callback) ->
-    @query "delete from ecm_goods_spec where goods_id = #{goodsId}", (err, result) ->
-      callback err, result
 
   updateStoreCateContent: (storeId, storeName, cateContent) ->
     @updateStoreCateContentCounter += 1
