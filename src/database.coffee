@@ -1,6 +1,7 @@
 mysql = require 'mysql'
 {log, error} = require 'util'
 {getHuoHao} = require './taobao_crawler'
+Q = require 'q'
 
 class db
   constructor: (databaseConfig) ->
@@ -24,6 +25,11 @@ class db
         @query sql, callback
       else
         callback err, result
+
+  $query: (sql) ->
+    deferred = Q.defer()
+    @query sql, deferred.makeNodeResolver()
+    deferred.promise
 
   runSql: (sql, callback) ->
     @query sql, (err, result) ->
@@ -102,22 +108,29 @@ class db
       callback err, result
 
   updateSpecs: (skus, goodsId, price, taobaoPrice, huohao, callback) ->
-    insertSql = ''
-    # FIXME: if skus is undefined then quantity should get value from item instead
-    quantity = 1000
-    for sku in skus
-      spec1 = sku[0]?.value
-      spec2 = sku[1]?.value || ''
-      specVid1 = sku[0]?.vid || 0
-      specVid2 = sku[1]?.vid || 0
-      quantity = sku[0]?.quantity || 1000
-      insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{specVid1}, #{specVid2}, #{sku[0]?.price || price}, #{quantity}, '#{huohao}', #{sku[0]?.taobaoPrice || taobaoPrice});"
-    if insertSql is ''
-      insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '', '', 0, 0, #{price}, #{quantity}, '#{huohao}', #{taobaoPrice});"
-    @query insertSql, (err, result) ->
-      if err
+    @getSpecs goodsId
+      .then (existSkus) =>
+        insertSql = ''
+        # FIXME: if skus is undefined then quantity should get value from item instead
+        quantity = 1000
+        for sku in skus
+          spec1 = sku[0]?.value
+          spec2 = sku[1]?.value || ''
+          specVid1 = sku[0]?.vid || 0
+          specVid2 = sku[1]?.vid || 0
+          quantity = sku[0]?.quantity || 1000
+          insertSql += "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '#{spec1}', '#{spec2}', #{specVid1}, #{specVid2}, #{sku[0]?.price || price}, #{quantity}, '#{huohao}', #{sku[0]?.taobaoPrice || taobaoPrice});"
+        if insertSql is ''
+          insertSql = "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('#{goodsId}', '', '', 0, 0, #{price}, #{quantity}, '#{huohao}', #{taobaoPrice});"
+        @$query insertSql
+      .then (result) ->
+        callback null, result
+      .catch (err) ->
         error "error in updateSpecs, goodsId:#{goodsId}"
-      callback err, result
+        callback err, null
+
+  getSpecs: (goodsId) ->
+    @$query "select * from ecm_goods_spec where goods_id = #{goodsId}"
 
   deleteSpecs: (goodsId, callback) ->
     @query "delete from ecm_goods_spec where goods_id = #{goodsId}", (err, result) ->

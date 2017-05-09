@@ -1,5 +1,6 @@
 assert = require('chai').assert
 sinon = require 'sinon'
+Q = require 'q'
 database = require '../src/database'
 
 db = null
@@ -79,8 +80,10 @@ describe 'database', () ->
         done();
 
   describe '#updateSpecs', ->
-    it 'should run the correct update sql', ->
-      sinon.stub db.pool, 'query', ->
+    it 'should run the correct update sql', (done) ->
+      sinon.stub db, 'getSpecs', ->
+        Q([])
+      sinon.stub db.pool, 'query', (sql, cb) -> cb()
       db.updateSpecs [
         [
           pid: '1627207'
@@ -109,8 +112,9 @@ describe 'database', () ->
           value: 'XL'
           price: '11'
         ]
-      ], 1, 12, 13, 999, ->
-      assert.isTrue db.pool.query.calledWith "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('1', '天蓝色', 'S', 3232484, 28314, 11, 100, '999', 13);insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('1', '天蓝色', 'XL', 3232484, 28317, 11, 1000, '999', 13);"
+      ], 1, 12, 13, 999, (err, result) ->
+        assert.isTrue db.pool.query.calledWith "insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('1', '天蓝色', 'S', 3232484, 28314, 11, 100, '999', 13);insert into ecm_goods_spec(goods_id, spec_1, spec_2, spec_vid_1, spec_vid_2, price, stock, sku, taobao_price) values ('1', '天蓝色', 'XL', 3232484, 28317, 11, 1000, '999', 13);"
+        done()
 
   describe '#updateGoods', ->
     beforeEach ->
