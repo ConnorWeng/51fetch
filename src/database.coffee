@@ -141,7 +141,7 @@ class db
       .then (result) ->
         callback null, result
       .catch (err) ->
-        error "error in updateSpecs, goodsId:#{goodsId}"
+        error "error in updateSpecs, goodsId:#{goodsId}, error:#{err}"
         callback err, null
 
   makeUpdateSpecsSql: (oldSpecs, newSpecs) ->
@@ -193,16 +193,42 @@ class db
       callback null, null
 
   saveItemAttr: (goodsId, attrs, callback) ->
-    sql = ''
-    for attr in attrs
-      {attrId, valueId, attrName, attrValue} = attr
-      sql += "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('#{attrId}', '#{attrName}', 'select', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id, value_id) values ('#{goodsId}', '#{attrName}', '#{attrValue}', '#{attrId}', '#{valueId}');"
-    @query sql, (err, result) ->
-      callback err, result
+    @getItemAttr goodsId
+      .then (oldItemAttr) =>
+        newItemAttr = []
+        for attr in attrs
+          {attrId, valueId, attrName, attrValue} = attr
+          newItemAttr.push
+            goods_id: goodsId
+            attr_name: attrName
+            attr_value: attrValue
+            attr_id: attrId
+            value_id: valueId
+        @$query @makeSaveItemAttrSql oldItemAttr, newItemAttr
+      .then (result) ->
+        callback null, result
+      .catch (err) ->
+        error "error in saveItemAttr, goodsId:#{goodsId}, error:#{err}"
+        callback err, null
 
-  deleteItemAttr: (goodsId, callback) ->
-    @query "delete from ecm_goods_attr where goods_id = #{goodsId}", (err, result) ->
-      callback err, result
+  makeSaveItemAttrSql: (oldItemAttr, newItemAttr) ->
+    sql = ''
+    processed = []
+    for oia in oldItemAttr
+      found = false
+      for nia, i in newItemAttr
+        if oia.attr_id == nia.attr_id and oia.value_id == nia.value_id
+          sql += "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('#{nia.attr_id}', '#{nia.attr_name}', 'select', '其他');update ecm_goods_attr set attr_name = '#{nia.attr_name}', attr_value = '#{nia.attr_value}' where gattr_id = #{oia.gattr_id};"
+          found = true
+          processed.push i
+          break
+      if not found then sql += "delete from ecm_goods_attr where gattr_id = #{oia.gattr_id};"
+    for nia, i in newItemAttr
+      if not ~processed.indexOf i then sql += "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('#{nia.attr_id}', '#{nia.attr_name}', 'select', '其他');insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id, value_id) values ('#{nia.goods_id}', '#{nia.attr_name}', '#{nia.attr_value}', '#{nia.attr_id}', '#{nia.value_id}');"
+    sql
+
+  getItemAttr: (goodsId) ->
+    @$query "select * from ecm_goods_attr where goods_id = #{goodsId}"
 
   saveItems: (storeId, storeName, items, url, catName, pageNumber, callback) ->
     @saveItemsCounter += 1

@@ -158,8 +158,6 @@ updateItemDetailInDatabase = ({item, desc, good, attrs, cats, realPic, itemImgs}
       else
         callback null, null
     (result, callback) ->
-      db.deleteItemAttr goodsId, callback
-    (result, callback) ->
       outerId = makeOuterId store, huohao, price
       outerIdAttr =
         attrId: '1'

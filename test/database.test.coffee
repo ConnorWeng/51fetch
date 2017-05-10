@@ -35,9 +35,31 @@ describe 'database', () ->
       assert.equal db.getCidFromUrl('wrong_url'), ''
 
   describe '#saveItemAttr', ->
-    it 'should run the correct insert sql', ->
-      sinon.stub db.pool, 'query', ->
-      db.saveItemAttr 1, [{
+    beforeEach ->
+      sinon.stub db, 'getItemAttr', ->
+        Q [{
+          gattr_id: '9999991'
+          attr_id: '1'
+          value_id: 'vid1'
+          attr_name: 'attr11'
+          attr_value: 'val11'
+        }, {
+          gattr_id: '9999992'
+          attr_id: '2'
+          value_id: 'vid2'
+          attr_name: 'attr22'
+          attr_value: 'val22'
+        }]
+      sinon.stub db.pool, 'query', (sql, cb) -> cb()
+    assertSql = (attrs, expectSql, done) ->
+      db.saveItemAttr 1, attrs, ->
+        try
+          assert.equal db.pool.query.args[0][0], expectSql
+          done()
+        catch err
+          done err
+    it 'should run update sql', (done) ->
+      assertSql [{
         attrId: '1'
         valueId: 'vid1'
         attrName: 'attr1'
@@ -47,8 +69,31 @@ describe 'database', () ->
         valueId: 'vid2'
         attrName: 'attr2'
         attrValue: 'val2'
-      }], ->
-      assert.isTrue db.pool.query.calledWith "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('1', 'attr1', 'select', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id, value_id) values ('1', 'attr1', 'val1', '1', 'vid1');replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('2', 'attr2', 'select', '其他'); insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id, value_id) values ('1', 'attr2', 'val2', '2', 'vid2');"
+      }], "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('1', 'attr1', 'select', '其他');update ecm_goods_attr set attr_name = 'attr1', attr_value = 'val1' where gattr_id = 9999991;replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('2', 'attr2', 'select', '其他');update ecm_goods_attr set attr_name = 'attr2', attr_value = 'val2' where gattr_id = 9999992;", done
+    it 'should run insert sql', (done) ->
+      assertSql [{
+        attrId: '1'
+        valueId: 'vid1'
+        attrName: 'attr1'
+        attrValue: 'val1'
+      }, {
+        attrId: '2'
+        valueId: 'vid2'
+        attrName: 'attr2'
+        attrValue: 'val2'
+      }, {
+        attrId: '3'
+        valueId: 'vid3'
+        attrName: 'attr3'
+        attrValue: 'val3'
+      }], "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('1', 'attr1', 'select', '其他');update ecm_goods_attr set attr_name = 'attr1', attr_value = 'val1' where gattr_id = 9999991;replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('2', 'attr2', 'select', '其他');update ecm_goods_attr set attr_name = 'attr2', attr_value = 'val2' where gattr_id = 9999992;replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('3', 'attr3', 'select', '其他');insert into ecm_goods_attr(goods_id, attr_name, attr_value, attr_id, value_id) values ('1', 'attr3', 'val3', '3', 'vid3');", done
+    it 'should run delete sql', (done) ->
+      assertSql [{
+        attrId: '1'
+        valueId: 'vid1'
+        attrName: 'attr1'
+        attrValue: 'val1'
+      }], "replace into ecm_attribute(attr_id, attr_name, input_mode, def_value) values ('1', 'attr1', 'select', '其他');update ecm_goods_attr set attr_name = 'attr1', attr_value = 'val1' where gattr_id = 9999991;delete from ecm_goods_attr where gattr_id = 9999992;", done
 
   describe '#updateCats', ->
     it 'should run the correct update sql', ->
