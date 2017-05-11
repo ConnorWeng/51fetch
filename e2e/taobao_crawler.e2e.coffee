@@ -1,9 +1,40 @@
+{inspect} = require 'util'
 chai = require 'chai'
-{getHierarchalCats, crawlTaobaoItem} = require '../src/taobao_crawler'
+{stub} = require 'sinon'
+{getHierarchalCats, crawlTaobaoItem, crawlStore, setDatabase} = require '../src/taobao_crawler'
+database = require '../src/database'
 
 chai.should()
 
 describe 'taobao_crawler', ->
+  describe '#crawlStore', ->
+    db = new database()
+    stub db, 'getStores', ->
+    stub db, 'getUnfetchedGoodsInStore', ->
+    stub db, 'updateGoods', ->
+    stub db, 'updateItemImgs', ->
+    stub db, 'updateCats', ->
+    stub db, 'updateSpecs', ->
+    stub db, 'updateDefaultSpec', ->
+    stub db, 'saveItemAttr', ->
+    stub db, 'updateStoreCateContent', ->
+    stub db, 'updateImWw', ->
+    stub db, 'clearCids', ->
+    stub db, 'deleteDelistItems', (a, b, cb) -> cb()
+    stub db, 'saveItems', (a, b, c, d, e, f, cb) -> cb()
+    setDatabase db
+    it 'should crawl all items with basic info', (done) ->
+      crawlStore {
+        store_id: 10015
+        store_name: '相思雨牛仔女装'
+        im_ww: '相思雨牛仔女装'
+        see_price: '减20'
+        shop_http: 'https://shop113550542.taobao.com'
+      }, false, ->
+        console.log inspect db.deleteDelistItems.args, depth: 5
+        console.log inspect db.saveItems.args, depth: 5
+        done()
+
   describe '#getHierarchalCats', ->
     it.skip 'should return hierarchal cats', (done) ->
       getHierarchalCats 162103, (err, cats) ->
