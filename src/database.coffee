@@ -180,17 +180,42 @@ class db
       log "id:#{storeId} #{storeName} updated im_ww #{imWw}."
 
   updateItemImgs: (goodsId, itemImgs, callback) ->
-    sql = "delete from ecm_goods_image where goods_id = #{goodsId};"
-    for img, i in itemImgs
-      if i is 0
-        sql += "insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) select #{goodsId}, '#{img.url}', '#{img.url}_460x460.jpg', (select ifnull(so,0) from (select max(sort_order) + 1 so from ecm_goods_image where goods_id = #{goodsId}) t), 0 from dual where not exists (select 1 from ecm_goods_image where goods_id = #{goodsId});"
-      else
-        sql += "insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) select #{goodsId}, '#{img.url}', '#{img.url}_460x460.jpg', (select ifnull(so,0) from (select max(sort_order) + 1 so from ecm_goods_image where goods_id = #{goodsId}) t), 0 from dual where not exists (select 1 from ecm_goods_image where goods_id = #{goodsId} and substr(image_url, -56) = substr('#{img.url}', -56));"
-    if sql
-      @query sql, (err, result) ->
-        callback err, result
+    @getItemImgs goodsId
+      .then (oldItemImgs) =>
+        newItemImgs = []
+        for img, i in itemImgs
+          newItemImgs.push
+            goods_id: goodsId
+            image_url: img.url
+            thumbnail: "#{img.url}_460x460.jpg"
+            sort_order: i
+            file_id: 0
+        @$query @makeUpdateItemImgsSql oldItemImgs, newItemImgs
+      .then (result) ->
+        callback null, result
+      .catch (err) ->
+        error "error in updateItemImgs, goodsId:#{goodsId}, error:#{err}"
+        callback err, null
+
+  makeUpdateItemImgsSql: (oldItemImgs, newItemImgs) ->
+    sql = ''
+    delta = oldItemImgs.length - newItemImgs.length
+    if delta >= 0
+      for oii, i in oldItemImgs
+        if i < newItemImgs.length
+          sql += "update ecm_goods_image set goods_id = '#{newItemImgs[i].goods_id}', image_url = '#{newItemImgs[i].image_url}', thumbnail = '#{newItemImgs[i].thumbnail}', sort_order = '#{newItemImgs[i].sort_order}', file_id = '#{newItemImgs[i].file_id}' where image_id = #{oii.image_id};"
+        else
+          sql += "delete from ecm_goods_image where image_id = #{oii.image_id};"
     else
-      callback null, null
+      for nii, j in newItemImgs
+        if j < oldItemImgs.length
+          sql += "update ecm_goods_image set goods_id = '#{nii.goods_id}', image_url = '#{nii.image_url}', thumbnail = '#{nii.thumbnail}', sort_order = '#{nii.sort_order}', file_id = '#{nii.file_id}' where image_id = #{oldItemImgs[j].image_id};"
+        else
+          sql += "insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values ('#{nii.goods_id}', '#{nii.image_url}', '#{nii.thumbnail}', '#{nii.sort_order}', '#{nii.file_id}');"
+    sql
+
+  getItemImgs: (goodsId) ->
+    @$query "select * from ecm_goods_image where goods_id = #{goodsId} order by sort_order;"
 
   saveItemAttr: (goodsId, attrs, callback) ->
     @getItemAttr goodsId

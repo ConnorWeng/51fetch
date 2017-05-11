@@ -316,3 +316,48 @@ describe 'database', () ->
       sinon.stub db.pool, 'query', ->
       db.updateImWw '1', 'store_name', '1234567'
       assert.isTrue db.pool.query.calledWith "update ecm_store set im_ww = '1234567' where store_id = 1"
+
+  describe '#updateItemImgs', ->
+    beforeEach ->
+      sinon.stub db, 'getItemImgs', ->
+        Q [{
+          image_id: 29252478
+          goods_id: 1
+          image_url: 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg'
+          thumbnail: 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg_460x460.jpg'
+          sort_order: 0
+          file_id: 0
+        }, {
+          image_id: 29252479
+          goods_id: 1
+          image_url: 'http://gd3.alicdn.com/imgextra/i3/511039241/TB20_necdhvOuFjSZFBXXcZgFXa_!!511039241.jpg'
+          thumbnail: 'http://gd3.alicdn.com/imgextra/i3/511039241/TB20_necdhvOuFjSZFBXXcZgFXa_!!511039241.jpg_460x460.jpg'
+          sort_order: 1
+          file_id: 0
+        }]
+      sinon.stub db.pool, 'query', (sql, cb) -> cb()
+    assertSql = (itemImgs, expectSql, done) ->
+      db.updateItemImgs 1, itemImgs, ->
+        try
+          assert.equal db.pool.query.args[0][0], expectSql
+          done()
+        catch err
+          done err
+    it 'should run update sql', (done) ->
+      assertSql [{
+        url: 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg'
+      }, {
+        url: 'http://gd3.alicdn.com/imgextra/i3/511039241/TB20_necdhvOuFjSZFBXXcZgFXa_!!511039241.jpg'
+      }], "update ecm_goods_image set goods_id = '1', image_url = 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg', thumbnail = 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg_460x460.jpg', sort_order = '0', file_id = '0' where image_id = 29252478;update ecm_goods_image set goods_id = '1', image_url = 'http://gd3.alicdn.com/imgextra/i3/511039241/TB20_necdhvOuFjSZFBXXcZgFXa_!!511039241.jpg', thumbnail = 'http://gd3.alicdn.com/imgextra/i3/511039241/TB20_necdhvOuFjSZFBXXcZgFXa_!!511039241.jpg_460x460.jpg', sort_order = '1', file_id = '0' where image_id = 29252479;", done
+    it 'should run delete sql', (done) ->
+      assertSql [{
+        url: 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg'
+      }], "update ecm_goods_image set goods_id = '1', image_url = 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg', thumbnail = 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg_460x460.jpg', sort_order = '0', file_id = '0' where image_id = 29252478;delete from ecm_goods_image where image_id = 29252479;", done
+    it 'should run insert sql', (done) ->
+      assertSql [{
+        url: 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg'
+      }, {
+        url: 'http://gd3.alicdn.com/imgextra/i3/511039241/TB20_necdhvOuFjSZFBXXcZgFXa_!!511039241.jpg'
+      }, {
+        url: 'http://gd1.alicdn.com/imgextra/i3/511039241/TB20dnecdhvJJFiSBBBXXcZgFXa_!!511039241.jpg'
+      }], "update ecm_goods_image set goods_id = '1', image_url = 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg', thumbnail = 'http://gd2.alicdn.com/imgextra/i2/511039241/TB2cVaYg3JlpuFjSspjXXcT.pXa_!!511039241.jpg_460x460.jpg', sort_order = '0', file_id = '0' where image_id = 29252478;update ecm_goods_image set goods_id = '1', image_url = 'http://gd3.alicdn.com/imgextra/i3/511039241/TB20_necdhvOuFjSZFBXXcZgFXa_!!511039241.jpg', thumbnail = 'http://gd3.alicdn.com/imgextra/i3/511039241/TB20_necdhvOuFjSZFBXXcZgFXa_!!511039241.jpg_460x460.jpg', sort_order = '1', file_id = '0' where image_id = 29252479;insert into ecm_goods_image(goods_id, image_url, thumbnail, sort_order, file_id) values ('1', 'http://gd1.alicdn.com/imgextra/i3/511039241/TB20dnecdhvJJFiSBBBXXcZgFXa_!!511039241.jpg', 'http://gd1.alicdn.com/imgextra/i3/511039241/TB20dnecdhvJJFiSBBBXXcZgFXa_!!511039241.jpg_460x460.jpg', '2', '0');", done
