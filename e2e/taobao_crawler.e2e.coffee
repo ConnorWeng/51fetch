@@ -19,7 +19,7 @@ describe 'taobao_crawler', ->
         done()
 
   describe '#crawlTaobaoItem', ->
-    it 'should get item title', (done) ->
+    it.skip 'should get item title', (done) ->
       crawlTaobaoItem 520223599219, (error, taobaoItem) ->
         if error then throw error
         taobaoItem.title.should.eql '2015夏新品名媛性感挂脖露背印花修身显瘦气质收腰中长连衣裙'

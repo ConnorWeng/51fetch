@@ -33,7 +33,7 @@ exports.evaluate = evaluate = (params, $) ->
     data[name] = func($)
   data
 
-exports.fetch = fetch = (url, method = 'GET') ->
+exports.fetch = fetch = (url, method = 'POST') ->
   defered = Q.defer()
   c.queue [
     'uri': url
