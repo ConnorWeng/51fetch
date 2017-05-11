@@ -1,13 +1,18 @@
 {inspect} = require 'util'
 chai = require 'chai'
 {stub} = require 'sinon'
-{getHierarchalCats, crawlTaobaoItem, crawlStore, setDatabase} = require '../src/taobao_crawler'
+{getHierarchalCats, crawlTaobaoItem, crawlStore, setDatabase, crawlItemsInStore} = require '../src/taobao_crawler'
 database = require '../src/database'
+{setRateLimits} = require '../src/crawler'
 
 chai.should()
 
+setRateLimits 5000
+
+db = null
+
 describe 'taobao_crawler', ->
-  describe '#crawlStore', ->
+  beforeEach ->
     db = new database()
     stub db, 'getStores', ->
     stub db, 'getUnfetchedGoodsInStore', ->
@@ -23,7 +28,10 @@ describe 'taobao_crawler', ->
     stub db, 'deleteDelistItems', (a, b, cb) -> cb()
     stub db, 'saveItems', (a, b, c, d, e, f, cb) -> cb()
     setDatabase db
+
+  describe '#crawlStore', ->
     it 'should crawl all items with basic info', (done) ->
+      this.timeout 60000
       crawlStore {
         store_id: 10015
         store_name: '相思雨牛仔女装'
@@ -33,6 +41,13 @@ describe 'taobao_crawler', ->
       }, false, ->
         console.log inspect db.deleteDelistItems.args, depth: 5
         console.log inspect db.saveItems.args, depth: 5
+        done()
+
+  describe '#crawlItemsInStore', ->
+    it.skip 'should crawl all items with detail info', (done) ->
+      this.timeout 60000
+      crawlItemsInStore 10015, null, ->
+        console.log
         done()
 
   describe '#getHierarchalCats', ->

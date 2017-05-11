@@ -13,6 +13,9 @@ c = new Crawler
 exports.setCrawler = (crawler) ->
   c = crawler
 
+exports.setRateLimits = (rateLimits) ->
+  c.options.rateLimits = rateLimits
+
 exports.crawl = crawl = (url, params, callback) ->
   c.queue [
     'uri': url
