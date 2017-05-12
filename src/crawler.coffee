@@ -1,14 +1,33 @@
 {Crawler} = require 'crawler'
 {env} = require 'jsdom'
+{log, error} = require 'util'
 jquery = require 'jquery'
 Q = require 'q'
 config = require './config'
+
+MAX_RETRY_TIMES = 10
 
 c = new Crawler
   'headers':
     'Cookie': config.cookie
   'forceUTF8': true
   'jQuery': false
+
+IPProxies = []
+IPIndex = 0
+
+after5s = ->
+  true
+
+getIPProxyViaApi = ->
+  []
+
+getIPProxy = ->
+  if after5s() then IPProxies = getIPProxyViaApi()
+  if IPProxies.length is 0 then return null;
+  ip = IPProxies[IPIndex++]
+  if IPIndex is IPProxies.length then IPIndex = 0
+  ip
 
 exports.setCrawler = (crawler) ->
   c = crawler
@@ -38,16 +57,25 @@ exports.evaluate = evaluate = (params, $) ->
 
 exports.fetch = fetch = (url, method = 'POST') ->
   defered = Q.defer()
+  retryTimes = 0
+  fetchImpl defered, url, method, retryTimes
+  defered.promise
+
+fetchImpl = (defered, url, method, retryTimes) ->
   c.queue [
     'uri': url
     'method': method
+    'proxy': getIPProxy()
     'callback': (err, result) ->
       if err
-        defered.reject err
+        if ++retryTimes > MAX_RETRY_TIMES
+          error "fail to fetch after trying #{retryTimes} times"
+          defered.reject err
+        else
+          fetchImpl defered, url, method, retryTimes
       else
         defered.resolve result
   ]
-  defered.promise
 
 exports.makeJsDom = makeJsDom = Q.nfbind env
 
