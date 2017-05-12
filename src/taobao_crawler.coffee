@@ -532,7 +532,7 @@ exports.isRealPic = isRealPic = (title, propsName) ->
     0
 
 exports.$fetch = $fetch = (url, callback) ->
-  fetch url
+  fetch url, 'GET'
     .then (result) ->
       body = result.body
       makeJsDomPromise body
@@ -544,7 +544,7 @@ exports.$fetch = $fetch = (url, callback) ->
 
 crawlDesc = (url) ->
   defered = Q.defer()
-  fetch url
+  fetch url, 'GET'
     .then (result) ->
       body = result.body
       if ~body.indexOf 'var desc'
@@ -701,7 +701,7 @@ debug = (content) ->
     console.log '=============================================================='
     console.log content
 
-if process.env.NODE_ENV is 'test'
+if process.env.NODE_ENV is 'test' or process.env.NODE_ENV is 'e2e'
   exports.setSaveItemsFromPageAndQueueNext = (f) -> saveItemsFromPageAndQueueNext = f
   exports.setCrawlAllPagesOfByNew = (f) -> crawlAllPagesOfByNew = f
   exports.setCrawlAllPagesOfAllCates = (f) -> crawlAllPagesOfAllCates = f
@@ -712,6 +712,7 @@ if process.env.NODE_ENV is 'test'
   exports.setCrawlItemViaApi = (f) -> crawlItemViaApi = f
   exports.setFetch = (f) -> fetch = f
   exports.setGetItemProps = (f) -> getItemProps = f
+  exports.setGetHierarchalCats = (f) -> getHierarchalCats = f
   exports.parsePrice = parsePrice
   exports.formatPrice = formatPrice
   exports.crawlAllPagesOfByNew = crawlAllPagesOfByNew
@@ -740,6 +741,4 @@ if process.env.NODE_ENV is 'test'
   exports.extractPropsName = extractPropsName
   exports.queueStoreUri = queueStoreUri
   exports.fetch = fetch
-
-if process.env.NODE_ENV is 'e2e'
   exports.getHierarchalCats = getHierarchalCats

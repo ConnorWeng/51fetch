@@ -1,7 +1,7 @@
 {inspect} = require 'util'
 chai = require 'chai'
 {stub} = require 'sinon'
-{getHierarchalCats, crawlTaobaoItem, crawlStore, setDatabase, crawlItemsInStore} = require '../src/taobao_crawler'
+{getHierarchalCats, crawlTaobaoItem, crawlStore, setDatabase, crawlItemsInStore, setGetHierarchalCats, setGetItemProps} = require '../src/taobao_crawler'
 database = require '../src/database'
 {setRateLimits} = require '../src/crawler'
 
@@ -14,19 +14,32 @@ db = null
 describe 'taobao_crawler', ->
   beforeEach ->
     db = new database()
-    stub db, 'getStores', ->
-    stub db, 'getUnfetchedGoodsInStore', ->
-    stub db, 'updateGoods', ->
-    stub db, 'updateItemImgs', ->
-    stub db, 'updateCats', ->
-    stub db, 'updateSpecs', ->
-    stub db, 'updateDefaultSpec', ->
-    stub db, 'saveItemAttr', ->
+    stub db, 'getStores', (a, cb) -> cb null, [{
+      store_id: 161190
+      store_name: '衫公主'
+      im_ww: '一片冰心liutong'
+      see_price: '减20'
+      shop_http: 'https://shop106868309.taobao.com'
+    }]
+    stub db, 'getUnfetchedGoodsInStore', (a, cb) ->
+      cb null, [{
+        goods_id: 8906021
+        goods_name: '爆款1063实拍2017夏装新款韩版显瘦字母印花T恤女式圆领短袖上衣'
+        price: '19.00'
+        good_http: 'http://item.taobao.com/item.htm?id=550572854274'
+        store_id: 161190
+      }]
+    stub db, 'updateGoods', (a, b, c, d, e, f, g, h, i, j, cb) -> cb null, {}
+    stub db, 'updateItemImgs', (a, b, cb) -> cb null, {}
+    stub db, 'updateCats', (a, b, c, cb) -> cb null, {}
+    stub db, 'updateSpecs', (a, b, c, d, e, cb) -> cb null, {insertId: 1}
+    stub db, 'updateDefaultSpec', (a, b, cb) -> cb null, {}
+    stub db, 'saveItemAttr', (a, b, cb) -> cb null, {}
     stub db, 'updateStoreCateContent', ->
     stub db, 'updateImWw', ->
     stub db, 'clearCids', ->
-    stub db, 'deleteDelistItems', (a, b, cb) -> cb()
-    stub db, 'saveItems', (a, b, c, d, e, f, cb) -> cb()
+    stub db, 'deleteDelistItems', (a, b, cb) -> cb null, {}
+    stub db, 'saveItems', (a, b, c, d, e, f, cb) -> cb null, {}
     setDatabase db
 
   describe '#crawlStore', ->
@@ -44,10 +57,17 @@ describe 'taobao_crawler', ->
         done()
 
   describe '#crawlItemsInStore', ->
-    it.skip 'should crawl all items with detail info', (done) ->
+    it 'should crawl all items with detail info', (done) ->
       this.timeout 60000
-      crawlItemsInStore 10015, null, ->
-        console.log
+      setGetHierarchalCats (cid, cb) -> cb null, [{
+        cid: 1
+        name: '女装'
+        parent_id: 0
+      }]
+      setGetItemProps (a, b, c, cb) -> cb null, "1:1:袖长:中袖;2:2:风格:诡异"
+      crawlItemsInStore 161190, null, ->
+        console.log inspect db.updateGoods.args, depth: 5
+        console.log inspect db.updateSpecs.args, depth: 5
         done()
 
   describe '#getHierarchalCats', ->

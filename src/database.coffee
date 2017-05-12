@@ -139,7 +139,21 @@ class db
           sql = @makeUpdateSpecsSql oldSpecs, newSpecs
         @$query sql
       .then (result) ->
-        callback null, result
+        if result.insertId?
+          if result.insertId > 0
+            insertId = result.insertId
+          else
+            insertId = oldSpecs[0].spec_id
+        else if result.length > 0
+          found = false
+          for affect in result
+            if affect.insertId > 0
+              insertId = affect.insertId
+              found = true
+              break
+          if not found then insertId = oldSpecs[0].spec_id
+        callback null,
+          insertId: insertId
       .catch (err) ->
         error "error in updateSpecs, goodsId:#{goodsId}, error:#{err}"
         callback err, null
