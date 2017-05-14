@@ -185,13 +185,12 @@ makeJsDom = (result, callback) ->
   else
     env result.body, callback
 
-totalItemsCount = 0
 updateCateContentAndFetchAllUris = (store) ->
   (window, callback) ->
     $ = jquery window
     catsTreeHtml = removeSingleQuotes extractCatsTreeHtml $, store
     if catsTreeHtml isnt ''
-      totalItemsCount = parseInt($('.search-result span').text())
+      store['total_items_count'] = parseInt($('.search-result span').text())
       db.updateStoreCateContent store['store_id'], store['store_name'], catsTreeHtml
       imWw = extractImWw $, store['store_id'], store['store_name']
       if imWw then db.updateImWw store['store_id'], store['store_name'], imWw
@@ -199,7 +198,7 @@ updateCateContentAndFetchAllUris = (store) ->
       window.close()
       callback null, uris
     else
-      totalItemsCount = 0
+      store['total_items_count'] = 0
       window.close()
       # log "NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"
       # process.exit -1
@@ -276,7 +275,7 @@ crawlAllPagesOfAllCates = (uris, callback) ->
 
 deleteDelistItems = (store) ->
   (result, callback) ->
-    db.deleteDelistItems store['store_id'], totalItemsCount, callback
+    db.deleteDelistItems store['store_id'], store['total_items_count'], callback
 
 updateCategories = (store) ->
   (uris, callback) ->
