@@ -28,6 +28,12 @@ describe 'taobao_crawler', ->
         price: '19.00'
         good_http: 'http://item.taobao.com/item.htm?id=550572854274'
         store_id: 161190
+      }, {
+        goods_id: 8385081
+        goods_name: '6016#实拍2016夏季新款大码女装宽松缕空露肩镶钻蝙蝠袖t恤'
+        price: '28.00'
+        good_http: 'http://item.taobao.com/item.htm?id=39250094595'
+        store_id: 5867
       }]
     stub db, 'updateGoods', (a, b, c, d, e, f, g, h, i, j, cb) -> cb null, {}
     stub db, 'updateItemImgs', (a, b, cb) -> cb null, {}

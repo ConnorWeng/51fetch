@@ -673,6 +673,9 @@ extractPropsName = ($, cid) ->
 exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback) ->
   url = "https://item.taobao.com/item.htm?id=#{numIid}"
   $fetch url, ($) ->
+    if $('.error-notice-hd').length > 0
+      callback new Error("num_iid: #{numIid} fail to crawl because of taken off shelves")
+      return
     taobaoItem = {}
     taobaoItem.title = $('.tb-main-title').attr('data-title');
     taobaoItem.pic_url = makeSureProtocol $('.tb-thumb li:eq(0) img').attr('data-src').replace('_50x50.jpg', '');
