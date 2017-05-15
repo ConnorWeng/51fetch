@@ -105,19 +105,19 @@ exports.crawlStore = (store, fullCrawl, done) ->
   if fullCrawl
     steps = [
       queueStoreUri(store)
-      makeJsDom
+      makeJsDom(store)
       updateCateContentAndFetchAllUris(store)
       clearCids(store)
-      crawlAllPagesOfByNew
-      crawlAllPagesOfAllCates
+      crawlAllPagesOfByNew(store)
+      crawlAllPagesOfAllCates(store)
       deleteDelistItems(store)
     ]
   else
     steps = [
       queueStoreUri(store)
-      makeJsDom
+      makeJsDom(store)
       updateCateContentAndFetchAllUris(store)
-      crawlAllPagesOfByNew
+      crawlAllPagesOfByNew(store)
       deleteDelistItems(store)
     ]
   async.waterfall steps, (err, result) ->
@@ -178,12 +178,12 @@ queueStoreUri = (store) ->
       .catch (err) ->
         callback err, null
 
-makeJsDom = (result, callback) ->
-  if result.body is ''
-    store = parseStoreFromUri result.uri
-    callback new Error("id:#{store['store_id']} #{store['store_name']} doesn't exist"), null
-  else
-    env result.body, callback
+makeJsDom = (store) ->
+  (result, callback) ->
+    if result.body is ''
+      callback new Error("id:#{store['store_id']} #{store['store_name']} doesn't exist"), null
+    else
+      env result.body, callback
 
 updateCateContentAndFetchAllUris = (store) ->
   (window, callback) ->
@@ -235,43 +235,43 @@ clearCids = (store) ->
       else
         callback null, uris
 
-remains = 0
-changeRemains = (action, callback, err = null) ->
+changeRemains = (store, action, callback, err = null) ->
+  if not store.remains? then store.remains = 0
   if action is '+'
-    remains++
+    store.remains++
   else if action is '-'
-    remains--
-    if remains is 0 then callback err
+    store.remains--
+    if store.remains is 0 then callback err
 
-crawlAllPagesOfByNew = (uris, callback) ->
-  callbackWithUris = (err) ->
-    callback err, uris
-  if uris.byNewUris.length > 0
-    for uri in uris.byNewUris
-      store = parseStoreFromUri uri
-      changeRemains '+', callback
-      fetch(makeUriWithStoreInfo uri, store)
-        .then (result) ->
-          saveItemsFromPageAndQueueNext(callbackWithUris)(null, result)
-        .catch (err) ->
-          saveItemsFromPageAndQueueNext(callbackWithUris)(err, null)
-  else
-    callback null, uris
+crawlAllPagesOfByNew = (store) ->
+  (uris, callback) ->
+    callbackWithUris = (err) ->
+      callback err, uris
+    if uris.byNewUris.length > 0
+      for uri in uris.byNewUris
+        changeRemains store, '+', callback
+        fetch(makeUriWithStoreInfo uri, store)
+          .then (result) ->
+            saveItemsFromPageAndQueueNext(store, callbackWithUris)(null, result)
+          .catch (err) ->
+            saveItemsFromPageAndQueueNext(store, callbackWithUris)(err, null)
+    else
+      callback null, uris
 
-crawlAllPagesOfAllCates = (uris, callback) ->
-  callbackWithUris = (err) ->
-    callback err, uris
-  if uris.catesUris.length > 0
-    for uri in uris.catesUris
-      store = parseStoreFromUri uri
-      changeRemains '+', callback
-      fetch(makeUriWithStoreInfo uri, store)
-        .then (result) ->
-          saveItemsFromPageAndQueueNext(callbackWithUris)(null, result)
-        .catch (err) ->
-          saveItemsFromPageAndQueueNext(callbackWithUris)(err, null)
-  else
-    callback null, uris
+crawlAllPagesOfAllCates = (store) ->
+  (uris, callback) ->
+    callbackWithUris = (err) ->
+      callback err, uris
+    if uris.catesUris.length > 0
+      for uri in uris.catesUris
+        changeRemains store, '+', callback
+        fetch(makeUriWithStoreInfo uri, store)
+          .then (result) ->
+            saveItemsFromPageAndQueueNext(store, callbackWithUris)(null, result)
+          .catch (err) ->
+            saveItemsFromPageAndQueueNext(store, callbackWithUris)(err, null)
+    else
+      callback null, uris
 
 deleteDelistItems = (store) ->
   (result, callback) ->
@@ -286,35 +286,34 @@ updateCategories = (store) ->
       else
         callback err, uris
 
-saveItemsFromPageAndQueueNext = (callback) ->
+saveItemsFromPageAndQueueNext = (store, callback) ->
   (err, result) ->
     debug result.body
     if result.body is ''
-      changeRemains '-', callback
+      changeRemains store, '-', callback
       error "Error: #{result.uri} return empty content"
     else
       env result.body, (errors, window) ->
         $ = jquery window
-        store = parseStoreFromUri result.uri
         if $('.item-not-found').length > 0
           log "id:#{store['store_id']} #{store['store_name']} has one empty page: #{result.uri}"
           bannedError = new Error('been banned by taobao')
-          changeRemains '-', callback, bannedError
+          changeRemains store, '-', callback, bannedError
         else
           nextUri = nextPageUri $
           if nextUri?
-            changeRemains '+', callback
+            changeRemains store, '+', callback
             fetch(makeUriWithStoreInfo nextUri, store)
               .then (res) ->
-                saveItemsFromPageAndQueueNext(callback)(null, res)
+                saveItemsFromPageAndQueueNext(store, callback)(null, res)
               .catch (err) ->
-                saveItemsFromPageAndQueueNext(callback)(err, null)
+                saveItemsFromPageAndQueueNext(store, callback)(err, null)
           items = extractItemsFromContent $, store
           bannedError = new Error('been banned by taobao') if isBanned $
           if bannedError then process.exit -99
           pageNumber = currentPageNumber $
           db.saveItems store['store_id'], store['store_name'], items, result.uri, $(TEMPLATES[0].CAT_SELECTED).text().trim(), pageNumber, ->
-            changeRemains '-', callback, bannedError
+            changeRemains store, '-', callback, bannedError
         window.close()
 
 nextPageUri = ($) ->
@@ -341,13 +340,6 @@ makeSureProtocol = (uri) ->
   protocol = ''
   protocol = 'http:' if uri.indexOf('http') isnt 0 and uri.indexOf('//') is 0
   protocol + uri
-
-parseStoreFromUri = (uri) ->
-  uriParts = uri.split '##'
-  store =
-    'store_name': uriParts[1]
-    'store_id': uriParts[2]
-    'see_price': uriParts[3]
 
 exports.extractItemsFromContent = extractItemsFromContent = ($, store) ->
   items = []

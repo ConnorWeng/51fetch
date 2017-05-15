@@ -45,22 +45,26 @@ describe 'taobao_crawler', () ->
     taobao_crawler.setDeleteDelistItems mockDbOperationWithStoreArgs
     it 'should crawl category content and all category uris', (done) ->
       stubCrawler CATS_TREE_HTML_TEMPLATE_A
-      taobao_crawler.setCrawlAllPagesOfByNew (uris, callback) ->
-        callback null, uris
-      taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
-        assert.include uris.catesUris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791&viewType=grid##store_name##store_id##see_price'
-        callback null, uris
+      taobao_crawler.setCrawlAllPagesOfByNew (store) ->
+        (uris, callback) ->
+          callback null, uris
+      taobao_crawler.setCrawlAllPagesOfAllCates (store) ->
+        (uris, callback) ->
+          assert.include uris.catesUris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791&viewType=grid##store_name##store_id##see_price'
+          callback null, uris
       taobao_crawler.crawlStore store, true, ->
         assert.isTrue databaseStub.updateStoreCateContent.calledWith('store_id', 'store_name')
         assert.isTrue databaseStub.updateImWw.calledWith('store_id', 'store_name')
         done()
     it 'should crawl items from newOn_desc when cats tree is empty', (done) ->
       stubCrawler CATS_TREE_WITHOUT_CATS_HTML
-      taobao_crawler.setCrawlAllPagesOfByNew (uris, callback) ->
-        assert.deepEqual uris.byNewUris, ['http://384007168.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid##store_name##store_id##see_price']
-        callback null, uris
-      taobao_crawler.setCrawlAllPagesOfAllCates (uris, callback) ->
-        callback null, uris
+      taobao_crawler.setCrawlAllPagesOfByNew (store) ->
+        (uris, callback) ->
+          assert.deepEqual uris.byNewUris, ['http://384007168.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid##store_name##store_id##see_price']
+          callback null, uris
+      taobao_crawler.setCrawlAllPagesOfAllCates (store) ->
+        (uris, callback) ->
+          callback null, uris
       taobao_crawler.crawlStore store, true, ->
         done()
 
@@ -73,7 +77,7 @@ describe 'taobao_crawler', () ->
       databaseStub.saveItems = (a, b, c, d, e, f, callback) ->
         process.nextTick ->
           callback null, null
-      taobao_crawler.crawlAllPagesOfAllCates {catesUris: ['http://localhost:9744/', 'http://localhost:9744/']}, ->
+      taobao_crawler.crawlAllPagesOfAllCates({}) {catesUris: ['http://localhost:9744/', 'http://localhost:9744/']}, ->
         done()
 
   describe '#saveItemsFromPageAndQueueNext', ->
@@ -82,16 +86,20 @@ describe 'taobao_crawler', () ->
         assert.equal options[0]['uri'], 'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price'
         done()
       setCrawler newCrawler
-      taobao_crawler.saveItemsFromPageAndQueueNext(->
+      taobao_crawler.saveItemsFromPageAndQueueNext({
+        store_id: 'any_store_id'
+        store_name: 'any_store_name'
+        see_price: 'any_see_price'
+      }, ->
       )(null,
         uri: 'any_uri##any_store_name##any_store_id##any_see_price'
         body: PAGINATION_HTML)
     it 'should do not call db function when item not found', (done) ->
       oldChangeRemains = taobao_crawler.changeRemains
-      changeRemains = (action, callback) ->
+      changeRemains = (store, action, callback) ->
         callback()
       taobao_crawler.setChangeRemains changeRemains
-      taobao_crawler.saveItemsFromPageAndQueueNext(->
+      taobao_crawler.saveItemsFromPageAndQueueNext({}, ->
         assert.isTrue databaseStub.saveItems.neverCalledWith()
         taobao_crawler.setChangeRemains oldChangeRemains
         done()
