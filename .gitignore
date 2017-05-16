@@ -9,3 +9,4 @@ add_store_csv.*
 pass.*
 *.txt
 /temp
+config.json
