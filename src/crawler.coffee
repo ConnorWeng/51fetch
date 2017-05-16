@@ -1,3 +1,4 @@
+http = require 'http'
 {Crawler} = require 'crawler'
 {env} = require 'jsdom'
 {log, error} = require 'util'
@@ -12,18 +13,44 @@ c = new Crawler
     'Cookie': config.cookie
   'forceUTF8': true
   'jQuery': false
+  'timeout': 10000
 
 IPProxies = []
 IPIndex = 0
+lastUpdate = 0
 
-after5s = ->
-  true
+after30m = ->
+  now = new Date().getTime()
+  if now - lastUpdate > 1800 * 1000
+    lastUpdate = now
+    true
+  else
+    false
 
-getIPProxyViaApi = ->
-  []
+updateIPProxiesViaApi = ->
+  http.get config.ip_proxies_api, (res) ->
+    if res.statusCode isnt 200
+      error 'fail to get new ip via api'
+      res.resume()
+      return
+    res.setEncoding 'utf8'
+    rawJSON = ''
+    res.on 'data', (chunk) -> rawJSON += chunk
+    res.on 'end', ->
+      log "api back"
+      try
+        json = JSON.parse rawJSON
+        if json.RESULT and json.RESULT.length > 0
+          IPProxies = ("http://#{proxy.ip}:#{proxy.port}" for proxy in json.RESULT)
+          log "success to get new ip via api, count: #{json.RESULT.length}"
+        else
+          error "fail to get api result, error: #{json.ERRORCODE}"
+      catch e
+        error "fail to parse json from api, error: #{e.message}"
+  .on 'error', (e) -> error "fail to get new ip via api, error: #{e.message}"
 
 getIPProxy = ->
-  if after5s() then IPProxies = getIPProxyViaApi()
+  if after30m() then updateIPProxiesViaApi()
   if IPProxies.length is 0 then return null;
   ip = IPProxies[IPIndex++]
   if IPIndex is IPProxies.length then IPIndex = 0

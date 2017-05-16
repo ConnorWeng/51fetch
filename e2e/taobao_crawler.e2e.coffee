@@ -7,8 +7,6 @@ database = require '../src/database'
 
 chai.should()
 
-setRateLimits 5000
-
 db = null
 
 describe 'taobao_crawler', ->
