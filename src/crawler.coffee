@@ -96,9 +96,10 @@ fetchImpl = (defered, url, method, retryTimes) ->
     'callback': (err, result) ->
       if err
         if ++retryTimes > MAX_RETRY_TIMES
-          error "fail to fetch after trying #{retryTimes} times"
+          error "fail to fetch after trying #{retryTimes} times, err: #{err}, url: #{url}"
           defered.reject err
         else
+          log "fail to fetch, retrying, err: #{err}, url: #{url}"
           fetchImpl defered, url, method, retryTimes
       else
         defered.resolve result
