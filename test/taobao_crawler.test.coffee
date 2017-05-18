@@ -10,7 +10,6 @@ database = require '../src/database'
 
 newCrawler = null
 databaseStub = null
-originMakeUriWithStoreInfo = taobao_crawler.makeUriWithStoreInfo
 
 http.createServer((req, res) ->
   res.end 'ok'
@@ -22,14 +21,13 @@ describe 'taobao_crawler', () ->
     setCrawler newCrawler
     databaseStub = sinon.createStubInstance database
     taobao_crawler.setDatabase databaseStub
-    taobao_crawler.setMakeUriWithStoreInfo originMakeUriWithStoreInfo
 
   describe '#crawlStore', () ->
     stubCrawler = (htmlContent) ->
       sinon.stub newCrawler, 'queue', (options) ->
         options[0]['callback'] null, {
           body: htmlContent
-          uri: 'http://shop_url##store_name##store_id##see_price'
+          uri: 'http://shop_url'
         }
       setCrawler newCrawler
     store =
@@ -50,7 +48,7 @@ describe 'taobao_crawler', () ->
           callback null, uris
       taobao_crawler.setCrawlAllPagesOfAllCates (store) ->
         (uris, callback) ->
-          assert.include uris.catesUris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791&viewType=grid##store_name##store_id##see_price'
+          assert.include uris.catesUris, 'http://shop65626141.taobao.com/category-757159791.htm?search=y&categoryp=162205&scid=757159791&viewType=grid'
           callback null, uris
       taobao_crawler.crawlStore store, true, ->
         assert.isTrue databaseStub.updateStoreCateContent.calledWith('store_id', 'store_name')
@@ -60,7 +58,7 @@ describe 'taobao_crawler', () ->
       stubCrawler CATS_TREE_WITHOUT_CATS_HTML
       taobao_crawler.setCrawlAllPagesOfByNew (store) ->
         (uris, callback) ->
-          assert.deepEqual uris.byNewUris, ['http://384007168.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid##store_name##store_id##see_price']
+          assert.deepEqual uris.byNewUris, ['http://384007168.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid']
           callback null, uris
       taobao_crawler.setCrawlAllPagesOfAllCates (store) ->
         (uris, callback) ->
@@ -72,7 +70,7 @@ describe 'taobao_crawler', () ->
     it 'should callback when all uris are handled', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
         process.nextTick ->
-          options[0]['callback'](null, {uri:'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price', body: '<div class="search-result">共搜索到<span> 55 </span>个符合条件的商品。</div>'})
+          options[0]['callback'](null, {uri:'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor', body: '<div class="search-result">共搜索到<span> 55 </span>个符合条件的商品。</div>'})
       setCrawler newCrawler
       databaseStub.saveItems = (a, b, c, d, e, f, callback) ->
         process.nextTick ->
@@ -83,7 +81,7 @@ describe 'taobao_crawler', () ->
   describe '#saveItemsFromPageAndQueueNext', ->
     it 'should queue next page uri', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
-        assert.equal options[0]['uri'], 'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##any_store_name##any_store_id##any_see_price'
+        assert.equal options[0]['uri'], 'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor'
         done()
       setCrawler newCrawler
       taobao_crawler.saveItemsFromPageAndQueueNext({
@@ -92,7 +90,7 @@ describe 'taobao_crawler', () ->
         see_price: 'any_see_price'
       }, ->
       )(null,
-        uri: 'any_uri##any_store_name##any_store_id##any_see_price'
+        uri: 'any_uri'
         body: PAGINATION_HTML)
     it 'should do not call db function when item not found', (done) ->
       oldChangeRemains = taobao_crawler.changeRemains
@@ -104,13 +102,10 @@ describe 'taobao_crawler', () ->
         taobao_crawler.setChangeRemains oldChangeRemains
         done()
       )(null,
-        uri: 'any_uri##any_store_name##any_store_id##any_see_price'
+        uri: 'any_uri'
         body: '<p class="item-not-found"></p>')
 
   describe '#extractUris', ->
-    beforeEach ->
-      taobao_crawler.setMakeUriWithStoreInfo (uri, store) ->
-        uri
     expectUrisInclude = (html, expectedArray..., done) ->
       env html, (errors, window) ->
         $ = jquery window
@@ -119,9 +114,9 @@ describe 'taobao_crawler', () ->
         assert.include uris.catesUris, expected for expected in expectedArray
         done()
     it 'should return uris from template A', (done) ->
-      expectUrisInclude CATS_TREE_HTML_TEMPLATE_A, '//shop65626141.taobao.com/category-858663529.htm?search=y&catName=30%D4%AA--45%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9&viewType=grid', '//shop65626141.taobao.com/category-757163049.htm?search=y&catName=%BA%AB%B0%E6%D0%DD%CF%D0%CA%B1%D7%B0&viewType=grid', done
+      expectUrisInclude CATS_TREE_HTML_TEMPLATE_A, 'http://shop65626141.taobao.com/category-858663529.htm?search=y&catName=30%D4%AA--45%D4%AA%CC%D8%BC%DB%C7%F8%A3%A8%C2%ED%C4%EA%B4%BA%CF%C4%BF%EE%A3%A9&viewType=grid', 'http://shop65626141.taobao.com/category-757163049.htm?search=y&catName=%BA%AB%B0%E6%D0%DD%CF%D0%CA%B1%D7%B0&viewType=grid', done
     it 'should return uris from template B', (done) ->
-      expectUrisInclude CATS_TREE_HTML_TEMPLATE_B, '//shop68788405.taobao.com/search.htm?orderType=newOn_desc&viewType=grid', done
+      expectUrisInclude CATS_TREE_HTML_TEMPLATE_B, 'http://shop68788405.taobao.com/search.htm?orderType=newOn_desc&viewType=grid', done
 
   describe '#extractImWw', ->
     it 'should return im_ww from uri', (done) ->
@@ -561,7 +556,7 @@ describe 'taobao_crawler', () ->
   describe '#queueStoreUri', ->
     it 'should queue the store uri', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
-        assert.equal options[0]['uri'], 'https://shop65626141.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid##any_store_name##any_store_id##any_see_price'
+        assert.equal options[0]['uri'], 'https://shop65626141.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid'
         options[0]['callback']()
       setCrawler newCrawler
       taobao_crawler.queueStoreUri(

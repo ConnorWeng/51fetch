@@ -172,7 +172,7 @@ updateItemDetailInDatabase = ({item, desc, good, attrs, cats, realPic, itemImgs}
 
 queueStoreUri = (store) ->
   (callback) ->
-    fetch(makeUriWithStoreInfo "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc&viewType=grid", store)
+    fetch(makeSureProtocol "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc&viewType=grid")
       .then (result) ->
         callback null, result
       .catch (err) ->
@@ -211,11 +211,11 @@ extractUris = ($, store) ->
   for template in TEMPLATES
     BY_NEW = selectRightTemplate $('body'), template.BY_NEW
     if $(BY_NEW).length > 0
-      uris.byNewUris.push makeUriWithStoreInfo($(BY_NEW).attr('href') + '&viewType=grid', store)
+      uris.byNewUris.push makeSureProtocol($(BY_NEW).attr('href') + '&viewType=grid')
     $(template.CAT_NAME).each (index, element) ->
       uri = $(element).attr('href')
       if uris.catesUris.indexOf(uri) is -1 and ~uri.indexOf('category-') and (~uri.indexOf('#bd') or ~uri.indexOf('categoryp'))
-        uris.catesUris.push makeUriWithStoreInfo(uri.replace('#bd', '') + '&viewType=grid', store)
+        uris.catesUris.push makeSureProtocol(uri.replace('#bd', '') + '&viewType=grid')
     if $(BY_NEW).length > 0 then break
   uris
 
@@ -250,7 +250,7 @@ crawlAllPagesOfByNew = (store) ->
     if uris.byNewUris.length > 0
       for uri in uris.byNewUris
         changeRemains store, '+', callback
-        fetch(makeUriWithStoreInfo uri, store)
+        fetch(makeSureProtocol uri)
           .then (result) ->
             saveItemsFromPageAndQueueNext(store, callbackWithUris)(null, result)
           .catch (err) ->
@@ -265,7 +265,7 @@ crawlAllPagesOfAllCates = (store) ->
     if uris.catesUris.length > 0
       for uri in uris.catesUris
         changeRemains store, '+', callback
-        fetch(makeUriWithStoreInfo uri, store)
+        fetch(makeSureProtocol uri)
           .then (result) ->
             saveItemsFromPageAndQueueNext(store, callbackWithUris)(null, result)
           .catch (err) ->
@@ -303,7 +303,7 @@ saveItemsFromPageAndQueueNext = (store, callback) ->
           nextUri = nextPageUri $
           if nextUri?
             changeRemains store, '+', callback
-            fetch(makeUriWithStoreInfo nextUri, store)
+            fetch(makeSureProtocol nextUri)
               .then (res) ->
                 saveItemsFromPageAndQueueNext(store, callback)(null, res)
               .catch (err) ->
@@ -332,9 +332,6 @@ extractCatsTreeHtml = ($, store) ->
   if catsTreeHtml is ''
     error "id:#{store['store_id']} #{store['store_name']}: catsTreeHtml is empty."
   catsTreeHtml
-
-makeUriWithStoreInfo = (uri, store) ->
-  makeSureProtocol(uri) + "###{store['store_name']}###{store['store_id']}###{store['see_price']}"
 
 makeSureProtocol = (uri) ->
   protocol = ''
@@ -701,7 +698,6 @@ if process.env.NODE_ENV is 'test' or process.env.NODE_ENV is 'e2e'
   exports.setCrawlAllPagesOfAllCates = (f) -> crawlAllPagesOfAllCates = f
   exports.setClearCids = (f) -> clearCids = f
   exports.setDeleteDelistItems = (f) -> deleteDelistItems = f
-  exports.setMakeUriWithStoreInfo = (f) -> makeUriWithStoreInfo = f
   exports.setChangeRemains = (f) -> changeRemains = f
   exports.setCrawlItemViaApi = (f) -> crawlItemViaApi = f
   exports.setFetch = (f) -> fetch = f
@@ -720,7 +716,6 @@ if process.env.NODE_ENV is 'test' or process.env.NODE_ENV is 'e2e'
   exports.extractCatsTreeHtml = extractCatsTreeHtml
   exports.extractUris = extractUris
   exports.extractImWw = extractImWw
-  exports.makeUriWithStoreInfo = makeUriWithStoreInfo
   exports.filterItems = filterItems
   exports.isRealPic = isRealPic
   exports.changeRemains = changeRemains
