@@ -20,9 +20,9 @@ IPProxies = []
 IPIndex = 0
 lastUpdate = 0
 
-after30m = ->
+after1m = ->
   now = new Date().getTime()
-  if now - lastUpdate > 1800 * 1000
+  if now - lastUpdate > 60 * 1000
     lastUpdate = now
     true
   else
@@ -40,14 +40,15 @@ updateIPProxiesViaApi = ->
     res.on 'end', ->
       try
         json = JSON.parse rawJSON
-        if json.RESULT and json.RESULT.length > 0
+        if json.ERRORCODE is '0'
           IPProxies = ({url: "http://#{proxy.ip}:#{proxy.port}", available: true} for proxy in json.RESULT)
           log "success to get new ip via api, count: #{json.RESULT.length}"
         else
-          error "fail to get api result, error: #{json.ERRORCODE}"
+          error "fail to get api result, error: #{json.ERRORCODE} #{json.RESULT}"
       catch e
         error "fail to parse json from api, error: #{e.message}"
-  .on 'error', (e) -> error "fail to get new ip via api, error: #{e.message}"
+  .on 'error', (e) ->
+    error "fail to get new ip via api, error: #{e.message}"
 
 isAllUnavailable = ->
   status = (proxy.available for proxy in IPProxies)
@@ -58,7 +59,7 @@ isAllUnavailable = ->
     true
 
 getIPProxy = ->
-  if after30m() or isAllUnavailable() then updateIPProxiesViaApi()
+  if after1m() and isAllUnavailable() then updateIPProxiesViaApi()
   if IPProxies.length is 0 then return null;
   proxy = IPProxies[IPIndex++]
   if IPIndex is IPProxies.length then IPIndex = 0
