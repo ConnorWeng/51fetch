@@ -13,7 +13,8 @@ c = new Crawler
     'Cookie': config.cookie
   'forceUTF8': true
   'jQuery': false
-  'timeout': 10000
+  'timeout': 8000
+  'retryTimeout': 0
 
 IPProxies = []
 IPIndex = 0
@@ -37,11 +38,10 @@ updateIPProxiesViaApi = ->
     rawJSON = ''
     res.on 'data', (chunk) -> rawJSON += chunk
     res.on 'end', ->
-      log "api back"
       try
         json = JSON.parse rawJSON
         if json.RESULT and json.RESULT.length > 0
-          IPProxies = ("http://#{proxy.ip}:#{proxy.port}" for proxy in json.RESULT)
+          IPProxies = ({url: "http://#{proxy.ip}:#{proxy.port}", available: true} for proxy in json.RESULT)
           log "success to get new ip via api, count: #{json.RESULT.length}"
         else
           error "fail to get api result, error: #{json.ERRORCODE}"
@@ -49,12 +49,20 @@ updateIPProxiesViaApi = ->
         error "fail to parse json from api, error: #{e.message}"
   .on 'error', (e) -> error "fail to get new ip via api, error: #{e.message}"
 
+isAllUnavailable = ->
+  status = (proxy.available for proxy in IPProxies)
+  if ~status.indexOf true
+    false
+  else
+    log "all proxies are unavailable"
+    true
+
 getIPProxy = ->
-  if after30m() then updateIPProxiesViaApi()
+  if after30m() or isAllUnavailable() then updateIPProxiesViaApi()
   if IPProxies.length is 0 then return null;
-  ip = IPProxies[IPIndex++]
+  proxy = IPProxies[IPIndex++]
   if IPIndex is IPProxies.length then IPIndex = 0
-  ip
+  proxy.url
 
 exports.setCrawler = (crawler) ->
   c = crawler
@@ -89,12 +97,21 @@ exports.fetch = fetch = (url, method = 'POST') ->
   defered.promise
 
 fetchImpl = (defered, url, method, retryTimes) ->
+  proxyUrl = getIPProxy()
+  encodedProxyUrl = if proxyUrl? then encodeURIComponent proxyUrl else ''
   c.queue [
-    'uri': url
+    'uri': url + "###{encodedProxyUrl}"
     'method': method
-    'proxy': getIPProxy()
+    'proxy': proxyUrl
     'callback': (err, result) ->
       if err
+        decodedProxyUrl = decodeURIComponent result.uri.split('##')[1]
+        if decodedProxyUrl isnt ''
+          for proxy in IPProxies
+            if proxy.url is decodedProxyUrl
+              proxy.available = false
+              log "#{decodedProxyUrl} becomes unavailable"
+              break
         if ++retryTimes > MAX_RETRY_TIMES
           error "fail to fetch after trying #{retryTimes} times, err: #{err}, url: #{url}"
           defered.reject err
@@ -167,3 +184,6 @@ exports.startCrawl = (url, map, model) ->
           for link in links
             exports.startCrawl link.url, map, map[link.model]
     .then undefined, (error) -> console.error error
+
+if process.env.NODE_ENV is 'test'
+  getIPProxy = -> null

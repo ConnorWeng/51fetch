@@ -81,7 +81,7 @@ describe 'taobao_crawler', () ->
   describe '#saveItemsFromPageAndQueueNext', ->
     it 'should queue next page uri', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
-        assert.equal options[0]['uri'], 'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor'
+        assert.equal options[0]['uri'], 'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor##'
         done()
       setCrawler newCrawler
       taobao_crawler.saveItemsFromPageAndQueueNext({
@@ -556,7 +556,7 @@ describe 'taobao_crawler', () ->
   describe '#queueStoreUri', ->
     it 'should queue the store uri', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
-        assert.equal options[0]['uri'], 'https://shop65626141.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid'
+        assert.equal options[0]['uri'], 'https://shop65626141.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid##'
         options[0]['callback']()
       setCrawler newCrawler
       taobao_crawler.queueStoreUri(
