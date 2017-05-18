@@ -15,6 +15,7 @@ c = new Crawler
   'jQuery': false
   'timeout': 8000
   'retryTimeout': 0
+  'rateLimits': 5000
 
 IPProxies = []
 IPIndex = 0
@@ -42,9 +43,14 @@ updateIPProxiesViaApi = ->
         json = JSON.parse rawJSON
         if json.ERRORCODE is '0'
           IPProxies = ({url: "http://#{proxy.ip}:#{proxy.port}", available: true} for proxy in json.RESULT)
-          log "success to get new ip via api, count: #{json.RESULT.length}"
+          setRateLimits 0
+          log "success to get new ip via api, count: #{json.RESULT.length}, speed way up the fetch rate"
         else
           error "fail to get api result, error: #{json.ERRORCODE} #{json.RESULT}"
+          if json.ERRORCODE is '10032'
+            IPProxies = []
+            setRateLimits 5000
+            log "because of #{json.RESULT} so that slow way down the fetch rate"
       catch e
         error "fail to parse json from api, error: #{e.message}"
   .on 'error', (e) ->
@@ -68,7 +74,8 @@ getIPProxy = ->
 exports.setCrawler = (crawler) ->
   c = crawler
 
-exports.setRateLimits = (rateLimits) ->
+exports.setRateLimits = setRateLimits = (rateLimits) ->
+  c.options.maxConnections = if rateLimits isnt 0 then 1 else 10
   c.options.rateLimits = rateLimits
 
 exports.crawl = crawl = (url, params, callback) ->
