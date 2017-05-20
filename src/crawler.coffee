@@ -57,8 +57,10 @@ updateIPProxiesViaApi = ->
     error "fail to get new ip via api, error: #{e.message}"
 
 isAllUnavailable = ->
-  status = (proxy.available for proxy in IPProxies)
-  if ~status.indexOf true
+  availableCount = 0
+  (if proxy.available then availableCount++) for proxy in IPProxies
+  log "available proxies count: #{availableCount}"
+  if availableCount > 0
     false
   else
     log "all proxies are unavailable"
