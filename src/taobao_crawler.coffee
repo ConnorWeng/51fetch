@@ -172,7 +172,7 @@ updateItemDetailInDatabase = ({item, desc, good, attrs, cats, realPic, itemImgs}
 
 queueStoreUri = (store) ->
   (callback) ->
-    fetch(makeSureProtocol "#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc&viewType=grid")
+    fetch(makeSureProtocol("#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc&viewType=grid"), 'POST', banned)
       .then (result) ->
         callback null, result
       .catch (err) ->
@@ -250,7 +250,7 @@ crawlAllPagesOfByNew = (store) ->
     if uris.byNewUris.length > 0
       for uri in uris.byNewUris
         changeRemains store, '+', callback
-        fetch(makeSureProtocol uri)
+        fetch(makeSureProtocol(uri), 'POST', banned)
           .then (result) ->
             saveItemsFromPageAndQueueNext(store, callbackWithUris)(null, result)
           .catch (err) ->
@@ -265,7 +265,7 @@ crawlAllPagesOfAllCates = (store) ->
     if uris.catesUris.length > 0
       for uri in uris.catesUris
         changeRemains store, '+', callback
-        fetch(makeSureProtocol uri)
+        fetch(makeSureProtocol(uri), 'POST', banned)
           .then (result) ->
             saveItemsFromPageAndQueueNext(store, callbackWithUris)(null, result)
           .catch (err) ->
@@ -303,7 +303,7 @@ saveItemsFromPageAndQueueNext = (store, callback) ->
           nextUri = nextPageUri $
           if nextUri?
             changeRemains store, '+', callback
-            fetch(makeSureProtocol nextUri)
+            fetch(makeSureProtocol(nextUri), 'POST', banned)
               .then (res) ->
                 saveItemsFromPageAndQueueNext(store, callback)(null, res)
               .catch (err) ->
@@ -365,6 +365,9 @@ selectRightTemplate = ($item, template) ->
 
 isBanned = ($) ->
   $('.search-result').length is 0 and $('dl.item').length is 0
+
+banned = (body) ->
+  body.indexOf('search-result') is -1 and body.indexOf('class="item') is -1
 
 extractDefaultImage = ($item) ->
   defaultImage = $item.find('img').attr('src')

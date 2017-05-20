@@ -102,13 +102,13 @@ exports.evaluate = evaluate = (params, $) ->
     data[name] = func($)
   data
 
-exports.fetch = fetch = (url, method = 'POST') ->
+exports.fetch = fetch = (url, method = 'POST', banned = null) ->
   defered = Q.defer()
   retryTimes = 0
-  fetchImpl defered, url, method, retryTimes
+  fetchImpl defered, url, method, retryTimes, banned
   defered.promise
 
-fetchImpl = (defered, url, method, retryTimes) ->
+fetchImpl = (defered, url, method, retryTimes, banned) ->
   c.queue [
     'uri': url
     'method': method
@@ -116,11 +116,7 @@ fetchImpl = (defered, url, method, retryTimes) ->
     'callback': (err, result) ->
       if err
         if result.proxy? and result.proxy isnt ''
-          for proxy in IPProxies
-            if proxy.url is result.proxy
-              proxy.available = false
-              log "#{result.proxy} becomes unavailable"
-              break
+          unavailableProxy result.proxy, err
         if ++retryTimes > MAX_RETRY_TIMES
           error "fail to fetch after trying #{retryTimes} times, err: #{err}, url: #{url}"
           defered.reject err
@@ -128,8 +124,17 @@ fetchImpl = (defered, url, method, retryTimes) ->
           log "fail to fetch, retrying, err: #{err}, url: #{url}"
           fetchImpl defered, url, method, retryTimes
       else
+        if banned and banned result.body
+          unavailableProxy result.options.proxy, 'banned by websites'
         defered.resolve result
   ]
+
+unavailableProxy = (proxyUrl, reason) ->
+  for proxy in IPProxies
+    if proxy.url is proxyUrl
+      proxy.available = false
+      log "#{proxyUrl} becomes unavailable because of #{reason}"
+      break
 
 exports.makeJsDom = makeJsDom = Q.nfbind env
 
