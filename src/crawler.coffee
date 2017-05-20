@@ -14,7 +14,7 @@ c = new Crawler
   'forceUTF8': true
   'jQuery': false
   'timeout': 8000
-  'retryTimeout': 0
+  'retries': 0
   'rateLimits': 5000
 
 IPProxies = []
@@ -24,12 +24,12 @@ lastUpdate = 0
 after1m = ->
   now = new Date().getTime()
   if now - lastUpdate > 60 * 1000
-    lastUpdate = now
     true
   else
     false
 
 updateIPProxiesViaApi = ->
+  lastUpdate = new Date().getTime()
   http.get config.ip_proxies_api, (res) ->
     if res.statusCode isnt 200
       error 'fail to get new ip via api'
@@ -67,7 +67,9 @@ isAllUnavailable = ->
 getIPProxy = ->
   if after1m() and isAllUnavailable() then updateIPProxiesViaApi()
   if IPProxies.length is 0 then return null;
-  proxy = IPProxies[IPIndex++]
+  while IPIndex < IPProxies.length
+    proxy = IPProxies[IPIndex++]
+    if proxy.available then break
   if IPIndex is IPProxies.length then IPIndex = 0
   proxy.url
 
@@ -105,20 +107,17 @@ exports.fetch = fetch = (url, method = 'POST') ->
   defered.promise
 
 fetchImpl = (defered, url, method, retryTimes) ->
-  proxyUrl = getIPProxy()
-  encodedProxyUrl = if proxyUrl? then encodeURIComponent proxyUrl else ''
   c.queue [
-    'uri': url + "###{encodedProxyUrl}"
+    'uri': url
     'method': method
-    'proxy': proxyUrl
+    'proxy': getIPProxy()
     'callback': (err, result) ->
       if err
-        decodedProxyUrl = decodeURIComponent result.uri.split('##')[1]
-        if decodedProxyUrl isnt ''
+        if result.proxy? and result.proxy isnt ''
           for proxy in IPProxies
-            if proxy.url is decodedProxyUrl
+            if proxy.url is result.proxy
               proxy.available = false
-              log "#{decodedProxyUrl} becomes unavailable"
+              log "#{result.proxy} becomes unavailable"
               break
         if ++retryTimes > MAX_RETRY_TIMES
           error "fail to fetch after trying #{retryTimes} times, err: #{err}, url: #{url}"
