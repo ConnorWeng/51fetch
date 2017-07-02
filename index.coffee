@@ -38,7 +38,7 @@ crawl = (store) ->
     if (err)
       console.error "pool acquire error: #{err}"
       pool.release poolRef
-      process.exit -97
+      process.exit 95
 
     crawlStore store, fullCrawl, ->
       db.query "update ecm_crawl_config set now_id = #{store['store_id']}, last_update = '#{new Date()}' where ip = '#{ip}'", ->

@@ -201,7 +201,7 @@ updateCateContentAndFetchAllUris = (store) ->
       store['total_items_count'] = 0
       window.close()
       # log "NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"
-      # process.exit -1
+      # process.exit 97
       callback new Error("NoCategoryContent: #{store['store_id']} #{store['store_name']} catsTreeHtml is empty"), null
 
 extractUris = ($, store) ->
@@ -310,7 +310,7 @@ saveItemsFromPageAndQueueNext = (store, callback) ->
                 saveItemsFromPageAndQueueNext(store, callback)(err, null)
           items = extractItemsFromContent $, store
           bannedError = new Error('been banned by taobao') if isBanned $
-          if bannedError then process.exit -99
+          if bannedError then process.exit 99
           pageNumber = currentPageNumber $
           db.saveItems store['store_id'], store['store_name'], items, result.uri, $(TEMPLATES[0].CAT_SELECTED).text().trim(), pageNumber, ->
             changeRemains store, '-', callback, bannedError
@@ -374,7 +374,7 @@ extractDefaultImage = ($item) ->
   if ~defaultImage.indexOf('a.tbcdn.cn/s.gif') or ~defaultImage.indexOf('assets.alicdn.com/s.gif') then defaultImage = $item.find('img').attr('data-ks-lazyload')
   if ~defaultImage.indexOf('40x40')
     console.log $item.html()
-    process.exit -1
+    process.exit 96
   defaultImage
 
 exports.parsePrice = parsePrice = (price, seePrice = '实价', goodsName = '') ->
@@ -679,7 +679,7 @@ exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback) ->
     descUrl = extractDescUrl $('html').html()
     if not taobaoItem.title or not taobaoItem.price or not descUrl
       error "num_iid: #{numIid} fail to crawl"
-      process.exit -98
+      process.exit 98
     extractPropsName $, taobaoItem.cid
       .then (propsName) ->
         taobaoItem.props_name = propsName
