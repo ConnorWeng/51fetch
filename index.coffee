@@ -2,6 +2,7 @@
 {buildOuterIid, crawlItemsInStore, getAllStores, crawlStore, setDatabase, getDatabase} = require './src/taobao_crawler'
 database = require './src/database'
 config = require './src/config'
+{getIPProxy} = require './src/crawler'
 args = process.argv.slice 2
 ip = args[1]
 
@@ -54,5 +55,8 @@ crawl = (store) ->
 db.query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 where s.state = 1 and s.store_id > (select now_id from ecm_crawl_config where ip = '#{ip}') and s.store_id <= (select end_id from ecm_crawl_config where ip = '#{ip}') order by s.store_id", (err, unfetchedStores) ->
   if err then throw err
   stores = unfetchedStores
-  console.log "There are total #{stores.length} stores need to be fetched."
-  crawl store for store in stores
+  getIPProxy()
+  setTimeout ->
+    console.log "There are total #{stores.length} stores need to be fetched."
+    crawl store for store in stores
+  , 5000                        # 延迟5秒开始爬取，确保首次获取ip代理操作已经完成

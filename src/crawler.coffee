@@ -53,7 +53,7 @@ isAllUnavailable = ->
     log "all proxies are unavailable"
     true
 
-getIPProxy = ->
+exports.getIPProxy = getIPProxy = ->
   if after1m() and isAllUnavailable() then updateIPProxiesViaApi()
   if IPProxies.length is 0 then return null;
   while IPIndex < IPProxies.length
