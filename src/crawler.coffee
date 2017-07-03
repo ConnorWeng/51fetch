@@ -39,20 +39,7 @@ updateIPProxiesViaApi = ->
     rawJSON = ''
     res.on 'data', (chunk) -> rawJSON += chunk
     res.on 'end', ->
-      try
-        json = JSON.parse rawJSON
-        if json.ERRORCODE is '0'
-          IPProxies = ({url: "http://#{proxy.ip}:#{proxy.port}", available: true} for proxy in json.RESULT)
-          setRateLimits 0
-          log "success to get new ip via api, count: #{json.RESULT.length}, speed way up the fetch rate"
-        else
-          error "fail to get api result, error: #{json.ERRORCODE} #{json.RESULT}"
-          if json.ERRORCODE is '10032'
-            IPProxies = []
-            setRateLimits 5000
-            log "because of #{json.RESULT} so that slow way down the fetch rate"
-      catch e
-        error "fail to parse json from api, error: #{e.message}"
+      IPProxiesMethods[config.ip_proxies_method] rawJSON
   .on 'error', (e) ->
     error "fail to get new ip via api, error: #{e.message}"
 
@@ -199,6 +186,35 @@ exports.startCrawl = (url, map, model) ->
           for link in links
             exports.startCrawl link.url, map, map[link.model]
     .then undefined, (error) -> console.error error
+
+IPProxiesMethods =
+  xdaili: (rawJSON) ->
+    try
+      json = JSON.parse rawJSON
+      if json.ERRORCODE is '0'
+        IPProxies = ({url: "http://#{proxy.ip}:#{proxy.port}", available: true} for proxy in json.RESULT)
+        setRateLimits 0
+        log "success to get new ip via xdaili api, count: #{json.RESULT.length}, speed way up the fetch rate"
+      else
+        error "fail to get xdaili api result, error: #{json.ERRORCODE} #{json.RESULT}"
+        if json.ERRORCODE is '10032'
+          IPProxies = []
+          setRateLimits 5000
+          log "because of xdaili #{json.RESULT} so that slow way down the fetch rate"
+    catch e
+      error "fail to parse json from xdaili api, error: #{e.message}"
+  daxiangdaili: (rawJSON) ->
+    try
+      json = JSON.parse rawJSON
+      if json.length > 0
+        IPProxies = ({url: "http://#{proxy.host}:#{proxy.port}", available: true} for proxy in json)
+        setRateLimits 0
+        log "success to get new ip via daxiangdaili api, count: #{json.length}, speed way up the fetch rate"
+      else
+        error "fail to get daxiangdaili api result, response is: #{rawJSON}"
+        setRateLimits 5000
+    catch e
+      error "fail to parse json from daxiangdaili api, error: #{e.message}"
 
 if process.env.NODE_ENV is 'test'
   getIPProxy = -> null
