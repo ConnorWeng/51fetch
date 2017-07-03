@@ -557,7 +557,7 @@ describe 'taobao_crawler', () ->
     it 'should queue the store uri', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
         assert.equal options[0]['uri'], 'https://shop65626141.taobao.com/search.htm?search=y&orderType=newOn_desc&viewType=grid'
-        options[0]['callback']()
+        options[0]['callback'](null, {body: '<div class="search-result">1</div>'})
       setCrawler newCrawler
       taobao_crawler.queueStoreUri(
         shop_http: 'https://shop65626141.taobao.com'
@@ -909,6 +909,7 @@ PAGINATION_HTML = '''
 '''
 
 CATS_TREE_WITHOUT_CATS_HTML = '''
+<div class="search-result">1</div>
 <ul class="J_TAllCatsTree cats-tree">
   <li class="cat fst-cat">
     <h4 class="cat-hd fst-cat-hd has-children">
