@@ -288,7 +288,6 @@ updateCategories = (store) ->
 
 saveItemsFromPageAndQueueNext = (store, callback) ->
   (err, result) ->
-    debug result.body
     if result.body is ''
       changeRemains store, '-', callback
       error "Error: #{result.uri} return empty content"
@@ -689,11 +688,6 @@ exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback) ->
         callback null, taobaoItem
       .catch (reason) ->
         callback reason, null
-
-debug = (content) ->
-  if process.env.NODE_ENV is 'debug'
-    console.log '=============================================================='
-    console.log content
 
 if process.env.NODE_ENV is 'test' or process.env.NODE_ENV is 'e2e'
   exports.setSaveItemsFromPageAndQueueNext = (f) -> saveItemsFromPageAndQueueNext = f

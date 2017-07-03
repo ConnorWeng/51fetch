@@ -124,6 +124,7 @@ fetchImpl = (defered, url, method, retryTimes, banned) ->
           log "fail to fetch, retrying, err: #{err}, url: #{url}"
           fetchImpl defered, url, method, retryTimes
       else
+        debug result.body
         if banned and banned result.body
           unavailableProxy result.options.proxy, 'banned by websites'
         defered.resolve result
@@ -201,3 +202,8 @@ exports.startCrawl = (url, map, model) ->
 
 if process.env.NODE_ENV is 'test'
   getIPProxy = -> null
+
+debug = (content) ->
+  if process.env.NODE_ENV is 'debug'
+    console.log '=============================================================='
+    console.log content
