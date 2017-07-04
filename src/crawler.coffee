@@ -9,6 +9,7 @@ config = require './config'
 MAX_RETRY_TIMES = 10
 
 c = new Crawler
+  'debug': if (process.env.NODE_ENV is 'debug') then true else false
   'headers':
     'Cookie': config.cookie
   'forceUTF8': true
