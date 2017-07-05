@@ -172,7 +172,7 @@ updateItemDetailInDatabase = ({item, desc, good, attrs, cats, realPic, itemImgs}
 
 queueStoreUri = (store) ->
   (callback) ->
-    fetch(makeSureProtocol("#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc&viewType=grid"), 'POST', banned)
+    fetchStorePage(makeSureProtocol("#{store['shop_http']}/search.htm?search=y&orderType=newOn_desc&viewType=grid"), 'POST', banned)
       .then (result) ->
         callback null, result
       .catch (err) ->
@@ -250,7 +250,7 @@ crawlAllPagesOfByNew = (store) ->
     if uris.byNewUris.length > 0
       for uri in uris.byNewUris
         changeRemains store, '+', callback
-        fetch(makeSureProtocol(uri), 'POST', banned)
+        fetchStorePage(makeSureProtocol(uri), 'POST', banned)
           .then (result) ->
             saveItemsFromPageAndQueueNext(store, callbackWithUris)(null, result)
           .catch (err) ->
@@ -265,7 +265,7 @@ crawlAllPagesOfAllCates = (store) ->
     if uris.catesUris.length > 0
       for uri in uris.catesUris
         changeRemains store, '+', callback
-        fetch(makeSureProtocol(uri), 'POST', banned)
+        fetchStorePage(makeSureProtocol(uri), 'POST', banned)
           .then (result) ->
             saveItemsFromPageAndQueueNext(store, callbackWithUris)(null, result)
           .catch (err) ->
@@ -302,7 +302,7 @@ saveItemsFromPageAndQueueNext = (store, callback) ->
           nextUri = nextPageUri $
           if nextUri?
             changeRemains store, '+', callback
-            fetch(makeSureProtocol(nextUri), 'POST', banned)
+            fetchStorePage(makeSureProtocol(nextUri), 'POST', banned)
               .then (res) ->
                 saveItemsFromPageAndQueueNext(store, callback)(null, res)
               .catch (err) ->
@@ -521,6 +521,27 @@ exports.isRealPic = isRealPic = (title, propsName) ->
   else
     0
 
+fetchStorePage = (url, method, banned) ->
+  fetch url, method, null
+    .then (res) ->
+      if res.statusCode is 302
+        log "302 found, redirect to #{res.headers['location']}"
+        fetch res.headers['location'], method, banned
+      else if ~res.body.indexOf('J_ShopAsynSearchURL')
+        log "AsynSearch found: #{url}"
+        fetch getAsynSearchURL(res.body), method, banned
+      else
+        res
+
+getAsynSearchURL = (body) ->
+  asynRegex = /.+J_ShopAsynSearchURL.+value=\"(.+)\"/
+  asynMatches = body.match asynRegex
+  asynURL = asynMatches[1]
+  shopRegex = /href=\"(.+)\" .+class=\"J_TGoldlog\"/
+  shopMatches = body.match shopRegex
+  shopURL = shopMatches[1]
+  "https:#{shopURL}#{asynURL}"
+
 exports.$fetch = $fetch = (url, callback) ->
   fetch url, 'GET'
     .then (result) ->
@@ -728,3 +749,4 @@ if process.env.NODE_ENV is 'test' or process.env.NODE_ENV is 'e2e'
   exports.queueStoreUri = queueStoreUri
   exports.fetch = fetch
   exports.getHierarchalCats = getHierarchalCats
+  exports.getAsynSearchURL = getAsynSearchURL

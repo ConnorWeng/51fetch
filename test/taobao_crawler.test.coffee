@@ -566,6 +566,10 @@ describe 'taobao_crawler', () ->
         see_price: 'any_see_price'
       )( -> done())
 
+  describe '#getAsynSearchURL', ->
+    it 'should return value of J_ShopAsynSearchURL input', ->
+      assert.equal taobao_crawler.getAsynSearchURL(HTML_WITH_ASYN_SEARCH_URL), 'https://shop411857438.taobao.com/i/asynSearch.htm?mid=w-15870872781-0&wid=15870872781&path=/search.htm&amp;search=y&amp;orderType=newOn_desc&amp;viewType=grid'
+
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>
 <div>
@@ -1274,6 +1278,26 @@ price:234.00,
  "dcP":"true",
  "sl":3000
  }}
+'''
+
+HTML_WITH_ASYN_SEARCH_URL = '''
+<span class="shop-name">
+                  店铺：
+                                        <a href="//shop411857438.taobao.com" target="_blank" class="J_TGoldlog"
+                                              data-goldlog-id="/tbwmdd.1.044">
+                        小苍爆                                                <i id="J_TEnterShop">进入店铺</i>
+                    </a>
+                </span>
+<!-- $categoryId  搜索列表${x-shop-url}请求:searchURL: http://admin.search.taobao.com/proxyjump/go?url=http%3A%2F%2F11.251.170.103%3A3210%2Fbin%2Fsp%3Fsrc%3Dshopsystem11.227.3.55%26sort%3Dfirst_new%3Ades%26tab%3Dall%26ss_bucket%3D0%26rank_src%3Dinshop_pc_tb%26shop_id%3D411857438%26navigator%3Dproperty%26s%3D0%26n%3D24%26app%3Dinshop%26outfmt%3Djson，无宝贝：searchURL: , bucketId: 0 bucketUser： -->
+            <div class="skin-box tb-module tshop-pbsm tshop-pbsm-shop-srch-list">
+                    <input id="J_ShopAsynSearchURL" type="hidden" value="/i/asynSearch.htm?mid=w-15870872781-0&wid=15870872781&path=/search.htm&amp;search=y&amp;orderType=newOn_desc&amp;viewType=grid" />
+            <div id="J_ShopSearchResult" class="shop-hesper">
+                </div>
+                    <script type="text/javascript">
+                if(window.TShop && window.TShop.ModUtil)
+                    TShop.ModUtil.initMod(document.getElementById("shop15870872781"), 1);
+            </script>
+            </div>
 '''
 
 PROPS_HTML = '''
