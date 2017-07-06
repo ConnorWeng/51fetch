@@ -6,7 +6,7 @@ jquery = require 'jquery'
 Q = require 'q'
 config = require './config'
 
-MAX_RETRY_TIMES = 10
+MAX_RETRY_TIMES = 20
 
 c = new Crawler
   'debug': if (process.env.NODE_ENV is 'debug') then true else false
