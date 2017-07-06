@@ -396,7 +396,7 @@ describe 'taobao_crawler', () ->
 
   describe '#crawlItemsInStore', ->
     it 'should call crawlItemViaApi with goods one by one', (done) ->
-      databaseStub.getUnfetchedGoodsInStore = (storeId, callback) ->
+      databaseStub.query = (sql, callback) ->
         callback null, [{
           goods_id: '1'
           goods_name: 'goods1'
@@ -407,6 +407,8 @@ describe 'taobao_crawler', () ->
           goods_id: '3'
           goods_name: 'goods3'
         }]
+      databaseStub.getUnfetchedGoodsInStore = (storeId, callback) ->
+        @query 'the sql of getting goods', callback
       crawlItemViaApiStub = sinon.stub taobao_crawler, 'crawlItemViaApi', (good, session, callback) ->
         callback()
       taobao_crawler.crawlItemsInStore 0, null, ->
