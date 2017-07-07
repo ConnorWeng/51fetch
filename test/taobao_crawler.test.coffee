@@ -1285,7 +1285,7 @@ price:234.00,
 HTML_WITH_ASYN_SEARCH_URL = '''
 <span class="shop-name">
                   店铺：
-                                        <a href="//shop411857438.taobao.com" target="_blank" class="J_TGoldlog"
+                                        <a href="//shop411857438.taobao.com/search.htm" target="_blank" class="J_TGoldlog"
                                               data-goldlog-id="/tbwmdd.1.044">
                         小苍爆                                                <i id="J_TEnterShop">进入店铺</i>
                     </a>

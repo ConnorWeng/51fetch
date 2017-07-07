@@ -1,4 +1,4 @@
-{Crawler} = require 'Crawler'
+{Crawler} = require 'crawler'
 chai = require 'chai'
 chai.should()
 
