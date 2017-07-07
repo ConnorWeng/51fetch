@@ -1,6 +1,6 @@
 Q = require 'q'
 phpjs = require 'phpjs'
-{log} = require 'util'
+{log} = require '../src/util'
 {getTaobaoItemsOnsaleBatch, getTaobaoItemsSellerListBatch} = require '../src/taobao_api'
 {setDatabase, crawlItemsInStore, parsePrice, parseSkus, removeSingleQuotes} = require '../src/taobao_crawler'
 database = require '../src/database'

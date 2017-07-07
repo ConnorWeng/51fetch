@@ -1,7 +1,7 @@
 http = require 'http'
 {Crawler} = require 'crawler'
 {env} = require 'jsdom'
-{log, error} = require 'util'
+{log, error} = require './util'
 jquery = require 'jquery'
 Q = require 'q'
 config = require './config'

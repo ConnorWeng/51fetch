@@ -1,4 +1,4 @@
-{log} = require 'util'
+{log} = require './src/util'
 {buildOuterIid, crawlAllItemsInStore, crawlItemsInStore, getAllStores, crawlStore, setDatabase, getDatabase} = require './src/taobao_crawler'
 database = require './src/database'
 config = require './src/config'

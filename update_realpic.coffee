@@ -1,5 +1,5 @@
 Q = require 'q'
-{log, error} = require 'util'
+{log, error} = require './src/util'
 {getItemCats} = require './src/taobao_api'
 {crawlTaobaoItem, isRealPic, getNumIidFromUri} = require './src/taobao_crawler'
 database = require './src/database'

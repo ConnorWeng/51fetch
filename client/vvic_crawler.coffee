@@ -1,5 +1,5 @@
 {writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync, appendFileSync, unlinkSync} = require 'fs'
-{log} = require 'util'
+{log} = require '../src/util'
 jquery = require 'jquery'
 {fetch, makeJsDomPromise} = require '../src/taobao_crawler'
 args = process.argv.slice 2

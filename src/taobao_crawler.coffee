@@ -1,6 +1,6 @@
 http = require 'http'
 async = require 'async'
-{log, error} = require 'util'
+{log, error} = require './util'
 Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
@@ -70,7 +70,7 @@ crawlItems = (getGoodsDbFunc, storeId, session, done) ->
         if remainGoods.length > 0
           good = remainGoods.shift()
           exports.crawlItemViaApi good, session, ->
-            log "#{good.goods_id}: #{good.goods_name} updated"
+            log "#{good.goods_id}: #{good.goods_name} updated, remain #{remainGoods.length} goods"
             next()
         else
           done()

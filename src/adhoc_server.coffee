@@ -1,7 +1,7 @@
 http = require 'http'
 {parse} = require 'url'
 Q = require 'q'
-{log, error} = require 'util'
+{log, error} = require './util'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
