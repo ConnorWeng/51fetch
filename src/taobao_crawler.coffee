@@ -527,26 +527,30 @@ exports.isRealPic = isRealPic = (title, propsName) ->
   else
     0
 
-fetchStorePage = (url, method, banned) ->
+fetchStorePage = (url, method, banned, prevFetchContent = '') ->
   fetch url, method, null
     .then (res) ->
       if res.statusCode is 302
         log "302 found, redirect to #{res.headers['location']}"
-        fetch res.headers['location'], method, banned
+        fetchStorePage res.headers['location'], method, banned, prevFetchContent
       else if ~res.body.indexOf('J_ShopAsynSearchURL')
-        log "AsynSearch found: #{url}"
-        fetch getAsynSearchURL(res.body), method, banned
+        asynUrl = getAsynSearchURL(res.body)
+        log "AsynSearch found: #{asynUrl}"
+        fetchStorePage asynUrl, method, banned, res.body
       else
+        if prevFetchContent
+          res.body += prevFetchContent
+          res.body = res.body.replace(/\\"/g, '"');
         res
 
 getAsynSearchURL = (body) ->
   asynRegex = /.+J_ShopAsynSearchURL.+value=\"(.+)\"/
   asynMatches = body.match asynRegex
   asynURL = asynMatches[1]
-  shopRegex = /href=\"(.+)\" .+class=\"J_TGoldlog\"/
+  shopRegex = /shop(\d+)\.taobao\.com\/search.htm/
   shopMatches = body.match shopRegex
-  shopURL = shopMatches[1]
-  "https:#{shopURL}#{asynURL}"
+  shopURL = "shop#{shopMatches[1]}.taobao.com"
+  "https://#{shopURL}#{asynURL}"
 
 exports.$fetch = $fetch = (url, callback) ->
   fetch url, 'GET'
