@@ -5,6 +5,9 @@ config = require './src/config'
 {getIPProxy} = require './src/crawler'
 args = process.argv.slice 2
 
+process.on 'exit', (code) ->
+  log "about to exit with code: #{code}"
+
 process.on 'uncaughtException', (err) ->
   log 'caught exception:' + err
 
