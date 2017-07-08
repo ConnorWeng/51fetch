@@ -14,7 +14,7 @@ c = new Crawler
     'Cookie': config.cookie
   'forceUTF8': true
   'jQuery': false
-  'timeout': 8000
+  'timeout': 12000
   'retries': 0
   'rateLimits': 5000
 
