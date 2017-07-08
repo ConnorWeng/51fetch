@@ -1,6 +1,6 @@
 http = require 'http'
 async = require 'async'
-{log, error} = require './util'
+{log, error, inspect} = require './util'
 Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
@@ -708,13 +708,13 @@ exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback) ->
     taobaoItem.nick = extractNick $('html').html()
     descUrl = extractDescUrl $('html').html()
     if not taobaoItem.title or not taobaoItem.price or not descUrl
-      error "num_iid: #{numIid} fail to crawl"
-      process.exit 98
+      throw new Error "num_iid: #{numIid} fail to crawl"
     extractPropsName $, taobaoItem.cid
       .then (propsName) ->
         taobaoItem.props_name = propsName
         crawlDesc descUrl
       .then (desc) ->
+        log "fetched taobao item: #{inspect(taobaoItem, {depth: null})}"
         taobaoItem.desc = desc
         callback null, taobaoItem
       .catch (reason) ->
