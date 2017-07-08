@@ -35,7 +35,7 @@ crawl = (store) ->
         process.exit 0
 
 crawlGoods = (store) ->
-  log "goods in #{store['store_name']} need to be fetched."
+  log "goods in [#{store['store_id']}]#{store['store_name']} need to be fetched."
   crawlItems store['store_id'], store['access_token'], ->
     log "all goods fetched, start to build outer iid"
     buildOuterIid store['store_id'], ->
