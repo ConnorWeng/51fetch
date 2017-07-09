@@ -110,12 +110,16 @@ fetchImpl = (defered, url, method, retryTimes, banned) ->
           defered.reject err
         else
           log "fail to fetch, retrying, err: #{err}, url: #{url}"
-          fetchImpl defered, url, method, retryTimes
+          fetchImpl defered, url, method, retryTimes, banned
       else
         debug result.body
-        if banned and banned result.body
-          unavailableProxy result.options.proxy, 'banned by websites'
-        defered.resolve result
+        if ~result.body.indexOf('The maximum web proxy user limit has been reached') or ~result.body.indexOf('Maximum number of open connections reached')
+          log "fail to fetch, retrying, err: ipproxy error, url: #{url}"
+          fetchImpl defered, url, method, retryTimes, banned
+        else
+          if banned and banned result.body
+            unavailableProxy result.options.proxy, 'banned by websites'
+          defered.resolve result
   ]
 
 unavailableProxy = (proxyUrl, reason) ->
