@@ -550,7 +550,17 @@ describe 'taobao_crawler', () ->
         taobao_crawler.extractPropsName $
           .then (propsName) ->
             assert.deepEqual propsName, '20608:6384766:风格:通勤;0:0:通勤:复古;10142888:3386071:组合形式:单件;122216349:3516807:裙长:中长裙;122276315:3226839:款式:挂脖式;122216348:29446:袖长:无袖;20663:20213:领型:其他;20677:29954:腰型:中腰;31611:103422:衣门襟:套头;18551851:14320260:裙型:一步裙;20603:130164:图案:花色;122216588:129555:流行元素/工艺:印花;20551:20213:面料:其他;13328588:492838732:成分含量:81%(含)-90%(含);122216347:647672577:年份季节:2015年夏季;1627207:28321:颜色分类:图片色;20509:649458002:尺码:S M L XL'
-            # assert.deepEqual propsName, '20608:6384766:风格:通勤;18073285:43747:通勤:复古;10142888:3386071:组合形式:单件;122216349:44597:裙长:中长裙;122276315:3226839:款式:挂脖式;122216348:29446:袖长:无袖;20663:20213:领型:其他;20677:29954:腰型:中腰;31611:103422:衣门襟:套头;18551851:14320260:裙型:一步裙;20603:130164:图案:花色;122216588:129555:流行元素/工艺:印花;20551:20213:面料:其他;13328588:492838732:成分含量:81%(含)-90%(含);122216347:647672577:年份季节:2015年夏季;1627207:6594326:颜色分类:图片色;20509:28314:尺码:S;20509:28315:尺码:M;20509:28316:尺码:L;20509:28317:尺码:XL'
+            done()
+          .catch done
+        window.close()
+    it 'should return props name as well', (done) ->
+      taobao_crawler.setGetItemProps (cid, fields, parentPid, callback) ->
+        callback null, PROPS_ARRAY
+      env ANOTHER_PROPS_HTML, (error, window) ->
+        $ = jquery window
+        taobao_crawler.extractPropsName $
+          .then (propsName) ->
+            assert.deepEqual propsName, '148886213:3833300:廓形:A型;13021751:0:货号:611;20608:6384766:风格:通勤;0:0:通勤:韩版'
             done()
           .catch done
         window.close()
@@ -1306,6 +1316,25 @@ PROPS_HTML = '''
 <ul class="attributes-list">
    <li title=" 通勤">风格:&nbsp;通勤</li><li title=" 复古">通勤:&nbsp;复古</li><li title=" 单件">组合形式:&nbsp;单件</li><li title=" 中长裙">裙长:&nbsp;中长裙</li><li title=" 挂脖式">款式:&nbsp;挂脖式</li><li title=" 无袖">袖长:&nbsp;无袖</li><li title=" 其他">领型:&nbsp;其他</li><li title=" 中腰">腰型:&nbsp;中腰</li><li title=" 套头">衣门襟:&nbsp;套头</li><li title=" 一步裙">裙型:&nbsp;一步裙</li><li title=" 花色">图案:&nbsp;花色</li><li title=" 印花">流行元素/工艺:&nbsp;印花</li><li title=" 其他">面料:&nbsp;其他</li><li title=" 81%(含)-90%(含)">成分含量:&nbsp;81%(含)-90%(含)</li><li title=" 2015年夏季">年份季节:&nbsp;2015年夏季</li><li title=" 图片色">颜色分类:&nbsp;图片色</li><li title=" S M L XL">尺码:&nbsp;S M L XL</li>
    </ul>
+'''
+
+ANOTHER_PROPS_HTML = '''
+<div id="attributes" class="attributes">
+    <ul class="attributes-list">
+            <li title="  A型">
+                廓形 :  A型
+            </li>
+            <li title="  611">
+                货号 :  611
+            </li>
+            <li title="  通勤">
+                风格 :  通勤
+            </li>
+            <li title="  韩版">
+                通勤 :  韩版
+            </li>
+    </ul>
+</div>
 '''
 
 PROPS_ARRAY = `

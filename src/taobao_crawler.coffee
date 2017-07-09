@@ -580,11 +580,14 @@ crawlDesc = (url) ->
   defered.promise
 
 extractDescUrl = (html) ->
+  descUrl = null
   matches = /location.protocol==='http:' \? '(.+)' : '(.+)'/.exec html
-  if matches?
-    'https:' + matches[2]
-  else
-    throw new Error 'item html does not contain desc url'
+  if matches? then descUrl = 'https:' + matches[2]
+  if not descUrl?
+    matches = /descUrl\s*:\s*['"](.+)['"]/.exec html
+    if matches? then descUrl = 'https:' + matches[1]
+  if not descUrl? then throw new Error("good #{numIid} fail to crawl because of no desc url")
+  descUrl
 
 extractSkus = ($, defaultPrice) ->
   skus = sku: []
@@ -637,25 +640,50 @@ extractSkuMap = (html) ->
 
 extractItemImgs = ($) ->
   itemImgs = item_img: []
-  $('.tb-thumb li').each ->
-    $li = $ @
-    itemImgs.item_img.push
-      url: makeSureProtocol $li.find('img').attr('data-src').replace('_50x50.jpg', '');
+  if $('.tb-thumb li').length > 0
+    $('.tb-thumb li').each ->
+      $li = $ @
+      itemImgs.item_img.push
+        url: makeSureProtocol $li.find('img').attr('data-src').replace('_50x50.jpg', '')
+  else if $('.tb-thumb-nav li').length > 0
+    $('.tb-thumb-nav li').each ->
+      $li = $ @
+      itemImgs.item_img.push
+        url: makeSureProtocol $li.find('img').attr('src').replace('_70x70.jpg', '')
+  else
+    throw new Error("good #{numIid} fail to crawl because of no item imgs")
   itemImgs
 
 extractCid = (html) ->
+  cid = null
   matches = /[^r]cid\s*:\s*'(\d+)'/.exec html
-  if matches?
-    parseInt matches[1]
-  else
-    throw new Error 'item html does not contain cid'
+  if matches? then cid = parseInt matches[1]
+  if not cid? then throw new Error("good #{numIid} fail to crawl because of no cid")
+  cid
 
 extractNick = (html) ->
+  nick = null
   matches = /sellerNick\s*:\s*'(.+)'/.exec html
-  if matches?
-    matches[1]
+  if matches? then nick = matches[1]
+  if not nick?
+    matches = /nick\s*:\s*['"](.+)['"]/.exec html
+    if matches? then nick = matches[1]
+  if not nick? then throw new Error("good #{numIid} fail to crawl because of no nick")
+  nick
+
+extractTitle = ($) ->
+  title = $('.tb-main-title').attr('data-title');
+  if not title then title = $('.tb-main-title').text();
+  if not title then throw new Error("good #{numIid} fail to crawl because of no title")
+  title
+
+extractPicUrl = ($) ->
+  if $('.tb-thumb li:eq(0) img').attr('data-src')
+    makeSureProtocol $('.tb-thumb li:eq(0) img').attr('data-src').replace('_50x50.jpg', '');
+  else if $('.tb-thumb-content img').attr('src')
+    makeSureProtocol $('.tb-thumb-content img').attr('src').replace('_600x600.jpg', '');
   else
-    throw new Error 'item html does not contain nick'
+    throw new Error("good #{numIid} fail to crawl because of no pic url")
 
 findPid = (pname, props) ->
   for prop in props
@@ -675,7 +703,9 @@ extractPropsName = ($, cid) ->
   attrs = []
   $('.attributes-list li').each ->
     $li = $ @
-    [pname, vname] = $li.text().split ': '
+    [pname, vname] = $li.text().split(':')
+    pname = pname.trim()
+    vname = vname.trim()
     attrs.push "#{pname}:#{vname}"
   getItemProps cid, 'pid,name,must,multi,prop_values,is_key_prop,is_sale_prop,parent_vid,is_enum_prop', null, (err, props) ->
     if err
@@ -698,13 +728,24 @@ exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback) ->
       callback new Error("num_iid: #{numIid} fail to crawl because of taken off shelves")
       return
     taobaoItem = {}
-    taobaoItem.title = $('.tb-main-title').attr('data-title');
-    taobaoItem.pic_url = makeSureProtocol $('.tb-thumb li:eq(0) img').attr('data-src').replace('_50x50.jpg', '');
+
+    # 有2种模版的html会返回，第2种没有cid，所以切换ip代理重新抓取，看看能不能获得第1种模版来处理
+    # 这样的处理方式导致后面的所有extractX方法支持2种模版变得没有意义，以后再回来想办法优化吧
+    err = null
+    try
+      taobaoItem.cid = extractCid $('html').html()
+    catch e
+      err = e
+      error e
+      crawlTaobaoItem numIid, callback
+    if err? then return
+
+    taobaoItem.title = extractTitle $
+    taobaoItem.pic_url = extractPicUrl $
     taobaoItem.price = $('.tb-rmb-num').text()
     taobaoItem.skus = extractSkus $, taobaoItem.price
     taobaoItem.property_alias = ''
     taobaoItem.item_imgs = extractItemImgs $
-    taobaoItem.cid = extractCid $('html').html()
     taobaoItem.nick = extractNick $('html').html()
     descUrl = extractDescUrl $('html').html()
     if not taobaoItem.title or not taobaoItem.price or not descUrl
