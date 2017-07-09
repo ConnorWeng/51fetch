@@ -586,7 +586,7 @@ extractDescUrl = (html) ->
   if not descUrl?
     matches = /descUrl\s*:\s*['"](.+)['"]/.exec html
     if matches? then descUrl = 'https:' + matches[1]
-  if not descUrl? then throw new Error("good #{numIid} fail to crawl because of no desc url")
+  if not descUrl? then throw new Error("fail to crawl because of no desc url")
   descUrl
 
 extractSkus = ($, defaultPrice) ->
@@ -651,14 +651,14 @@ extractItemImgs = ($) ->
       itemImgs.item_img.push
         url: makeSureProtocol $li.find('img').attr('src').replace('_70x70.jpg', '')
   else
-    throw new Error("good #{numIid} fail to crawl because of no item imgs")
+    throw new Error("fail to crawl because of no item imgs")
   itemImgs
 
 extractCid = (html) ->
   cid = null
   matches = /[^r]cid\s*:\s*'(\d+)'/.exec html
   if matches? then cid = parseInt matches[1]
-  if not cid? then throw new Error("good #{numIid} fail to crawl because of no cid")
+  if not cid? then throw new Error("fail to crawl because of no cid")
   cid
 
 extractNick = (html) ->
@@ -668,13 +668,13 @@ extractNick = (html) ->
   if not nick?
     matches = /nick\s*:\s*['"](.+)['"]/.exec html
     if matches? then nick = matches[1]
-  if not nick? then throw new Error("good #{numIid} fail to crawl because of no nick")
+  if not nick? then throw new Error("fail to crawl because of no nick")
   nick
 
 extractTitle = ($) ->
   title = $('.tb-main-title').attr('data-title');
   if not title then title = $('.tb-main-title').text();
-  if not title then throw new Error("good #{numIid} fail to crawl because of no title")
+  if not title then throw new Error("fail to crawl because of no title")
   title
 
 extractPicUrl = ($) ->
@@ -683,7 +683,7 @@ extractPicUrl = ($) ->
   else if $('.tb-thumb-content img').attr('src')
     makeSureProtocol $('.tb-thumb-content img').attr('src').replace('_600x600.jpg', '');
   else
-    throw new Error("good #{numIid} fail to crawl because of no pic url")
+    throw new Error("fail to crawl because of no pic url")
 
 findPid = (pname, props) ->
   for prop in props
@@ -736,7 +736,7 @@ exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback) ->
       taobaoItem.cid = extractCid $('html').html()
     catch e
       err = e
-      error e
+      error new Error("good #{numIid} fail to crawl", e)
       crawlTaobaoItem numIid, callback
     if err? then return
 
