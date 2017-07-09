@@ -2,7 +2,7 @@
 serverConfig = require './pass.json'
 
 module.exports = (grunt) ->
-  filesNeedUpload = ['crawlItem.coffee', 'e2e/**', 'package.json', 'script/**', 'single_store.coffee', 'src/**', 'taobao_api/**', 'test/**', 'client/**', 'index.coffee', 'cli.coffee']
+  filesNeedUpload = ['crawlItem.coffee', 'e2e/**', 'package.json', 'script/**', 'single_store.coffee', 'src/**', 'taobao_api/**', 'test/**', 'client/**', 'index.coffee', 'cli.coffee', 'start.sh']
 
   # 这里可以不返回一个function, 而直接返回
   # tasks
