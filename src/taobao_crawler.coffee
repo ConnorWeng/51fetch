@@ -547,9 +547,9 @@ getAsynSearchURL = (body) ->
   asynRegex = /.+J_ShopAsynSearchURL.+value=\"(.+)\"/
   asynMatches = body.match asynRegex
   asynURL = asynMatches[1]
-  shopRegex = /shop(\d+)\.taobao\.com\/search.htm/
+  shopRegex = /(\w+)\.taobao\.com\/search.htm/
   shopMatches = body.match shopRegex
-  shopURL = "shop#{shopMatches[1]}.taobao.com"
+  shopURL = "#{shopMatches[1]}.taobao.com"
   "https://#{shopURL}#{asynURL}"
 
 exports.$fetch = $fetch = (url, callback) ->
