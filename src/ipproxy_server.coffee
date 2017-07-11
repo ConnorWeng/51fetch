@@ -15,6 +15,7 @@ getIPProxiesViaApi = (vendor, callback) ->
     rawJSON = ''
     res.on 'data', (chunk) -> rawJSON += chunk
     res.on 'end', ->
+      log "get: #{rawJSON}"
       callback null, rawJSON
   .on 'error', (e) ->
     error "fail to get new ip via api, error: #{e.message}"
