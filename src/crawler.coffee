@@ -31,7 +31,7 @@ after1m = ->
 
 updateIPProxiesViaApi = ->
   lastUpdate = new Date().getTime()
-  http.get config.ip_proxies_api, (res) ->
+  http.get "#{config.ip_proxies_api}/#{config.ip_proxies_method}", (res) ->
     if res.statusCode isnt 200
       error 'fail to get new ip via api'
       res.resume()
