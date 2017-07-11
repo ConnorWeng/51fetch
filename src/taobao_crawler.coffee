@@ -322,7 +322,13 @@ saveItemsFromPageAndQueueNext = (store, callback) ->
         window.close()
 
 nextPageUri = ($) ->
-  $('div.pagination a.next').attr('href')
+  if $('.J_SearchAsync').length > 0
+    nextUrl = $('div.pagination a:eq(1)').attr('href')
+    if nextUrl then return nextUrl.replace('search', 'i/asynSearch') else return null
+  else if $('div.pagination a.next').length > 0
+    $('div.pagination a.next').attr('href')
+  else
+    throw new Error('cannot get next page uri')
 
 currentPageNumber = ($) ->
   (parseInt $('div.pagination a.page-cur').text()) || 1
@@ -540,7 +546,7 @@ fetchStorePage = (url, method, banned, prevFetchContent = '') ->
       else
         if prevFetchContent
           res.body += prevFetchContent
-          res.body = res.body.replace(/\\"/g, '"');
+        res.body = res.body.replace(/\\"/g, '"');
         res
 
 getAsynSearchURL = (body) ->
