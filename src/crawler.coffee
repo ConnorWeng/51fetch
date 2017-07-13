@@ -113,7 +113,7 @@ fetchImpl = (defered, url, method, retryTimes, banned) ->
           fetchImpl defered, url, method, retryTimes, banned
       else
         debug result.body
-        if ~result.body.indexOf('The maximum web proxy user limit has been reached') or ~result.body.indexOf('Maximum number of open connections reached')
+        if ~result.body.indexOf('The maximum web proxy user limit has been reached') or ~result.body.indexOf('Maximum number of open connections reached') or ~result.body.indexOf('The requested URL could not be retrieved')
           log "fail to fetch, retrying, err: ipproxy error, url: #{url}"
           fetchImpl defered, url, method, retryTimes, banned
         else
