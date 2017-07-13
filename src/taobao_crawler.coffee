@@ -537,6 +537,8 @@ fetchStorePage = (url, method, banned, prevFetchContent = '') ->
   fetch url, method, null
     .then (res) ->
       if res.statusCode is 302
+        if res.headers['location'] is 'https://store.taobao.com/shop/noshop.htm'
+          throw new Error("302 to noshop.htm while requesting url #{url}")
         log "302 found, redirect to #{res.headers['location']}"
         fetchStorePage res.headers['location'], method, banned, prevFetchContent
       else if ~res.body.indexOf('J_ShopAsynSearchURL')
