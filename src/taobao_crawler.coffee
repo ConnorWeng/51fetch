@@ -556,7 +556,7 @@ getAsynSearchURL = (body) ->
   shopRegex = /(\w+)\.taobao\.com\/search.htm/
   shopMatches = body.match shopRegex
   shopURL = "#{shopMatches[1]}.taobao.com"
-  "https://#{shopURL}#{asynURL}"
+  "https://#{shopURL}#{asynURL}&orderType=newOn_desc"
 
 exports.$fetch = $fetch = (url, callback) ->
   fetch url, 'GET'
