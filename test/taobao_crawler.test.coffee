@@ -70,7 +70,7 @@ describe 'taobao_crawler', () ->
     it 'should callback when all uris are handled', (done) ->
       sinon.stub newCrawler, 'queue', (options) ->
         process.nextTick ->
-          options[0]['callback'](null, {uri:'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor', body: '<div class="search-result">共搜索到<span> 55 </span>个符合条件的商品。</div>'})
+          options[0]['callback'](null, {uri:'http://shop109065161.taobao.com/search.htm?mid=w-6309713619-0&search=y&spm=a1z10.1.0.0.PLAAVw&orderType=hotsell_desc&pageNo=2#anchor', body: '<div class="search-result">共搜索到<span> 55 </span>个符合条件的商品。</div><div class="pagination"><a class="next">next</a></div>'})
       setCrawler newCrawler
       databaseStub.saveItems = (a, b, c, d, e, f, callback) ->
         process.nextTick ->
@@ -580,7 +580,7 @@ describe 'taobao_crawler', () ->
 
   describe '#getAsynSearchURL', ->
     it 'should return value of J_ShopAsynSearchURL input', ->
-      assert.equal taobao_crawler.getAsynSearchURL(HTML_WITH_ASYN_SEARCH_URL), 'https://shop411857438.taobao.com/i/asynSearch.htm?mid=w-15870872781-0&wid=15870872781&path=/search.htm&amp;search=y&amp;orderType=newOn_desc&amp;viewType=grid'
+      assert.equal taobao_crawler.getAsynSearchURL(HTML_WITH_ASYN_SEARCH_URL), 'https://shop411857438.taobao.com/i/asynSearch.htm?mid=w-15870872781-0&wid=15870872781&path=/search.htm&amp;search=y&amp;orderType=newOn_desc&amp;viewType=grid&orderType=newOn_desc'
 
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>

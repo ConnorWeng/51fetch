@@ -322,11 +322,11 @@ saveItemsFromPageAndQueueNext = (store, callback) ->
         window.close()
 
 nextPageUri = ($) ->
-  if $('.J_SearchAsync').length > 0
+  if $('div.pagination a.next').length > 0
+    $('div.pagination a.next').attr('href')
+  else if $('.J_SearchAsync').length > 0
     nextUrl = $('div.pagination a:eq(1)').attr('href')
     if nextUrl then return nextUrl.replace('search', 'i/asynSearch') else return null
-  else if $('div.pagination a.next').length > 0
-    $('div.pagination a.next').attr('href')
   else
     throw new Error('cannot get next page uri')
 
