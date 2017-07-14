@@ -24,6 +24,7 @@ begin
       leave goods_loop;
     end if;
     set o_count = o_count + 1;
+    insert into ecm_goods_delist(`goods_id`, `store_id`, `type`, `goods_name`, `description`, `cate_id`, `cate_name`, `brand`, `spec_qty`, `spec_name_1`, `spec_name_2`, `if_show`, `closed`, `close_reason`, `add_time`, `last_update`, `default_spec`, `default_image`, `searchcode`, `recommended`, `cate_id_1`, `cate_id_2`, `cate_id_3`, `cate_id_4`, `price`, `service_shipa`, `tags`, `sort_order`, `good_http`, `moods`, `cids`, `realpic`, `spec_pid_1`, `spec_pid_2`, `delivery_template_id`, `delivery_weight`, `score`, `taobao_price`) select `goods_id`, `store_id`, `type`, `goods_name`, `description`, `cate_id`, `cate_name`, `brand`, `spec_qty`, `spec_name_1`, `spec_name_2`, `if_show`, `closed`, `close_reason`, `add_time`, UNIX_TIMESTAMP(), `default_spec`, `default_image`, `searchcode`, `recommended`, `cate_id_1`, `cate_id_2`, `cate_id_3`, `cate_id_4`, `price`, `service_shipa`, `tags`, `sort_order`, `good_http`, `moods`, `cids`, `realpic`, `spec_pid_1`, `spec_pid_2`, `delivery_template_id`, `delivery_weight`, `score`, `taobao_price` from ecm_goods where goods_id = v_goods_id;
     delete from ecm_goods where goods_id = v_goods_id;
     delete from ecm_goods_spec where goods_id = v_goods_id;
     delete from ecm_goods_attr where goods_id = v_goods_id;
