@@ -320,7 +320,9 @@ saveItemsFromPageAndQueueNext = (store, callback) ->
                 saveItemsFromPageAndQueueNext(store, callback)(err, null)
           items = extractItemsFromContent $, store
           bannedError = new Error('been banned by taobao') if isBanned $
-          if bannedError then process.exit 99
+          if bannedError
+            log 'exiting with code: 99'
+            process.exit 99
           pageNumber = currentPageNumber $
           db.saveItems store['store_id'], store['store_name'], items, result.uri, $(TEMPLATES[0].CAT_SELECTED).text().trim(), pageNumber, ->
             changeRemains store, '-', callback, bannedError
@@ -333,6 +335,7 @@ nextPageUri = ($) ->
     nextUrl = $('div.pagination a:eq(1)').attr('href')
     if nextUrl then return nextUrl.replace('search', 'i/asynSearch') else return null
   else
+    log 'exiting with code: 94'
     process.exit 94 # FIXME: 还不清楚具体错误原因，所以快速中断脚本，由forever重启
     throw new Error('cannot get next page uri')
 
@@ -391,6 +394,7 @@ extractDefaultImage = ($item) ->
   if ~defaultImage.indexOf('a.tbcdn.cn/s.gif') or ~defaultImage.indexOf('assets.alicdn.com/s.gif') then defaultImage = $item.find('img').attr('data-ks-lazyload')
   if ~defaultImage.indexOf('40x40')
     console.log $item.html()
+    log 'exiting with code: 96'
     process.exit 96
   defaultImage
 

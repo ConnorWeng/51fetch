@@ -39,6 +39,7 @@ crawl = (store) ->
     if (err)
       console.error "pool acquire error: #{err}"
       pool.release poolRef
+      log 'exiting with code: 95'
       process.exit 95
 
     crawlStore store, fullCrawl, ->
