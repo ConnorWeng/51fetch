@@ -1,6 +1,6 @@
 http = require 'http'
 async = require 'async'
-{log, error, inspect} = require './util'
+{log, error, inspect, debug, trace} = require './util'
 Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
@@ -542,11 +542,11 @@ fetchStorePage = (url, method, banned, prevFetchContent = '') ->
       if res.statusCode is 302
         if res.headers['location'] is 'https://store.taobao.com/shop/noshop.htm'
           throw new Error("302 to noshop.htm while requesting url #{url}")
-        log "302 found, redirect to #{res.headers['location']}"
+        debug "302 found, redirect to #{res.headers['location']}"
         fetchStorePage res.headers['location'], method, banned, prevFetchContent
       else if ~res.body.indexOf('J_ShopAsynSearchURL')
         asynUrl = getAsynSearchURL(res.body)
-        log "AsynSearch found: #{asynUrl}"
+        debug "AsynSearch found: #{asynUrl}"
         fetchStorePage asynUrl, method, banned, res.body
       else
         if prevFetchContent
