@@ -11,6 +11,8 @@ MAX_RETRY_TIMES = 40
 c = new Crawler
   'debug': if (process.env.NODE_ENV is 'trace') then true else false
   'headers':
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_4) AppleWebKit/603.1.30 (KHTML, like Gecko) Version/10.1 Safari/603.1.30'
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
     'Cookie': config.cookie
   'forceUTF8': true
   'jQuery': false
