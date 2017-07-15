@@ -355,7 +355,7 @@ extractCatsTreeHtml = ($, store) ->
 
 makeSureProtocol = (uri) ->
   protocol = ''
-  protocol = 'https:' if uri.indexOf('http') isnt 0 and uri.indexOf('//') is 0
+  protocol = 'http:' if uri.indexOf('http') isnt 0 and uri.indexOf('//') is 0
   protocol + uri
 
 exports.extractItemsFromContent = extractItemsFromContent = ($, store) ->
