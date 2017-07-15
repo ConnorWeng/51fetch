@@ -242,6 +242,9 @@ clearCids = (store) ->
         callback null, uris
 
 changeRemains = (store, action, callback, err = null) ->
+  if err
+    callback err
+    return
   if not store.remains? then store.remains = 0
   if action is '+'
     store.remains++
@@ -295,8 +298,7 @@ updateCategories = (store) ->
 saveItemsFromPageAndQueueNext = (store, callback) ->
   (err, result) ->
     if result.body is ''
-      changeRemains store, '-', callback
-      error "Error: #{result.uri} return empty content"
+      changeRemains store, '-', callback, new Error("Error: #{result.uri} return empty content")
     else
       env result.body, (errors, window) ->
         $ = jquery window
