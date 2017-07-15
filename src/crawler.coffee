@@ -1,7 +1,7 @@
 http = require 'http'
 {Crawler} = require 'crawler'
 {env} = require 'jsdom'
-{log, error} = require './util'
+{log, error, debug, trace} = require './util'
 jquery = require 'jquery'
 Q = require 'q'
 config = require './config'
@@ -9,7 +9,7 @@ config = require './config'
 MAX_RETRY_TIMES = 40
 
 c = new Crawler
-  'debug': if (process.env.NODE_ENV is 'debug') then true else false
+  'debug': if (process.env.NODE_ENV is 'trace') then true else false
   'headers':
     'Cookie': config.cookie
   'forceUTF8': true
@@ -47,11 +47,11 @@ updateIPProxiesViaApi = ->
 isAllUnavailable = ->
   availableCount = 0
   (if proxy.available then availableCount++) for proxy in IPProxies
-  log "available proxies count: #{availableCount}"
+  debug "available proxies count: #{availableCount}"
   if availableCount > 0
     false
   else
-    log "all proxies are unavailable"
+    debug "all proxies are unavailable"
     true
 
 exports.getIPProxy = getIPProxy = ->
@@ -109,12 +109,12 @@ fetchImpl = (defered, url, method, retryTimes, banned) ->
           error "fail to fetch after trying #{retryTimes} times, err: #{err}, url: #{url}"
           defered.reject err
         else
-          log "fail to fetch, retrying, err: #{err}, url: #{url}"
+          debug "fail to fetch, retrying, err: #{err}, url: #{url}"
           fetchImpl defered, url, method, retryTimes, banned
       else
-        debug result.body
+        trace result.body
         if ~result.body.indexOf('The maximum web proxy user limit has been reached') or ~result.body.indexOf('Maximum number of open connections reached') or ~result.body.indexOf('The requested URL could not be retrieved')
-          log "fail to fetch, retrying, err: ipproxy error, url: #{url}"
+          debug "fail to fetch, retrying, err: ipproxy error, url: #{url}"
           fetchImpl defered, url, method, retryTimes, banned
         else
           if banned and banned result.body
@@ -126,7 +126,7 @@ unavailableProxy = (proxyUrl, reason) ->
   for proxy in IPProxies
     if proxy.url is proxyUrl
       proxy.available = false
-      log "#{proxyUrl} becomes unavailable because of #{reason}"
+      debug "#{proxyUrl} becomes unavailable because of #{reason}"
       break
 
 exports.makeJsDom = makeJsDom = Q.nfbind env
@@ -223,8 +223,3 @@ IPProxiesMethods =
 
 if process.env.NODE_ENV is 'test'
   getIPProxy = -> null
-
-debug = (content) ->
-  if process.env.NODE_ENV is 'debug'
-    console.log '=============================================================='
-    console.log content
