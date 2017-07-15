@@ -333,7 +333,7 @@ nextPageUri = ($) ->
     $('div.pagination a.next').attr('href')
   else if $('.J_SearchAsync').length > 0
     nextUrl = $('div.pagination a:eq(1)').attr('href')
-    if nextUrl then return nextUrl.replace('search', 'i/asynSearch') else return null
+    if nextUrl then return nextUrl.replace('search', 'i/asynSearch').replace(/&amp;pageNo=/g, '&pageNo=') else return null
   else
     log 'exiting with code: 94'
     process.exit 94 # FIXME: 还不清楚具体错误原因，所以快速中断脚本，由forever重启
@@ -564,7 +564,7 @@ fetchStorePage = (url, method, banned, prevFetchContent = '') ->
 getAsynSearchURL = (body) ->
   asynRegex = /.+J_ShopAsynSearchURL.+value=\"(.+)\"/
   asynMatches = body.match asynRegex
-  asynURL = asynMatches[1]
+  asynURL = asynMatches[1].replace(/&amp;pageNo=/g, '&pageNo=')
   shopRegex = /(\w+)\.taobao\.com\/search.htm/
   shopMatches = body.match shopRegex
   shopURL = "#{shopMatches[1]}.taobao.com"
