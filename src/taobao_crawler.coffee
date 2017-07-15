@@ -301,6 +301,9 @@ saveItemsFromPageAndQueueNext = (store, callback) ->
       changeRemains store, '-', callback, new Error("Error: #{result.uri} return empty content")
     else
       env result.body, (errors, window) ->
+        if errors
+          changeRemains store, '-', callback, new Error('cannot make jsdom')
+          return
         $ = jquery window
         if $('.item-not-found').length > 0
           log "id:#{store['store_id']} #{store['store_name']} has one empty page: #{result.uri}"
