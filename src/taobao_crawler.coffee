@@ -328,6 +328,7 @@ nextPageUri = ($) ->
     nextUrl = $('div.pagination a:eq(1)').attr('href')
     if nextUrl then return nextUrl.replace('search', 'i/asynSearch') else return null
   else
+    process.exit 94 # FIXME: 还不清楚具体错误原因，所以快速中断脚本，由forever重启
     throw new Error('cannot get next page uri')
 
 currentPageNumber = ($) ->
