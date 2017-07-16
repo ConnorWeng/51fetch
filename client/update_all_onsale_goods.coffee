@@ -60,7 +60,8 @@ update = () ->
                 if err then console.error err
                 crawlItemsInStore store['store_id'], store['access_token'], ->
                   log "store #{store['store_id']} updated #{items.length} items"
-                  update()
+                  db.deleteDelistItems store['store_id'], items.length, ->
+                    update()
       else
         console.error "store #{store['store_id']} error: #{err}"
         update()
