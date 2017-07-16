@@ -180,11 +180,16 @@ parseFloor = () ->
     .then (window) ->
       $ = jquery window
       $('.items').each (i, item) ->
-        address = $(item).attr('data-pos')
-        floor = $(item).closest('.stall-table').find('dt:eq(0)').text().trim()
+        shop = $(item).attr('href').substr(6)
+        shopName = $(item).attr('data-title')
+        market = $(item).attr('data-market')
+        floor = $(item).attr('data-floor') + '楼'
+        dangkou = $(item).attr('data-position')
+        address = "#{market} #{floor} #{dangkou}"
+        floor = $(item).closest('.stall-table').find('dt:eq(0) h2').text().trim()
         floorParts = floor.split '楼'
         if floorParts.length > 1 && floorParts[1] isnt '' then floor = "#{floorParts[1]}#{floorParts[0]}" else floor = floorParts[0]
-        appendFileSync IMPORT_FLOOR_SQL_FILE, "update ecm_store_vvic set floor = '#{floor}' where address = '#{address}';\n"
+        appendFileSync IMPORT_FLOOR_SQL_FILE, "update ecm_store_vvic set floor = '#{floor}', vvic_http = 'http://www.vvic.com/shop/#{shop}' where address = '#{address}' and store_name = '#{shopName}';\n"
         log "#{address} updated"
       window.close()
 
