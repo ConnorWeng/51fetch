@@ -281,7 +281,7 @@ class db
       if err
         error "error in saveItems: #{err}"
       else
-        log "id:#{storeId} #{storeName} is fetched one page: #{@getCidFromUrl url} counts: #{items.length}."
+        log "id:#{storeId} #{storeName} fetched pageNo: #{pageNumber} cid: #{@getCidFromUrl url} counts: #{items.length}."
       callback err, result
 
   clearCids: (storeId, callback) ->
