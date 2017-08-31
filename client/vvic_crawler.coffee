@@ -1,33 +1,35 @@
 {writeFileSync, readFileSync, mkdirSync, existsSync, readdirSync, appendFileSync, unlinkSync} = require 'fs'
 {log} = require '../src/util'
 jquery = require 'jquery'
-{fetch, makeJsDomPromise} = require '../src/taobao_crawler'
+{fetch, makeJsDom, setRateLimits} = require '../src/crawler'
 args = process.argv.slice 2
 
 IMPORT_SQL_FILE = '../temp/ecm_store_vvic.sql'
 IMPORT_FLOOR_SQL_FILE = '../temp/ecm_store_vvic_floor.sql'
 MARKET_MAP = {19: '国大', 12: '大西豪', 10: '大时代', 13: '女人街', 14: '国投', 15: '富丽', 18: '跨客城', 11: '宝华', 24: '鞋城', 37: '圣迦', 17: '柏美', 34: '三晟', 20: '新潮都', 16: '非凡', 23: '佰润', 25: '新金马', 42: '十三行', 35: '南城', 36: '金纱', 26: '老金马', 28: '万佳', 41: '益民', 27: '新百佳', 29: '西苑鞋汇', 43: '景叶', 39: '欣欣网批', 45: '西街福壹', 44: '狮岭', 38: '周边'}
 
+setRateLimits 0
+
 savePage = (page) ->
   pageFile = "../temp/#{page}.txt"
   if existsSync pageFile then return
-  fetch "http://www.vvic.com/shops/#{page}"
-    .then (body) ->
-      writeFileSync pageFile, body
+  fetch "http://www.vvic.com/shops/#{page}", 'GET'
+    .then (result) ->
+      writeFileSync pageFile, result.body
       log "#{page} fetched"
 
 saveShop = (page, shop) ->
   shopFile = "../temp/#{page}/#{shop}.txt"
   if existsSync shopFile then return
-  fetch "http://www.vvic.com/shop/#{shop}"
-    .then (body) ->
-      writeFileSync shopFile, body
+  fetch "http://www.vvic.com/shop/#{shop}", 'GET'
+    .then (result) ->
+      writeFileSync shopFile, result.body
       log "shop #{shop} fetched"
 
 parsePage = (page) ->
   body = readFileSync("../temp/#{page}.txt", 'utf8')
   if not existsSync "../temp/#{page}" then mkdirSync "../temp/#{page}"
-  makeJsDomPromise body
+  makeJsDom body
     .then (window) ->
       $ = jquery window
       $('.items').each (i, item) ->
@@ -41,9 +43,9 @@ saveItem = (page, shop, item, shopFiles) ->
   if existsSync itemFile
     _saveItems shopFiles, page
   else
-    fetch "http://www.vvic.com/item/#{item}"
-      .then (body) ->
-        writeFileSync itemFile, body
+    fetch "http://www.vvic.com/item/#{item}", 'GET'
+      .then (result) ->
+        writeFileSync itemFile, result.body
         log "page: #{page}, shop: #{shop}, item: #{item} fetched"
         _saveItems shopFiles, page
 
@@ -55,7 +57,7 @@ _saveItems = (shopFiles, page) ->
     else
       shopFile = "../temp/#{page}/#{shopFileName}"
       shopFileContent = readFileSync shopFile, 'utf8'
-      makeJsDomPromise shopFileContent
+      makeJsDom shopFileContent
         .then (window) ->
           $ = jquery window
           item = $('.title:eq(0) a').attr('href')
@@ -83,7 +85,7 @@ _parseShops = (shopFiles, page) ->
     else
       shopFile = "../temp/#{page}/#{shopFileName}"
       shopFileContent = readFileSync shopFile, 'utf8'
-      makeJsDomPromise shopFileContent
+      makeJsDom shopFileContent
         .then (window) ->
           $ = jquery window
           shopInfo = getShopInfo $, page
@@ -176,7 +178,7 @@ getSeePrice = (page, shop, item) ->
 parseFloor = () ->
   body = readFileSync("../temp/#{page}.txt", 'utf8')
   if not existsSync "../temp/#{page}" then mkdirSync "../temp/#{page}"
-  makeJsDomPromise body
+  makeJsDom body
     .then (window) ->
       $ = jquery window
       $('.items').each (i, item) ->
