@@ -85,13 +85,14 @@ _parseShops = (shopFiles, page) ->
     else
       shopFile = "../temp/#{page}/#{shopFileName}"
       shopFileContent = readFileSync shopFile, 'utf8'
+      shop = shopFileName.replace /\.txt/, ''
       makeJsDom shopFileContent
         .then (window) ->
           $ = jquery window
           shopInfo = getShopInfo $, page
           window.close()
           log shopInfo
-          appendFileSync IMPORT_SQL_FILE, "insert into ecm_store_vvic(store_name, see_price, business_scope, shop_mall, floor, dangkou_address, shop_http, im_ww, im_wx, im_qq, tel, service_daifa, service_tuixian, serv_realpic, mk_name, address) values ('#{shopInfo.storeName}', '#{shopInfo.seePrice}', '#{shopInfo.scope}', '#{shopInfo.market}', '#{shopInfo.floor}', '#{shopInfo.dangkou}', '#{shopInfo.taobaoLink}', '#{shopInfo.ww}', '#{shopInfo.wx}', '#{shopInfo.qq}', '#{shopInfo.tel}', '#{shopInfo.daifa}', '#{shopInfo.tuixian}', '#{shopInfo.realpic}', '#{shopInfo.market}-#{shopInfo.floor}F', '#{shopInfo.address}');\n"
+          appendFileSync IMPORT_SQL_FILE, "insert into ecm_store_vvic(store_name, see_price, business_scope, shop_mall, floor, dangkou_address, shop_http, im_ww, im_wx, im_qq, tel, service_daifa, service_tuixian, serv_realpic, mk_name, address, vvic_http) values ('#{shopInfo.storeName}', '#{shopInfo.seePrice}', '#{shopInfo.scope}', '#{shopInfo.market}', '#{shopInfo.floor}', '#{shopInfo.dangkou}', '#{shopInfo.taobaoLink}', '#{shopInfo.ww}', '#{shopInfo.wx}', '#{shopInfo.qq}', '#{shopInfo.tel}', '#{shopInfo.daifa}', '#{shopInfo.tuixian}', '#{shopInfo.realpic}', '#{shopInfo.market}-#{shopInfo.floor}F', '#{shopInfo.address}', 'http://www.vvic.com/shop/#{shop}');\n"
           _parseShops shopFiles, page
   else
     log "page #{page} completed"
@@ -126,7 +127,7 @@ getShopInfo = ($, page) ->
     if label is 'QQ：' then qq = text
     if label is '地址：'
       address = text
-      address = address.substr(0, address.length - 2).replace(/\n/g, '').replace(/\s/g, ';')
+      address = address.substr(0, address.length - 2).replace(/\n/g, '').replace(/\s/g, ';').replace('', '')
       addressParts = address.split ';'
       market = MARKET_MAP[page]
       floor = parseInt addressParts[1] + ''
@@ -191,7 +192,7 @@ parseFloor = () ->
         floor = $(item).closest('.stall-table').find('dt:eq(0) h2').text().trim()
         floorParts = floor.split '楼'
         if floorParts.length > 1 && floorParts[1] isnt '' then floor = "#{floorParts[1]}#{floorParts[0]}" else floor = floorParts[0]
-        appendFileSync IMPORT_FLOOR_SQL_FILE, "update ecm_store_vvic set floor = '#{floor}', vvic_http = 'http://www.vvic.com/shop/#{shop}' where address = '#{address}' and store_name = '#{shopName}';\n"
+        appendFileSync IMPORT_FLOOR_SQL_FILE, "update ecm_store_vvic set floor = '#{floor}' where address = '#{address}' and store_name = '#{shopName}';\n"
         log "#{address} updated"
       window.close()
 
