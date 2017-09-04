@@ -192,7 +192,8 @@ parseFloor = () ->
         floor = $(item).closest('.stall-table').find('dt:eq(0) h2').text().trim()
         floorParts = floor.split '楼'
         if floorParts.length > 1 && floorParts[1] isnt '' then floor = "#{floorParts[1]}#{floorParts[0]}" else floor = floorParts[0]
-        appendFileSync IMPORT_FLOOR_SQL_FILE, "update ecm_store_vvic set floor = '#{floor}' where address = '#{address}' and store_name = '#{shopName}';\n"
+        if floor isnt '推荐档口'
+          appendFileSync IMPORT_FLOOR_SQL_FILE, "update ecm_store_vvic set floor = '#{floor}' where address = '#{address}' and store_name = '#{shopName}';\n"
         log "#{address} updated"
       window.close()
 
