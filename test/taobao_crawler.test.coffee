@@ -344,18 +344,6 @@ describe 'taobao_crawler', () ->
         'dangkou_address': 'address'
       , '705', 15), 'malladdress_P15_705#'
 
-  describe '#getHuoHao', ->
-    it 'should return huo hao', ->
-      assert.equal taobao_crawler.getHuoHao('705#title'), 705
-      assert.equal taobao_crawler.getHuoHao('title705'), 705
-      assert.equal taobao_crawler.getHuoHao('2014title705'), 705
-      assert.equal taobao_crawler.getHuoHao('title'), ''
-      assert.equal taobao_crawler.getHuoHao('title9title705'), 705
-      assert.equal taobao_crawler.getHuoHao('title16title705'), 705
-      assert.equal taobao_crawler.getHuoHao('title#16title705'), 16
-      assert.equal taobao_crawler.getHuoHao('title16#title705'), 16
-      assert.equal taobao_crawler.getHuoHao('17title6488'), 6488
-
   describe '#filterItems', ->
     it 'should return filtered items', ->
       assert.deepEqual taobao_crawler.filterItems([
