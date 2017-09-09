@@ -1,22 +1,18 @@
 mysql = require 'mysql'
+config = require './config'
 {log, error, getHuoHao} = require './util'
 Q = require 'q'
 
 class db
   constructor: (databaseConfig) ->
-    if databaseConfig? then config = databaseConfig else config =
-        host: 'rdsqr7ne2m2ifjm.mysql.rds.aliyuncs.com'
-        user: 'wangpi51'
-        password: '51374b78b104'
-        database: 'wangpi51'
-        port: 3306
-    config.multipleStatements = true
+    if databaseConfig? then cfg = databaseConfig else cfg = config.database['ecmall51_2']
+    cfg.multipleStatements = true
     @updateStoreCateContentCounter = 0
     @updateImWwCounter = 0
     @clearCidsCounter = 0
     @deleteDelistItemsCounter = 0
     @saveItemsCounter = 0
-    @pool = mysql.createPool config
+    @pool = mysql.createPool cfg
 
   query: (sql, callback) ->
     @pool.query sql, (err, result) =>
