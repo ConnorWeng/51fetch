@@ -1,5 +1,6 @@
 {Pool} = require 'generic-pool'
-{buildOuterIid, crawlItemsInStore, getAllStores, crawlStore, setDatabase, getDatabase} = require './src/taobao_crawler'
+{buildOuterIid, crawlItemsInStore, getAllStores, setDatabase, getDatabase} = require './src/taobao_crawler'
+crawlStore = require('./src/vvic_crawler').crawlStore
 database = require './src/database'
 config = require './src/config'
 {getIPProxy} = require './src/crawler'
@@ -53,7 +54,7 @@ crawl = (store) ->
           db.query "update ecm_crawl_config set last_update = '#{new Date()}'", ->
             pool.release poolRef
 
-db.query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 where s.state = 1 and s.store_id > (select now_id from ecm_crawl_config where ip = '#{ip}') and s.store_id <= (select end_id from ecm_crawl_config where ip = '#{ip}') order by s.store_id", (err, unfetchedStores) ->
+db.query "select s.*,v.vvic_http from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 left join ecm_store_vvic v on s.store_id = v.ecm_store_id where s.state = 1 and s.store_id > (select now_id from ecm_crawl_config where ip = '#{ip}') and s.store_id <= (select end_id from ecm_crawl_config where ip = '#{ip}') order by s.store_id", (err, unfetchedStores) ->
   if err then throw err
   stores = unfetchedStores
   getIPProxy()

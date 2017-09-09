@@ -1,5 +1,6 @@
 {log} = require './src/util'
-{buildOuterIid, crawlAllItemsInStore, crawlItemsInStore, getAllStores, crawlStore, setDatabase, getDatabase} = require './src/taobao_crawler'
+{buildOuterIid, crawlAllItemsInStore, crawlItemsInStore, getAllStores, setDatabase, getDatabase} = require './src/taobao_crawler'
+crawlStore = require('./src/vvic_crawler').crawlStore
 database = require './src/database'
 config = require './src/config'
 {getIPProxy} = require './src/crawler'
@@ -41,7 +42,7 @@ crawlGoods = (store) ->
     buildOuterIid store['store_id'], ->
       process.exit 0
 
-db.query "select * from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 where s.state = 1 and s.store_id = #{storeId}", (err, stores) ->
+db.query "select s.*, v.vvic_http from ecm_store s left join ecm_member_auth a on s.im_ww = a.vendor_user_nick and a.state = 1 left join ecm_store_vvic v on s.shop_http = v.shop_http where s.state = 1 and s.store_id = #{storeId}", (err, stores) ->
   if err then throw err
   getIPProxy()
   setTimeout ->
