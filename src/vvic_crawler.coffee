@@ -96,8 +96,3 @@ vvicHttp = ($) ->
 
 goodHttp = ($) ->
   $('.product-intro .name a').attr('href').replace('https', 'http')
-
-setRateLimits 0
-
-exports.crawlStore {vvic_http: 'http://www.vvic.com/shop/16324'}, false, ->
-  log 'done'
