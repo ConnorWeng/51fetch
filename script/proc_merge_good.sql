@@ -33,9 +33,10 @@ begin
           update ecm_goods set goods_name=i_goods_name, default_image=i_default_image, price=i_price, taobao_price=i_taobao_price, good_http=i_good_http, last_update=i_now_time, cids=concat(cids,',',i_cid) where goods_id=v_good_id;
        end if;
 
-       if i_huohao != '' then
+       if i_huohao != '' and i_huohao is not null then
           select shop_mall, dangkou_address into v_shop_mall, v_address from ecm_store where store_id = i_store_id;
           update ecm_goods_attr set attr_value = concat(v_shop_mall, v_address, '_P', cast(i_price as unsigned), '_', i_huohao, '#') where goods_id = v_good_id and attr_id = 1;
+          update ecm_goods_spec set sku = i_huohao where goods_id = v_goods_id;
        end if;
 
        select price into v_price from ecm_goods_spec where goods_id = v_good_id order by price limit 1;

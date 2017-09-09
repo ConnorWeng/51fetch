@@ -1,6 +1,6 @@
 mysql = require 'mysql'
 config = require './config'
-{log, error, getHuoHao} = require './util'
+{log, error} = require './util'
 Q = require 'q'
 
 class db
@@ -311,7 +311,8 @@ class db
     if catName isnt '所有宝贝'
       sql += "insert into ecm_gcategory(cate_id, store_id, cate_name, if_show) values ('#{cid}', '#{storeId}', '#{catName}', 1) on duplicate key update store_id = '#{storeId}', cate_name = '#{catName}', if_show = 1;"
     for item, i in items
-      sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.taobaoPrice}','#{item.goodHttp}','#{cid}','#{storeName}',#{@pool.escape(item.goodsName)},'#{time-i}','#{catName}','#{getHuoHao(item.goodsName)}',@o_retcode);"
+      huohao = if item.huohao? then item.huohao else getHuoHao(item.goodsName)
+      sql += "call proc_merge_good('#{storeId}','#{item.defaultImage}','#{item.price}','#{item.taobaoPrice}','#{item.goodHttp}','#{cid}','#{storeName}',#{@pool.escape(item.goodsName)},'#{time-i}','#{catName}','#{huohao}',@o_retcode);"
     sql
 
   updateCategories: (storeId, cats, callback) ->

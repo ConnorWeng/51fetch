@@ -7,33 +7,37 @@ database = require './database'
 db = new database()
 
 saveItems = Q.nbind db.saveItems, db
+deleteDelistItems = Q.nbind db.deleteDelistItems, db
 
 exports.crawlStore = (store, fullCrawl, done) ->
   items = []
-  crawlNextPage "#{store['vvic_http']}?&currentPage=1", items
+  crawlNextPage "#{store['vvic_http']}?&currentPage=1", items, store
     .then ->
       crawlExtraItemInfo items, 0
     .then ->
       saveItems store['store_id'], store['store_name'], items, '', '所有宝贝', 1
+    .then ->
+      deleteDelistItems store['store_id'], store['total_items_count']
     .then ->
       done()
     .catch (err) ->
       error err
       done()
 
-crawlNextPage = (url, items) ->
+crawlNextPage = (url, items, store) ->
   fetch url, 'GET'
     .then (res) ->
       body = res.body
       makeJsDom body
     .then (window) ->
       $ = jquery window
+      setTotalCount store, $
       pushItems items, $
       nextUrl = nextPage $, url
       if nextUrl
         window.close()
-        log 'crawled one page, ready for the next page'
-        crawlNextPage nextUrl, items
+        log "store #{store['store_id']} crawled one page, ready for the next page"
+        crawlNextPage nextUrl, items, store
       else
         window.close()
     .catch (err) ->
@@ -50,6 +54,7 @@ crawlExtraItemInfo = (items, index) ->
       $ = jquery window
       items[index].goodHttp = goodHttp $
       items[index].taobaoPrice = taobaoPrice $
+      items[index].huohao = huohao $
       log items[index]
       window.close()
       if index + 1 < items.length
@@ -58,6 +63,10 @@ crawlExtraItemInfo = (items, index) ->
       error items[index].vvicHttp
       error err
       throw err
+
+setTotalCount = (store, $) ->
+  count = parseInt $('.nc-count .num').text()
+  store['total_items_count'] = count
 
 pushItems = (items, $) ->
   $('#content_all .goods-list .item').each (index, element) ->
@@ -96,3 +105,6 @@ vvicHttp = ($) ->
 
 goodHttp = ($) ->
   $('.product-intro .name a').attr('href').replace('https', 'http')
+
+huohao = ($) ->
+  $('.value.ff-arial').eq(0).text().trim().replace('#', '')
