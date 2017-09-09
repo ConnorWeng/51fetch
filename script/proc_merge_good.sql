@@ -36,7 +36,7 @@ begin
        if i_huohao != '' and i_huohao is not null then
           select shop_mall, dangkou_address into v_shop_mall, v_address from ecm_store where store_id = i_store_id;
           update ecm_goods_attr set attr_value = concat(v_shop_mall, v_address, '_P', cast(i_price as unsigned), '_', i_huohao, '#') where goods_id = v_good_id and attr_id = 1;
-          update ecm_goods_spec set sku = i_huohao where goods_id = v_goods_id and sku = '';
+          update ecm_goods_spec set sku = i_huohao where goods_id = v_good_id and sku = '';
        end if;
 
        select price into v_price from ecm_goods_spec where goods_id = v_good_id order by price limit 1;
