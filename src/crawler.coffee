@@ -92,13 +92,13 @@ exports.evaluate = evaluate = (params, $) ->
     data[name] = func($)
   data
 
-exports.fetch = fetch = (url, method = 'POST', banned = null) ->
+exports.fetch = fetch = (url, method = 'POST', banned = null, needRetry = null) ->
   defered = Q.defer()
   retryTimes = 0
-  fetchImpl defered, url, method, retryTimes, banned
+  fetchImpl defered, url, method, retryTimes, banned, needRetry
   defered.promise
 
-fetchImpl = (defered, url, method, retryTimes, banned) ->
+fetchImpl = (defered, url, method, retryTimes, banned, needRetry) ->
   c.queue [
     'uri': url
     'method': method
@@ -112,12 +112,15 @@ fetchImpl = (defered, url, method, retryTimes, banned) ->
           defered.reject err
         else
           debug "fail to fetch, retrying, err: #{err}, url: #{url}"
-          fetchImpl defered, url, method, retryTimes, banned
+          fetchImpl defered, url, method, retryTimes, banned, needRetry
       else
         trace result.body
-        if ~result.body.indexOf('The maximum web proxy user limit has been reached') or ~result.body.indexOf('Maximum number of open connections reached') or ~result.body.indexOf('The requested URL could not be retrieved')
+        if ~result.body.indexOf('The maximum web proxy user limit has been reached') or ~result.body.indexOf('Maximum number of open connections reached') or ~result.body.indexOf('The requested URL could not be retrieved') or ~result.body.indexOf('Proxy error: 504 Host')
           debug "fail to fetch, retrying, err: ipproxy error, url: #{url}"
-          fetchImpl defered, url, method, retryTimes, banned
+          fetchImpl defered, url, method, retryTimes, banned, needRetry
+        if needRetry isnt null and needRetry result.body
+          debug "fail to fetch, retrying, err: custom, url: #{url}"
+          fetchImpl defered, url, method, retryTimes, banned, needRetry
         else
           if banned and banned result.body
             unavailableProxy result.options.proxy, 'banned by websites'
