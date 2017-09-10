@@ -90,14 +90,13 @@ setTotalCount = (store, $) ->
 pushItems = (items, $) ->
   $('#content_all .goods-list .item').each (index, element) ->
     $e = $(element)
-    if $e.find('span.dktj').length is 0
-      items.push
-        goodsName: goodsName $e
-        defaultImage: defaultImage $e
-        price: price $e
-        vvicHttp: vvicHttp $e
-        taobaoPrice: ''
-        goodHttp: ''
+    items.push
+      goodsName: goodsName $e
+      defaultImage: defaultImage $e
+      price: price $e
+      vvicHttp: vvicHttp $e
+      taobaoPrice: ''
+      goodHttp: ''
 
 nextPage = ($, currentUrl) ->
   currentPage = parseInt /window.CURRENTPAGE = '(\d+)'/.exec($('body').html())?[1]
