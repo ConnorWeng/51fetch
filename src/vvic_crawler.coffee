@@ -6,6 +6,7 @@ database = require './database'
 
 db = new database()
 
+query = Q.nbind db.query, db
 saveItems = Q.nbind db.saveItems, db
 deleteDelistItems = Q.nbind db.deleteDelistItems, db
 
@@ -13,6 +14,9 @@ exports.crawlStore = (store, fullCrawl, done) ->
   items = []
   crawlNextPage "#{store['vvic_http']}?&currentPage=1", items, store
     .then ->
+      query "select goods_name, default_image, price, taobao_price, good_http from ecm_goods where store_id = #{store['store_id']}"
+    .then (goods) ->
+      mergeItems goods, items
       crawlExtraItemInfo items, 0
     .then ->
       saveItems store['store_id'], store['store_name'], items, '', '所有宝贝', 1
@@ -45,24 +49,39 @@ crawlNextPage = (url, items, store) ->
       error err
       throw err
 
+mergeItems = (goods, items) ->
+  for item in items
+    for good in goods
+      if item.goodsName is good['goods_name'] and item.defaultImage is good['default_image'] and parseInt(item.price) is parseInt(good['price'])
+        item.taobaoPrice = good['taobao_price']
+        item.goodHttp = good['good_http']
+        item.fetched = true
+
 crawlExtraItemInfo = (items, index) ->
-  fetch items[index].vvicHttp, 'GET'
-    .then (res) ->
-      body = res.body
-      makeJsDom body
-    .then (window) ->
-      $ = jquery window
-      items[index].goodHttp = goodHttp $
-      items[index].taobaoPrice = taobaoPrice $
-      items[index].huohao = huohao $
-      log items[index]
-      window.close()
-      if index + 1 < items.length
-        crawlExtraItemInfo items, index + 1
-    .catch (err) ->
-      error items[index].vvicHttp
-      error err
-      throw err
+  if items[index].fetched
+    log "#{items[index].goodsName} already fetched before so skip"
+    if index + 1 < items.length
+      crawlExtraItemInfo items, index + 1
+    else
+      true
+  else
+    fetch items[index].vvicHttp, 'GET'
+      .then (res) ->
+        body = res.body
+        makeJsDom body
+      .then (window) ->
+        $ = jquery window
+        items[index].goodHttp = goodHttp $
+        items[index].taobaoPrice = taobaoPrice $
+        items[index].huohao = huohao $
+        log items[index]
+        window.close()
+        if index + 1 < items.length
+          crawlExtraItemInfo items, index + 1
+      .catch (err) ->
+        error items[index].vvicHttp
+        error err
+        throw err
 
 setTotalCount = (store, $) ->
   count = parseInt $('.nc-count .num').text()
