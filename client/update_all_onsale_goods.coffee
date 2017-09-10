@@ -31,17 +31,19 @@ update = () ->
           }
           numIids += "#{item.num_iid},"
         numIids = numIids.substr 0, numIids.length - 1
-        existedGoods store['store_id'], (goodHttps) ->
+        existedGoods store['store_id'], (goodHttps, goodIds) ->
           log "store #{store['store_id']} exists goods length: #{goodHttps.length}"
           log "store #{store['store_id']} taobao goods length: #{numIids.split(',').length}"
           # numIids = filterItems numIids, goodHttps
           log "store #{store['store_id']} after filtered length: #{numIids.split(',').length}"
-          getTaobaoItemsSellerListBatch numIids, 'num_iid,created,sku,props_name,property_alias,title,cid,seller_cids,desc', store['access_token'], [], (err, itemsInBatch) ->
+          getTaobaoItemsSellerListBatch numIids, 'num_iid,created,sku,props_name,property_alias,title,cid,seller_cids,desc,item_img.url', store['access_token'], [], (err, itemsInBatch) ->
             if err
               log "store #{store['store_id']} #{err}"
               return update()
             sql += "update ecm_goods set description = '#{removeSingleQuotes(oneItem.desc)}', add_time = #{phpjs.strtotime(oneItem.created)}, last_update = #{db.getDateTime()} where store_id = #{store['store_id']} and good_http = 'http://item.taobao.com/item.htm?id=#{oneItem.num_iid}';" for oneItem in itemsInBatch
             for oneItem in itemsInBatch
+              if oneItem.item_imgs?.item_img? and ~goodHttps.indexOf("http://item.taobao.com/item.htm?id=#{oneItem.num_iid}")
+                db.updateItemImgs goodIds[goodHttps.indexOf("http://item.taobao.com/item.htm?id=#{oneItem.num_iid}")], oneItem.item_imgs.item_img, ->
               if oneItem.seller_cids
                 cids = oneItem.seller_cids.split ','
                 for cid in cids
@@ -67,13 +69,16 @@ update = () ->
         update()
 
 existedGoods = (storeId, callback) ->
-  sql = "select g.good_http from ecm_goods g where g.store_id = #{storeId} and exists (select 1 from ecm_goods_spec s where s.goods_id = g.goods_id)"
+  sql = "select g.goods_id, g.good_http from ecm_goods g where g.store_id = #{storeId} and exists (select 1 from ecm_goods_spec s where s.goods_id = g.goods_id)"
   db.query sql, (err, res) ->
     if err then throw err
     goodHttps = []
+    goodIds = []
     if res
-      goodHttps.push g.good_http for g in res
-    callback goodHttps
+      for g in res
+        goodHttps.push g.good_http
+        goodIds.push g.goods_id
+    callback goodHttps, goodIds
 
 filterItems = (numIids, existedGoods) ->
   notExistedNumIids = []
