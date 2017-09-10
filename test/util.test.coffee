@@ -1,5 +1,5 @@
 assert = require('chai').assert
-{getHuoHao} = require '../src/util'
+{getHuoHao, removeNumbersAndSymbols} = require '../src/util'
 
 describe 'util', ->
   describe '#getHuoHao', ->
@@ -13,3 +13,9 @@ describe 'util', ->
       assert.equal getHuoHao('title#16title705'), 16
       assert.equal getHuoHao('title16#title705'), 16
       assert.equal getHuoHao('17title6488'), 6488
+
+  describe '#removeNumbersAndSymbols', ->
+    it 'should remove all numbers and symbols', ->
+      assert.equal removeNumbersAndSymbols('实拍 秋装815'), '实拍秋装'
+      assert.equal removeNumbersAndSymbols('实拍 秋装815#'), '实拍秋装'
+      assert.equal removeNumbersAndSymbols('17/实拍 秋装815#'), '实拍秋装'

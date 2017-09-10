@@ -24,3 +24,6 @@ exports.getHuoHao = (title) ->
     while matches? and ((matches[1].length is 4 and matches[1].substr(0, 3) is '201') or matches[1].length is 1 or (matches[1].length is 2 and ~['16','17','18','19'].indexOf(matches[1]))) # no problem before 2019 inclusive
       matches = regex.exec title
     matches?[1] || ''
+
+exports.removeNumbersAndSymbols = (text) ->
+  text.replace /[\d# /]/g, ''

@@ -1,6 +1,6 @@
 Q = require 'q'
 jquery = require('jquery')
-{log, error, inspect, debug, trace} = require './util'
+{log, error, inspect, debug, trace, removeNumbersAndSymbols} = require './util'
 {fetch, makeJsDom, setRateLimits} = require './crawler'
 database = require './database'
 
@@ -52,7 +52,7 @@ crawlNextPage = (url, items, store) ->
 mergeItems = (goods, items) ->
   for item in items
     for good in goods
-      if item.goodsName is good['goods_name'] and item.defaultImage is good['default_image'] and parseInt(item.price) is parseInt(good['price'])
+      if removeNumbersAndSymbols(item.goodsName) is removeNumbersAndSymbols(good['goods_name']) and item.defaultImage is good['default_image'] and parseInt(item.price) is parseInt(good['price'])
         item.taobaoPrice = good['taobao_price']
         item.goodHttp = good['good_http']
         item.fetched = true
