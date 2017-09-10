@@ -1,6 +1,6 @@
 mysql = require 'mysql'
 config = require './config'
-{log, error} = require './util'
+{log, error, getHuoHao} = require './util'
 Q = require 'q'
 
 class db
