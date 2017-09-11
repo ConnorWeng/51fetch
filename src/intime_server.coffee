@@ -4,7 +4,8 @@ Q = require 'q'
 env = require('jsdom').env
 jquery = require('jquery')
 config = require './config'
-{crawlItemsInStore, crawlStore, setDatabase, extractItemsFromContent, extractImWw} = require './taobao_crawler'
+{crawlItemsInStore, setDatabase, extractItemsFromContent, extractImWw} = require './taobao_crawler'
+crawlStore = require('./vvic_crawler').crawlStore
 database = require './database'
 
 args = process.argv.slice 2
@@ -26,7 +27,7 @@ http.createServer((req, res) ->
       tasks.push storeId
       log "warning: tasks length is #{tasks.length}" if tasks.length > 100
       hourAgo = db.getDateTime() - 1 * 60 * 60
-      query "select count(1) cnt from ecm_goods where store_id = #{storeId} and last_update > #{hourAgo}; select count(1) total from ecm_goods where store_id = #{storeId}; select * from ecm_store where store_id = #{storeId};"
+      query "select count(1) cnt from ecm_goods where store_id = #{storeId} and last_update > #{hourAgo}; select count(1) total from ecm_goods where store_id = #{storeId}; select s.*, v.vvic_http from ecm_store s, ecm_store_vvic v where s.store_id = #{storeId} and s.store_id = v.ecm_store_id;"
         .then (res) ->
           store = res[2][0]
           log "store #{storeId}: in hour count #{res[0][0].cnt}, total #{res[1][0].total}, url #{store.shop_http}, hourAgo #{hourAgo}"
