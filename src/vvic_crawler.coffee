@@ -125,4 +125,4 @@ goodHttp = ($) ->
   $('.product-intro .name a').attr('href').replace('https', 'http')
 
 huohao = ($) ->
-  $('.value.ff-arial').eq(0).text().trim().replace('#', '')
+  $('.value.ff-arial').eq(0).text().trim().replace(/#/g, '')

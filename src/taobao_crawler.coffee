@@ -126,7 +126,7 @@ updateItemDetailInDatabase = ({item, desc, good, attrs, cats, realPic, itemImgs}
   title = item.title
   price = good.price
   storeId = good.store_id
-  huohao = (getHuoHaoFromAttrs attrs) || (getHuoHao good.goods_name)
+  huohao = (getHuoHaoFromAttrs attrs) || (getHuoHao title)
   store = {}
   skus = []
   async.waterfall [
@@ -523,7 +523,7 @@ makeOuterId = (store, huohao, price) ->
 
 getHuoHaoFromAttrs = (attrs) ->
   for attr in attrs
-    if attr.attrName is '货号'
+    if attr.attrName is '货号' or attr.attrName is '款号'
       return attr.attrValue.replace '#', ''
   return ''
 
