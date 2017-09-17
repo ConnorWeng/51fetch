@@ -294,7 +294,7 @@ describe 'database', () ->
           value: '天蓝色'
         ]
       ], 'default image', null, ->
-      assert.isTrue db.pool.query.calledWith "update ecm_goods set goods_name = 'title', price = 15, taobao_price = 30, description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '', spec_pid_1 = 1627207, spec_pid_2 = 0, spec_qty = 1, realpic = 1, default_image = 'default image' where good_http = 'good http'"
+      assert.isTrue db.pool.query.calledWith "update ecm_goods set goods_name = 'title', price = 15, taobao_price = 30, description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '', spec_pid_1 = 1627207, spec_pid_2 = 0, spec_qty = 1, realpic = 1 where good_http = 'good http';update ecm_goods set default_image = 'default image' where good_http = 'good http' and default_image = '';"
     it 'should be 2 specs', ->
       db.updateGoods 2, 'title', 15.2, 30.4, 'desc', 'good http', 1, [
         [
@@ -309,7 +309,7 @@ describe 'database', () ->
           value: 'S'
         ]
       ], 'default image', null, ->
-      assert.isTrue db.pool.query.calledWith "update ecm_goods set goods_name = 'title', price = 15.2, taobao_price = 30.4, description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '尺码', spec_pid_1 = 1627207, spec_pid_2 = 20509, spec_qty = 2, realpic = 1, default_image = 'default image' where good_http = 'good http'"
+      assert.isTrue db.pool.query.calledWith "update ecm_goods set goods_name = 'title', price = 15.2, taobao_price = 30.4, description = 'desc', spec_name_1 = '颜色分类', spec_name_2 = '尺码', spec_pid_1 = 1627207, spec_pid_2 = 20509, spec_qty = 2, realpic = 1 where good_http = 'good http';update ecm_goods set default_image = 'default image' where good_http = 'good http' and default_image = '';"
 
   describe '#updateImWw', ->
     it 'should run the correct update sql', ->
