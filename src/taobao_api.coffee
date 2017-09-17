@@ -30,7 +30,7 @@ exports.getTaobaoItemsOnsale = (fields, pageNo, session, callback) ->
 exports.getTaobaoItemsSellerListBatch = (numIids, fields, session, items, callback) ->
   numIidsList = numIids.split ','
   if numIidsList.length > 0 and numIidsList[0]
-    iids = numIidsList.splice 0, 20
+    iids = numIidsList.splice 0, 10
     exports.getTaobaoItemsSellerList iids.join(','), fields, session, (err, itemsList) ->
       if err
         callback err, null
