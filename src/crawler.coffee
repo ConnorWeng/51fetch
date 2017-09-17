@@ -226,5 +226,5 @@ IPProxiesMethods =
     catch e
       error "fail to parse json from daxiangdaili api, error: #{e.message}"
 
-if process.env.NODE_ENV is 'test'
+if process.env.NODE_ENV isnt 'ipproxy'
   getIPProxy = -> null
