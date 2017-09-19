@@ -88,7 +88,11 @@ filterItems = (numIids, existedGoods) ->
       notExistedNumIids.push numIid
   notExistedNumIids.join ','
 
-query 'select * from ecm_store s inner join ecm_member_auth a on s.im_ww = a.vendor_user_nick and s.store_id > 0 and s.state = 1 and a.state = 1 order by s.store_id DESC'
+if args.length > 2
+  start = args[1]
+  end = args[2]
+
+query "select * from ecm_store s inner join ecm_member_auth a on s.im_ww = a.vendor_user_nick and s.store_id > #{if start? then start else '0'} and s.store_id < #{if end? then end else '9999999'} and s.state = 1 and a.state = 1 order by s.store_id DESC"
   .then (stores) ->
     storesNeedUpdate = stores
     log "There are total #{stores.length} stores need to be updated."
