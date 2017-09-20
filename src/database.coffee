@@ -108,8 +108,10 @@ class db
       callback err, result
 
   updateSpecs: (skus, goodsId, price, taobaoPrice, huohao, callback) ->
+    oldSpecsInDb = null
     @getSpecs goodsId
       .then (oldSpecs) =>
+        oldSpecsInDb = oldSpecs
         sql = ''
         newSpecs = []
         # FIXME: if skus is undefined then quantity should get value from item instead
@@ -143,7 +145,7 @@ class db
           if result.insertId > 0
             insertId = result.insertId
           else
-            insertId = oldSpecs[0].spec_id
+            insertId = oldSpecsInDb[0].spec_id
         else if result.length > 0
           found = false
           for affect in result
@@ -151,7 +153,7 @@ class db
               insertId = affect.insertId
               found = true
               break
-          if not found then insertId = oldSpecs[0].spec_id
+          if not found then insertId = oldSpecsInDb[0].spec_id
         callback null,
           insertId: insertId
       .catch (err) ->
