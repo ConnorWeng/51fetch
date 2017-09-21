@@ -6,6 +6,7 @@ args = process.argv.slice 2
 
 IMPORT_SQL_FILE = '../temp/ecm_store_vvic.sql'
 IMPORT_FLOOR_SQL_FILE = '../temp/ecm_store_vvic_floor.sql'
+SYNC_SQL_FILE = '../temp/ecm_store_vvic_sync.sql'
 MARKET_MAP = {19: '国大', 12: '大西豪', 10: '大时代', 13: '女人街', 14: '国投', 15: '富丽', 18: '跨客城', 11: '宝华', 24: '鞋城', 37: '圣迦', 17: '柏美', 34: '三晟', 20: '新潮都', 16: '非凡', 23: '佰润', 25: '新金马', 42: '十三行', 35: '南城', 36: '金纱', 26: '老金马', 28: '万佳', 41: '益民', 27: '新百佳', 29: '西苑鞋汇', 43: '景叶', 39: '欣欣网批', 45: '西街福壹', 44: '狮岭', 38: '周边'}
 
 setRateLimits 0
@@ -215,3 +216,8 @@ if args[0] is 'shops'
 if args[0] is 'floor'
   if existsSync IMPORT_FLOOR_SQL_FILE then unlinkSync IMPORT_FLOOR_SQL_FILE
   parseFloor page for page in pages
+
+if args[0] is 'sync'
+  if existsSync SYNC_SQL_FILE then unlinkSync SYNC_SQL_FILE
+  appendFileSync SYNC_SQL_FILE, "update ecm_store_vvic v set v.ecm_store_id = (select store_id from ecm_store where shop_http = v.shop_http limit 1);\n"
+  appendFileSync SYNC_SQL_FILE, "update ecm_store s inner join ecm_store_vvic v on s.im_ww = v.im_ww set s.shop_http = v.shop_http where s.state = 1 and s.shop_http not like 'https://shop%';\n"
