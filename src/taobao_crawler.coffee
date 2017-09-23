@@ -31,6 +31,8 @@ TEMPLATES = [
   PRICE: '.price strong'
 ]
 
+CRAWL_ITEM_RETRY_TIMES=5
+
 db = new database()
 
 exports.makeJsDomPromise = makeJsDomPromise = Q.nfbind env
@@ -729,7 +731,10 @@ extractPropsName = ($, cid) ->
       defered.resolve propsName
   defered.promise
 
-exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback) ->
+exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback, retryTimes = 0) ->
+  if retryTimes >= CRAWL_ITEM_RETRY_TIMES
+    callback new Error("good #{numIid} fail to crawl after retry #{CRAWL_ITEM_RETRY_TIMES} times")
+    return
   url = "https://item.taobao.com/item.htm?id=#{numIid}"
   $fetch url, ($) ->
     if $('.error-notice-hd').length > 0
@@ -745,7 +750,7 @@ exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback) ->
     catch e
       err = e
       error new Error("good #{numIid} fail to crawl", e)
-      crawlTaobaoItem numIid, callback
+      crawlTaobaoItem numIid, callback, ++retryTimes
     if err? then return
 
     taobaoItem.title = extractTitle $
@@ -778,6 +783,7 @@ if process.env.NODE_ENV is 'test' or process.env.NODE_ENV is 'e2e'
   exports.setChangeRemains = (f) -> changeRemains = f
   exports.setCrawlItemViaApi = (f) -> crawlItemViaApi = f
   exports.setFetch = (f) -> fetch = f
+  exports.set$Fetch = (f) -> $fetch = f
   exports.setGetItemProps = (f) -> getItemProps = f
   exports.setGetHierarchalCats = (f) -> getHierarchalCats = f
   exports.parsePrice = parsePrice

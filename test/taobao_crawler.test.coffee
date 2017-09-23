@@ -571,6 +571,17 @@ describe 'taobao_crawler', () ->
     it 'should return value of J_ShopAsynSearchURL input', ->
       assert.equal taobao_crawler.getAsynSearchURL(HTML_WITH_ASYN_SEARCH_URL), 'https://shop411857438.taobao.com/i/asynSearch.htm?mid=w-15870872781-0&wid=15870872781&path=/search.htm&amp;search=y&amp;orderType=newOn_desc&amp;viewType=grid&orderType=newOn_desc'
 
+  describe '#crawlTaobaoItem', ->
+    it 'should callback after retry 5 times', (done) ->
+      f = taobao_crawler.$fetch
+      taobao_crawler.set$Fetch (url, cb) ->
+        env '<div></div>', (error, window) ->
+          cb(jquery window)
+      taobao_crawler.crawlTaobaoItem 0, (err, res) ->
+        taobao_crawler.set$Fetch f
+        assert.equal err.message, "good 0 fail to crawl after retry 5 times"
+        done()
+
 CATS_TREE_HTML_TEMPLATE_A = '''
 <span class="J_WangWang wangwang"  data-nick="kasanio" data-tnick="kasanio" data-encode="true" data-display="inline"></span>
 <div>
