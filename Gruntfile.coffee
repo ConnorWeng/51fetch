@@ -31,10 +31,7 @@ module.exports = (grunt) ->
   makeRunTasks = makeTasks 'run', (key, value) ->
     command: [
       'cd /alidata/www/test2/node/51fetch_all'
-      "mv logs/forever.log logs/#{today()}.forever.log"
-      "mv logs/#{value.log} logs/#{today()}.#{value.log}"
-      "forever stopall"
-      "forever start --minUptime 600000 --spinSleepTime 600000 -l /alidata/www/test2/node/51fetch_all/logs/forever.log -e ./logs/err.log -o ./logs/#{value.log} -c #{value.command}"
+      './start.sh'
       "forever list"
     ].join ' && '
     options: {}
