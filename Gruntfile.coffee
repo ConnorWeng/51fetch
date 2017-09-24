@@ -29,12 +29,17 @@ module.exports = (grunt) ->
       showProgress: true
 
   makeRunTasks = makeTasks 'run', (key, value) ->
-    command: [
-      'cd /alidata/www/test2/node/51fetch_all'
-      './start.sh'
-      "forever list"
-    ].join ' && '
-    options: {}
+    if value.role is 'crawler'
+      command: [
+        'cd /alidata/www/test2/node/51fetch_all'
+        'chmod u+x start.sh'
+        './start.sh'
+        "forever list"
+      ].join ' && '
+      options: {}
+    else
+      command: []
+      options: {}
 
   makeStatusTasks = makeTasks 'status', (key, value) ->
     command: [
