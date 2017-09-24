@@ -737,7 +737,7 @@ exports.crawlTaobaoItem = crawlTaobaoItem = (numIid, callback, retryTimes = 0) -
     return
   url = "https://item.taobao.com/item.htm?id=#{numIid}"
   $fetch url, ($) ->
-    if $('.error-notice-hd').length > 0
+    if $('.error-notice-hd').length > 0 or $('.J_TOffSale').length > 0
       callback new Error("num_iid: #{numIid} fail to crawl because of taken off shelves")
       return
     taobaoItem = {}
