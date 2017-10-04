@@ -27,6 +27,14 @@ setDatabase db
 fullCrawl = if args.length >= 3 and args[2] is 'fullCrawl' then true else false
 needCrawlItemsViaApi = if args.length is 4 and args[3] is 'api' then true else false
 
+resetNowIdIfNecessary = (crawlConfig) ->
+  remain = parseInt(crawlConfig.end_id) - parseInt(crawlConfig.now_id)
+  if remain < 10
+    db.query "update ecm_crawl_config set now_id = start_id where ip = '#{crawlConfig.ip}'", (err) ->
+      if err then console.error "fail to reset now id, ip: #{crawlConfig.ip}, error: #{err}" else console.log "success to reset now id, ip: #{crawlConfig.ip}"
+  else
+    console.log "remain #{remain} stores to update, no need reset now id"
+
 pool = Pool
   name: 'taobao store crawler',
   max: 10
@@ -40,15 +48,16 @@ crawl = (store) ->
     if (err)
       console.error "pool acquire error: #{err}"
       pool.release poolRef
-      log 'exiting with code: 95'
+      console.log 'exiting with code: 95'
       process.exit 95
 
     crawlStore store, fullCrawl, ->
-      db.query "update ecm_crawl_config set now_id = #{store['store_id']}, last_update = '#{new Date()}' where ip = '#{ip}'", ->
+      db.query "update ecm_crawl_config set now_id = #{store['store_id']}, last_update = '#{new Date()}' where ip = '#{ip}'; select ip, start_id, end_id, now_id from ecm_crawl_config where ip = '#{ip}';", (err, results) ->
         if needCrawlItemsViaApi
           console.log "id:#{store['store_id']} #{store['store_name']} access_token: #{store['access_token']}"
           crawlItemsInStore store['store_id'], store['access_token'], ->
             buildOuterIid store['store_id'], ->
+              resetNowIdIfNecessary results[1][0]
               pool.release poolRef
         else
           db.query "update ecm_crawl_config set last_update = '#{new Date()}'", ->
