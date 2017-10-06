@@ -29,7 +29,7 @@ needCrawlItemsViaApi = if args.length is 4 and args[3] is 'api' then true else f
 
 resetNowIdIfNecessary = (crawlConfig) ->
   remain = parseInt(crawlConfig.end_id) - parseInt(crawlConfig.now_id)
-  if remain < 10
+  if remain < 100
     db.query "update ecm_crawl_config set now_id = start_id where ip = '#{crawlConfig.ip}'", (err) ->
       if err then console.error "fail to reset now id, ip: #{crawlConfig.ip}, error: #{err}" else console.log "success to reset now id, ip: #{crawlConfig.ip}"
   else
