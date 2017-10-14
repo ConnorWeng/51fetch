@@ -46,14 +46,17 @@ exports.buildOuterIid = (storeId, callback) ->
 exports.getAllStores = (condition, callback) ->
   db.getStores condition, callback
 
+exports.crawlOneItemInStore = (goodsId, session, done) ->
+  crawlItems db.getOneGoodInStore, goodsId, session, done
+
 exports.crawlAllItemsInStore = (storeId, session, done) ->
   crawlItems db.getAllGoodsInStore, storeId, session, done
 
 exports.crawlItemsInStore = (storeId, session, done) ->
   crawlItems db.getUnfetchedGoodsInStore, storeId, session, done
 
-crawlItems = (getGoodsDbFunc, storeId, session, done) ->
-  getGoodsDbFunc.call db, storeId, (err, goods) ->
+crawlItems = (getGoodsDbFunc, storeIdOrGoodsId, session, done) ->
+  getGoodsDbFunc.call db, storeIdOrGoodsId, (err, goods) ->
     if err
       done new Error('error when call getUnfetchedGoodsInStore on db')
     else

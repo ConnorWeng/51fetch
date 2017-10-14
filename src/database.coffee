@@ -46,6 +46,10 @@ class db
     @query "select * from ecm_goods g where g.store_id = #{storeId} and g.good_http is not null and not exists (select 1 from ecm_goods_spec s where s.goods_id = g.goods_id)", (err, result) ->
       callback err, result
 
+  getOneGoodInStore: (goodsId, callback) ->
+    @query "select * from ecm_goods g where g.goods_id = #{goodsId} and g.good_http is not null", (err, result) ->
+      callback err, result
+
   getAllGoodsInStore: (storeId, callback) ->
     @query "select * from ecm_goods g where g.store_id = #{storeId} and g.good_http is not null", (err, result) ->
       callback err, result
