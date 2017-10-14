@@ -13,6 +13,7 @@ describe 'util', ->
       assert.equal getHuoHao('title#16title705'), 16
       assert.equal getHuoHao('title16#title705'), 16
       assert.equal getHuoHao('17title6488'), 6488
+      assert.equal getHuoHao('1910A#title'), '1910A'
 
   describe '#removeNumbersAndSymbols', ->
     it 'should remove all numbers and symbols', ->

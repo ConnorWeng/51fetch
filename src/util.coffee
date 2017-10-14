@@ -16,7 +16,7 @@ exports.trace = (msg) ->
 exports.inspect = inspect
 
 exports.getHuoHao = (title) ->
-  regex = /[A-Z]?#?(\d+)#?/g
+  regex = /[A-Z]?#?(\d+[A-Z]?)#?/g
   matches = regex.exec title
   if matches? and ~matches[0].indexOf('#')
     matches[1]
