@@ -52,6 +52,12 @@ begin
   end loop;
 
   close store_cursor;
+
+  update ecm_store set mk_id = 825, mk_name = '国投-A区1F', floor = 'A区1' where shop_mall = '国投' and instr(address, '1楼A区') > 0;
+  update ecm_store set mk_id = 249, mk_name = '国投-B区1F', floor = 'B区1' where shop_mall = '国投' and instr(address, '1楼B区') > 0;
+  update ecm_store set mk_id = 789, mk_name = '国投-C区1F', floor = 'C区1' where shop_mall = '国投' and instr(address, '1楼C区') > 0;
+  update ecm_store set mk_id = 250, mk_name = '国投-B区2F', floor = 'B区2' where shop_mall = '国投' and instr(address, '2楼B区') > 0;
+
   commit;
 
 end$$
