@@ -116,13 +116,13 @@ price = ($) ->
   $.find('.fl.price').text().trim().substr(1)
 
 taobaoPrice = ($) ->
-  $('.v-price .sale').eq(1).text()
+  $('.v-price .d-sale').eq(1).text()
 
 vvicHttp = ($) ->
   "http://www.vvic.com#{$.find('.title a').attr('href')}"
 
 goodHttp = ($) ->
-  $('.product-intro .name a').attr('href').replace('https', 'http')
+  $('.product-detail .d-name a').attr('href').replace('https', 'http')
 
 huohao = ($) ->
   $('.value.ff-arial').eq(0).text().trim().replace(/#/g, '')
