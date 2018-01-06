@@ -165,11 +165,11 @@ getSeePrice = (page, shop, item) ->
   itemFile = "../temp/#{page}/#{shop}/#{item}.txt"
   if not existsSync itemFile then return ''
   itemFileContent = readFileSync itemFile, 'utf8'
-  taobaoPriceRegex = /\<span class\="sale"\>(.+)\<\/span\>/
+  taobaoPriceRegex = /\<span class\="d-sale"\>(.+)\<\/span\>/
   taobaoPriceMatches = itemFileContent.match(taobaoPriceRegex)
   if not taobaoPriceMatches then return ''
   taobaoPrice = parseFloat taobaoPriceMatches[1]
-  priceRegex = /\<strong class\="sale"\>(.+)\<\/strong\>/
+  priceRegex = /\<strong class\="d-sale"\>(.+)\<\/strong\>/
   priceMatches = itemFileContent.match(priceRegex)
   if not priceMatches then return ''
   price = parseFloat priceMatches[1]
