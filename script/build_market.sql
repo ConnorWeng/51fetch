@@ -58,6 +58,13 @@ begin
   update ecm_store set mk_id = 789, mk_name = '国投-C区1F', floor = 'C区1' where shop_mall = '国投' and instr(address, '1楼C区') > 0;
   update ecm_store set mk_id = 250, mk_name = '国投-B区2F', floor = 'B区2' where shop_mall = '国投' and instr(address, '2楼B区') > 0;
 
+  update ecm_store set mk_id = 622, mk_name = '国投-B区1F', floor = 'B区1' where shop_mall = '国大' and instr(address, '1楼B区') > 0;
+  update ecm_store set mk_id = 623, mk_name = '国投-B区2F', floor = 'B区2' where shop_mall = '国大' and instr(address, '2楼B区') > 0;
+  update ecm_store set mk_id = 624, mk_name = '国投-B区3F', floor = 'B区3' where shop_mall = '国大' and instr(address, '3楼B区') > 0;
+  update ecm_store set mk_id = 625, mk_name = '国投-B区4F', floor = 'B区4' where shop_mall = '国大' and instr(address, '4楼B区') > 0;
+  update ecm_store set mk_id = 626, mk_name = '国投-B区5F', floor = 'B区5' where shop_mall = '国大' and instr(address, '5楼B区') > 0;
+  update ecm_store set mk_id = 627, mk_name = '国投-B区6F', floor = 'B区6' where shop_mall = '国大' and instr(address, '6楼B区') > 0;
+
   commit;
 
 end$$
